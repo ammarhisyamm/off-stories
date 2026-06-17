@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VendorsRoute = VendorsRouteImport.update({
+  id: '/vendors',
+  path: '/vendors',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
   '/timeline': typeof TimelineRoute
+  '/vendors': typeof VendorsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
   '/timeline': typeof TimelineRoute
+  '/vendors': typeof VendorsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
   '/timeline': typeof TimelineRoute
+  '/vendors': typeof VendorsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/budget' | '/checklist' | '/timeline'
+  fullPaths: '/' | '/budget' | '/checklist' | '/timeline' | '/vendors'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/budget' | '/checklist' | '/timeline'
-  id: '__root__' | '/' | '/budget' | '/checklist' | '/timeline'
+  to: '/' | '/budget' | '/checklist' | '/timeline' | '/vendors'
+  id: '__root__' | '/' | '/budget' | '/checklist' | '/timeline' | '/vendors'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,10 +76,18 @@ export interface RootRouteChildren {
   BudgetRoute: typeof BudgetRoute
   ChecklistRoute: typeof ChecklistRoute
   TimelineRoute: typeof TimelineRoute
+  VendorsRoute: typeof VendorsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vendors': {
+      id: '/vendors'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof VendorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/timeline': {
       id: '/timeline'
       path: '/timeline'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   BudgetRoute: BudgetRoute,
   ChecklistRoute: ChecklistRoute,
   TimelineRoute: TimelineRoute,
+  VendorsRoute: VendorsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
