@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as TimelineRouteImport } from './routes/timeline'
+import { Route as GuestsRouteImport } from './routes/guests'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const VendorsRoute = VendorsRouteImport.update({
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestsRoute = GuestsRouteImport.update({
+  id: '/guests',
+  path: '/guests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChecklistRoute = ChecklistRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
+  '/guests': typeof GuestsRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
+  '/guests': typeof GuestsRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -60,21 +68,36 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
+  '/guests': typeof GuestsRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/budget' | '/checklist' | '/timeline' | '/vendors'
+  fullPaths:
+    | '/'
+    | '/budget'
+    | '/checklist'
+    | '/guests'
+    | '/timeline'
+    | '/vendors'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/budget' | '/checklist' | '/timeline' | '/vendors'
-  id: '__root__' | '/' | '/budget' | '/checklist' | '/timeline' | '/vendors'
+  to: '/' | '/budget' | '/checklist' | '/guests' | '/timeline' | '/vendors'
+  id:
+    | '__root__'
+    | '/'
+    | '/budget'
+    | '/checklist'
+    | '/guests'
+    | '/timeline'
+    | '/vendors'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BudgetRoute: typeof BudgetRoute
   ChecklistRoute: typeof ChecklistRoute
+  GuestsRoute: typeof GuestsRoute
   TimelineRoute: typeof TimelineRoute
   VendorsRoute: typeof VendorsRoute
 }
@@ -93,6 +116,13 @@ declare module '@tanstack/react-router' {
       path: '/timeline'
       fullPath: '/timeline'
       preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guests': {
+      id: '/guests'
+      path: '/guests'
+      fullPath: '/guests'
+      preLoaderRoute: typeof GuestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checklist': {
@@ -123,6 +153,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BudgetRoute: BudgetRoute,
   ChecklistRoute: ChecklistRoute,
+  GuestsRoute: GuestsRoute,
   TimelineRoute: TimelineRoute,
   VendorsRoute: VendorsRoute,
 }
