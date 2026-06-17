@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as TimelineRouteImport } from './routes/timeline'
+import { Route as NotesRouteImport } from './routes/notes'
 import { Route as GuestsRouteImport } from './routes/guests'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as BudgetRouteImport } from './routes/budget'
@@ -24,6 +25,11 @@ const VendorsRoute = VendorsRouteImport.update({
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotesRoute = NotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuestsRoute = GuestsRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
   '/guests': typeof GuestsRoute
+  '/notes': typeof NotesRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
   '/guests': typeof GuestsRoute
+  '/notes': typeof NotesRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
   '/guests': typeof GuestsRoute
+  '/notes': typeof NotesRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -79,16 +88,25 @@ export interface FileRouteTypes {
     | '/budget'
     | '/checklist'
     | '/guests'
+    | '/notes'
     | '/timeline'
     | '/vendors'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/budget' | '/checklist' | '/guests' | '/timeline' | '/vendors'
+  to:
+    | '/'
+    | '/budget'
+    | '/checklist'
+    | '/guests'
+    | '/notes'
+    | '/timeline'
+    | '/vendors'
   id:
     | '__root__'
     | '/'
     | '/budget'
     | '/checklist'
     | '/guests'
+    | '/notes'
     | '/timeline'
     | '/vendors'
   fileRoutesById: FileRoutesById
@@ -98,6 +116,7 @@ export interface RootRouteChildren {
   BudgetRoute: typeof BudgetRoute
   ChecklistRoute: typeof ChecklistRoute
   GuestsRoute: typeof GuestsRoute
+  NotesRoute: typeof NotesRoute
   TimelineRoute: typeof TimelineRoute
   VendorsRoute: typeof VendorsRoute
 }
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/timeline'
       fullPath: '/timeline'
       preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notes': {
+      id: '/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof NotesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guests': {
@@ -154,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   BudgetRoute: BudgetRoute,
   ChecklistRoute: ChecklistRoute,
   GuestsRoute: GuestsRoute,
+  NotesRoute: NotesRoute,
   TimelineRoute: TimelineRoute,
   VendorsRoute: VendorsRoute,
 }
