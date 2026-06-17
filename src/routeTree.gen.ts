@@ -13,6 +13,7 @@ import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as NotesRouteImport } from './routes/notes'
 import { Route as GuestsRouteImport } from './routes/guests'
+import { Route as DocumentsRouteImport } from './routes/documents'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as BudgetRouteImport } from './routes/budget'
 import { Route as IndexRouteImport } from './routes/index'
@@ -37,6 +38,11 @@ const GuestsRoute = GuestsRouteImport.update({
   path: '/guests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocumentsRoute = DocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChecklistRoute = ChecklistRouteImport.update({
   id: '/checklist',
   path: '/checklist',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
+  '/documents': typeof DocumentsRoute
   '/guests': typeof GuestsRoute
   '/notes': typeof NotesRoute
   '/timeline': typeof TimelineRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
+  '/documents': typeof DocumentsRoute
   '/guests': typeof GuestsRoute
   '/notes': typeof NotesRoute
   '/timeline': typeof TimelineRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
   '/checklist': typeof ChecklistRoute
+  '/documents': typeof DocumentsRoute
   '/guests': typeof GuestsRoute
   '/notes': typeof NotesRoute
   '/timeline': typeof TimelineRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/budget'
     | '/checklist'
+    | '/documents'
     | '/guests'
     | '/notes'
     | '/timeline'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/budget'
     | '/checklist'
+    | '/documents'
     | '/guests'
     | '/notes'
     | '/timeline'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/budget'
     | '/checklist'
+    | '/documents'
     | '/guests'
     | '/notes'
     | '/timeline'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BudgetRoute: typeof BudgetRoute
   ChecklistRoute: typeof ChecklistRoute
+  DocumentsRoute: typeof DocumentsRoute
   GuestsRoute: typeof GuestsRoute
   NotesRoute: typeof NotesRoute
   TimelineRoute: typeof TimelineRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/documents': {
+      id: '/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof DocumentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checklist': {
       id: '/checklist'
       path: '/checklist'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BudgetRoute: BudgetRoute,
   ChecklistRoute: ChecklistRoute,
+  DocumentsRoute: DocumentsRoute,
   GuestsRoute: GuestsRoute,
   NotesRoute: NotesRoute,
   TimelineRoute: TimelineRoute,
