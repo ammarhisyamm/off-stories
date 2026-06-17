@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as TimelineRouteImport } from './routes/timeline'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NotesRouteImport } from './routes/notes'
 import { Route as GuestsRouteImport } from './routes/guests'
 import { Route as DocumentsRouteImport } from './routes/documents'
@@ -26,6 +27,11 @@ const VendorsRoute = VendorsRouteImport.update({
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NotesRoute = NotesRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/documents': typeof DocumentsRoute
   '/guests': typeof GuestsRoute
   '/notes': typeof NotesRoute
+  '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/documents': typeof DocumentsRoute
   '/guests': typeof GuestsRoute
   '/notes': typeof NotesRoute
+  '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/documents': typeof DocumentsRoute
   '/guests': typeof GuestsRoute
   '/notes': typeof NotesRoute
+  '/settings': typeof SettingsRoute
   '/timeline': typeof TimelineRoute
   '/vendors': typeof VendorsRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/guests'
     | '/notes'
+    | '/settings'
     | '/timeline'
     | '/vendors'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/guests'
     | '/notes'
+    | '/settings'
     | '/timeline'
     | '/vendors'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/documents'
     | '/guests'
     | '/notes'
+    | '/settings'
     | '/timeline'
     | '/vendors'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   DocumentsRoute: typeof DocumentsRoute
   GuestsRoute: typeof GuestsRoute
   NotesRoute: typeof NotesRoute
+  SettingsRoute: typeof SettingsRoute
   TimelineRoute: typeof TimelineRoute
   VendorsRoute: typeof VendorsRoute
 }
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/timeline'
       fullPath: '/timeline'
       preLoaderRoute: typeof TimelineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/notes': {
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentsRoute: DocumentsRoute,
   GuestsRoute: GuestsRoute,
   NotesRoute: NotesRoute,
+  SettingsRoute: SettingsRoute,
   TimelineRoute: TimelineRoute,
   VendorsRoute: VendorsRoute,
 }
