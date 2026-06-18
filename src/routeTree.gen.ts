@@ -9,100 +9,125 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VendorsRouteImport } from './routes/vendors'
-import { Route as TimelineRouteImport } from './routes/timeline'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as NotesRouteImport } from './routes/notes'
-import { Route as GuestsRouteImport } from './routes/guests'
-import { Route as DocumentsRouteImport } from './routes/documents'
-import { Route as ChecklistRouteImport } from './routes/checklist'
-import { Route as BudgetRouteImport } from './routes/budget'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
+import { Route as AuthenticatedTimelineRouteImport } from './routes/_authenticated/timeline'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
+import { Route as AuthenticatedGuestsRouteImport } from './routes/_authenticated/guests'
+import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
+import { Route as AuthenticatedChecklistRouteImport } from './routes/_authenticated/checklist'
+import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
 
-const VendorsRoute = VendorsRouteImport.update({
-  id: '/vendors',
-  path: '/vendors',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TimelineRoute = TimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotesRoute = NotesRouteImport.update({
-  id: '/notes',
-  path: '/notes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuestsRoute = GuestsRouteImport.update({
-  id: '/guests',
-  path: '/guests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocumentsRoute = DocumentsRouteImport.update({
-  id: '/documents',
-  path: '/documents',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChecklistRoute = ChecklistRouteImport.update({
-  id: '/checklist',
-  path: '/checklist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BudgetRoute = BudgetRouteImport.update({
-  id: '/budget',
-  path: '/budget',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedVendorsRoute = AuthenticatedVendorsRouteImport.update({
+  id: '/vendors',
+  path: '/vendors',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTimelineRoute = AuthenticatedTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotesRoute = AuthenticatedNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGuestsRoute = AuthenticatedGuestsRouteImport.update({
+  id: '/guests',
+  path: '/guests',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedChecklistRoute = AuthenticatedChecklistRouteImport.update({
+  id: '/checklist',
+  path: '/checklist',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBudgetRoute = AuthenticatedBudgetRouteImport.update({
+  id: '/budget',
+  path: '/budget',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/budget': typeof BudgetRoute
-  '/checklist': typeof ChecklistRoute
-  '/documents': typeof DocumentsRoute
-  '/guests': typeof GuestsRoute
-  '/notes': typeof NotesRoute
-  '/settings': typeof SettingsRoute
-  '/timeline': typeof TimelineRoute
-  '/vendors': typeof VendorsRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/budget': typeof AuthenticatedBudgetRoute
+  '/checklist': typeof AuthenticatedChecklistRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
+  '/guests': typeof AuthenticatedGuestsRoute
+  '/notes': typeof AuthenticatedNotesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/timeline': typeof AuthenticatedTimelineRoute
+  '/vendors': typeof AuthenticatedVendorsRoute
+  '/invite/$token': typeof InviteTokenRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/budget': typeof BudgetRoute
-  '/checklist': typeof ChecklistRoute
-  '/documents': typeof DocumentsRoute
-  '/guests': typeof GuestsRoute
-  '/notes': typeof NotesRoute
-  '/settings': typeof SettingsRoute
-  '/timeline': typeof TimelineRoute
-  '/vendors': typeof VendorsRoute
+  '/auth': typeof AuthRoute
+  '/budget': typeof AuthenticatedBudgetRoute
+  '/checklist': typeof AuthenticatedChecklistRoute
+  '/documents': typeof AuthenticatedDocumentsRoute
+  '/guests': typeof AuthenticatedGuestsRoute
+  '/notes': typeof AuthenticatedNotesRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/timeline': typeof AuthenticatedTimelineRoute
+  '/vendors': typeof AuthenticatedVendorsRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/budget': typeof BudgetRoute
-  '/checklist': typeof ChecklistRoute
-  '/documents': typeof DocumentsRoute
-  '/guests': typeof GuestsRoute
-  '/notes': typeof NotesRoute
-  '/settings': typeof SettingsRoute
-  '/timeline': typeof TimelineRoute
-  '/vendors': typeof VendorsRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/budget': typeof AuthenticatedBudgetRoute
+  '/_authenticated/checklist': typeof AuthenticatedChecklistRoute
+  '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
+  '/_authenticated/guests': typeof AuthenticatedGuestsRoute
+  '/_authenticated/notes': typeof AuthenticatedNotesRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/timeline': typeof AuthenticatedTimelineRoute
+  '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/budget'
     | '/checklist'
     | '/documents'
@@ -111,9 +136,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/timeline'
     | '/vendors'
+    | '/invite/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/auth'
     | '/budget'
     | '/checklist'
     | '/documents'
@@ -122,120 +148,151 @@ export interface FileRouteTypes {
     | '/settings'
     | '/timeline'
     | '/vendors'
+    | '/invite/$token'
+    | '/'
   id:
     | '__root__'
-    | '/'
-    | '/budget'
-    | '/checklist'
-    | '/documents'
-    | '/guests'
-    | '/notes'
-    | '/settings'
-    | '/timeline'
-    | '/vendors'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/budget'
+    | '/_authenticated/checklist'
+    | '/_authenticated/documents'
+    | '/_authenticated/guests'
+    | '/_authenticated/notes'
+    | '/_authenticated/settings'
+    | '/_authenticated/timeline'
+    | '/_authenticated/vendors'
+    | '/invite/$token'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BudgetRoute: typeof BudgetRoute
-  ChecklistRoute: typeof ChecklistRoute
-  DocumentsRoute: typeof DocumentsRoute
-  GuestsRoute: typeof GuestsRoute
-  NotesRoute: typeof NotesRoute
-  SettingsRoute: typeof SettingsRoute
-  TimelineRoute: typeof TimelineRoute
-  VendorsRoute: typeof VendorsRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vendors': {
-      id: '/vendors'
-      path: '/vendors'
-      fullPath: '/vendors'
-      preLoaderRoute: typeof VendorsRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/timeline': {
-      id: '/timeline'
-      path: '/timeline'
-      fullPath: '/timeline'
-      preLoaderRoute: typeof TimelineRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notes': {
-      id: '/notes'
-      path: '/notes'
-      fullPath: '/notes'
-      preLoaderRoute: typeof NotesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guests': {
-      id: '/guests'
-      path: '/guests'
-      fullPath: '/guests'
-      preLoaderRoute: typeof GuestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/documents': {
-      id: '/documents'
-      path: '/documents'
-      fullPath: '/documents'
-      preLoaderRoute: typeof DocumentsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checklist': {
-      id: '/checklist'
-      path: '/checklist'
-      fullPath: '/checklist'
-      preLoaderRoute: typeof ChecklistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/budget': {
-      id: '/budget'
-      path: '/budget'
-      fullPath: '/budget'
-      preLoaderRoute: typeof BudgetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/vendors': {
+      id: '/_authenticated/vendors'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof AuthenticatedVendorsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/timeline': {
+      id: '/_authenticated/timeline'
+      path: '/timeline'
+      fullPath: '/timeline'
+      preLoaderRoute: typeof AuthenticatedTimelineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notes': {
+      id: '/_authenticated/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof AuthenticatedNotesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/guests': {
+      id: '/_authenticated/guests'
+      path: '/guests'
+      fullPath: '/guests'
+      preLoaderRoute: typeof AuthenticatedGuestsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/documents': {
+      id: '/_authenticated/documents'
+      path: '/documents'
+      fullPath: '/documents'
+      preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checklist': {
+      id: '/_authenticated/checklist'
+      path: '/checklist'
+      fullPath: '/checklist'
+      preLoaderRoute: typeof AuthenticatedChecklistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/budget': {
+      id: '/_authenticated/budget'
+      path: '/budget'
+      fullPath: '/budget'
+      preLoaderRoute: typeof AuthenticatedBudgetRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBudgetRoute: typeof AuthenticatedBudgetRoute
+  AuthenticatedChecklistRoute: typeof AuthenticatedChecklistRoute
+  AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
+  AuthenticatedGuestsRoute: typeof AuthenticatedGuestsRoute
+  AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedTimelineRoute: typeof AuthenticatedTimelineRoute
+  AuthenticatedVendorsRoute: typeof AuthenticatedVendorsRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBudgetRoute: AuthenticatedBudgetRoute,
+  AuthenticatedChecklistRoute: AuthenticatedChecklistRoute,
+  AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
+  AuthenticatedGuestsRoute: AuthenticatedGuestsRoute,
+  AuthenticatedNotesRoute: AuthenticatedNotesRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedTimelineRoute: AuthenticatedTimelineRoute,
+  AuthenticatedVendorsRoute: AuthenticatedVendorsRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  BudgetRoute: BudgetRoute,
-  ChecklistRoute: ChecklistRoute,
-  DocumentsRoute: DocumentsRoute,
-  GuestsRoute: GuestsRoute,
-  NotesRoute: NotesRoute,
-  SettingsRoute: SettingsRoute,
-  TimelineRoute: TimelineRoute,
-  VendorsRoute: VendorsRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  InviteTokenRoute: InviteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

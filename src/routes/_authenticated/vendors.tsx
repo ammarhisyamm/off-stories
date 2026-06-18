@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { vendors, formatIDR } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/vendors")({
+export const Route = createFileRoute("/_authenticated/vendors")({
   head: () => ({
     meta: [
       { title: "Vendors — Wedding Preparation" },

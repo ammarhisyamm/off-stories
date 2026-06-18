@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { tasks, daysUntil, type Task } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/checklist")({
+export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
     meta: [
       { title: "Checklist — Wedding Preparation" },
