@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { notes } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/notes")({
+export const Route = createFileRoute("/_authenticated/notes")({
   head: () => ({
     meta: [
       { title: "Notes & Decisions — Wedding Preparation" },

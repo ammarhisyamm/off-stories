@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { budgetItems, event, formatIDR } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/budget")({
+export const Route = createFileRoute("/_authenticated/budget")({
   head: () => ({
     meta: [
       { title: "Budget — Wedding Preparation" },
