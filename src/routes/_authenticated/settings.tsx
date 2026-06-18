@@ -61,37 +61,71 @@ function Settings() {
 }
 
 function EventDetailsPanel() {
+  const [eventData, setEventData] = useState(event);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("wedding_event");
+    if (saved) {
+      setEventData(JSON.parse(saved));
+    } else {
+      localStorage.setItem("wedding_event", JSON.stringify(event));
+    }
+  }, []);
+
+  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSaving(true);
+    const formData = new FormData(e.currentTarget);
+    const newEvent = {
+      name: formData.get("name") as string,
+      type: formData.get("type") as string,
+      date: formData.get("date") as string,
+      location: formData.get("location") as string,
+      guestEstimate: parseInt(formData.get("guestEstimate") as string, 10),
+      budget: parseInt(formData.get("budget") as string, 10),
+    };
+    setEventData(newEvent);
+    localStorage.setItem("wedding_event", JSON.stringify(newEvent));
+    setTimeout(() => setIsSaving(false), 500);
+  };
+
   return (
     <div className="panel p-7">
-      <div className="eyebrow mb-1">Event details</div>
-      <h2 className="serif text-2xl mb-6">{event.name}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Field label="Event name" value={event.name} />
-        <Field label="Event type" value={event.type} />
-        <Field
-          label="Date"
-          value={new Date(event.date).toLocaleDateString("en-GB", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
-        />
-        <Field label="Location" value={event.location} />
-        <Field label="Estimated guests" value={String(event.guestEstimate)} />
-        <Field label="Estimated budget" value={`Rp ${event.budget.toLocaleString("id-ID")}`} />
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <div className="eyebrow mb-1">Event details</div>
+          <h2 className="serif text-2xl">{eventData.name}</h2>
+        </div>
       </div>
+      <form onSubmit={handleSave}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Field label="Event name" name="name" type="text" defaultValue={eventData.name} />
+          <Field label="Event type" name="type" type="text" defaultValue={eventData.type} />
+          <Field label="Date" name="date" type="date" defaultValue={eventData.date} />
+          <Field label="Location" name="location" type="text" defaultValue={eventData.location} />
+          <Field label="Estimated guests" name="guestEstimate" type="number" defaultValue={String(eventData.guestEstimate)} />
+          <Field label="Estimated budget (Rp)" name="budget" type="number" defaultValue={String(eventData.budget)} />
+        </div>
+        <div className="mt-6 flex justify-end">
+          <QuietButton variant="primary" type="submit" disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save changes"}
+          </QuietButton>
+        </div>
+      </form>
     </div>
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, name, type, defaultValue }: { label: string; name: string; type: string; defaultValue: string }) {
   return (
     <label className="block">
       <span className="eyebrow block mb-1.5">{label}</span>
       <input
-        defaultValue={value}
-        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring"
+        name={name}
+        type={type}
+        defaultValue={defaultValue}
+        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
       />
     </label>
   );
