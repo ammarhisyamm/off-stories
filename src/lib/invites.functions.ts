@@ -116,7 +116,9 @@ export const listMembers = createServerFn({ method: "GET" })
     if (!ws) return { members: [] };
     const { data, error } = await supabase
       .from("workspace_members")
-      .select("user_id, role, joined_at, profiles:profiles!workspace_members_user_id_fkey(display_name, email, avatar_url)")
+      .select(
+        "user_id, role, joined_at, profiles:profiles!workspace_members_user_id_fkey(display_name, email, avatar_url)",
+      )
       .eq("workspace_id", ws.id);
     if (error) {
       // fallback: join manually

@@ -6,7 +6,10 @@ export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
     meta: [
       { title: "Guests — Wedding Preparation" },
-      { name: "description", content: "Guest list with side grouping, invitation status, and RSVP tracking." },
+      {
+        name: "description",
+        content: "Guest list with side grouping, invitation status, and RSVP tracking.",
+      },
     ],
   }),
   component: Guests,
@@ -52,7 +55,17 @@ function Guests() {
                   <Pill tone={g.invited ? "sage" : "neutral"}>{g.invited ? "Sent" : "Draft"}</Pill>
                 </td>
                 <td className="px-5 py-3">
-                  <Pill tone={g.rsvp === "yes" ? "sage" : g.rsvp === "no" ? "warn" : g.rsvp === "maybe" ? "taupe" : "neutral"}>
+                  <Pill
+                    tone={
+                      g.rsvp === "yes"
+                        ? "sage"
+                        : g.rsvp === "no"
+                          ? "warn"
+                          : g.rsvp === "maybe"
+                            ? "taupe"
+                            : "neutral"
+                    }
+                  >
                     {g.rsvp}
                   </Pill>
                 </td>
@@ -65,7 +78,15 @@ function Guests() {
   );
 }
 
-function Stat({ label, value, tone = "neutral" }: { label: string; value: number; tone?: "neutral" | "sage" | "taupe" | "warn" }) {
+function Stat({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string;
+  value: number;
+  tone?: "neutral" | "sage" | "taupe" | "warn";
+}) {
   const colors = {
     neutral: "text-foreground",
     sage: "text-[color:var(--sage)]",

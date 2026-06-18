@@ -52,6 +52,7 @@ RLS: workspace members can read; only owner/editor can write. Invite token looku
 ## 7. Files Touched
 
 New:
+
 - `supabase/migrations/<ts>_init_auth_invites_calendar.sql`
 - `src/routes/_authenticated/route.tsx` (managed; create if missing)
 - `src/routes/_authenticated/index.tsx`, `_authenticated/timeline.tsx`, `…` (move existing route files)
@@ -63,6 +64,7 @@ New:
 - `src/components/mobile-nav.tsx`
 
 Edited:
+
 - `src/components/app-layout.tsx` — Phosphor icons, mobile sheet, current-user display.
 - `src/routes/__root.tsx` — auth listener, query invalidation.
 - `src/routes/settings.tsx` → moved; invites + calendar panels added.

@@ -3,11 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { event, milestones } from "@/lib/mock-data";
-import {
-  listInvites,
-  createInvite,
-  revokeInvite,
-} from "@/lib/invites.functions";
+import { listInvites, createInvite, revokeInvite } from "@/lib/invites.functions";
 import {
   getCalendarSyncStatus,
   syncMilestonesToCalendar,
@@ -104,8 +100,18 @@ function EventDetailsPanel() {
           <Field label="Event type" name="type" type="text" defaultValue={eventData.type} />
           <Field label="Date" name="date" type="date" defaultValue={eventData.date} />
           <Field label="Location" name="location" type="text" defaultValue={eventData.location} />
-          <Field label="Estimated guests" name="guestEstimate" type="number" defaultValue={String(eventData.guestEstimate)} />
-          <Field label="Estimated budget (Rp)" name="budget" type="number" defaultValue={String(eventData.budget)} />
+          <Field
+            label="Estimated guests"
+            name="guestEstimate"
+            type="number"
+            defaultValue={String(eventData.guestEstimate)}
+          />
+          <Field
+            label="Estimated budget (Rp)"
+            name="budget"
+            type="number"
+            defaultValue={String(eventData.budget)}
+          />
         </div>
         <div className="mt-6 flex justify-end">
           <QuietButton variant="primary" type="submit" disabled={isSaving}>
@@ -117,7 +123,17 @@ function EventDetailsPanel() {
   );
 }
 
-function Field({ label, name, type, defaultValue }: { label: string; name: string; type: string; defaultValue: string }) {
+function Field({
+  label,
+  name,
+  type,
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  type: string;
+  defaultValue: string;
+}) {
   return (
     <label className="block">
       <span className="eyebrow block mb-1.5">{label}</span>
@@ -273,7 +289,9 @@ function CollaboratorsPanel() {
                   </Pill>
                   <span>{inv.role}</span>
                   <span className="ml-auto text-xs">
-                    {new Date(inv.accepted_at ?? inv.revoked_at ?? inv.created_at).toLocaleDateString()}
+                    {new Date(
+                      inv.accepted_at ?? inv.revoked_at ?? inv.created_at,
+                    ).toLocaleDateString()}
                   </span>
                 </li>
               ))}
@@ -290,7 +308,12 @@ function CalendarPanel() {
   const sync = useServerFn(syncMilestonesToCalendar);
   const clear = useServerFn(clearCalendarSync);
   const [synced, setSynced] = useState<
-    Array<{ milestone_key: string; title: string | null; synced_at: string; event_date: string | null }>
+    Array<{
+      milestone_key: string;
+      title: string | null;
+      synced_at: string;
+      event_date: string | null;
+    }>
   >([]);
   const [hasToken, setHasToken] = useState<boolean>(false);
   const [busy, setBusy] = useState<null | "sync" | "clear">(null);
@@ -387,11 +410,12 @@ function CalendarPanel() {
                 <Check size={14} className="text-[color:var(--sage)]" />
                 <span className="flex-1 text-foreground truncate">{s.title}</span>
                 <span className="text-xs text-muted-foreground">
-                  {s.event_date && new Date(s.event_date).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {s.event_date &&
+                    new Date(s.event_date).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
                 </span>
               </li>
             ))}

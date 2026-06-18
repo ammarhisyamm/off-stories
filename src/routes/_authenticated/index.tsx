@@ -1,14 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { event, daysUntil, formatIDR, tasks, budgetItems, vendors, guests, milestones, notes } from "@/lib/mock-data";
+import {
+  event,
+  daysUntil,
+  formatIDR,
+  tasks,
+  budgetItems,
+  vendors,
+  guests,
+  milestones,
+  notes,
+} from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Dashboard — Wedding Preparation" },
-      { name: "description", content: "Quiet command center for wedding preparation: checklist, budget, vendors, guests, milestones." },
+      {
+        name: "description",
+        content:
+          "Quiet command center for wedding preparation: checklist, budget, vendors, guests, milestones.",
+      },
       { property: "og:title", content: "Wedding Preparation Dashboard" },
-      { property: "og:description", content: "One calm workspace for everything: timeline, budget, vendors, guests, decisions." },
+      {
+        property: "og:description",
+        content: "One calm workspace for everything: timeline, budget, vendors, guests, decisions.",
+      },
     ],
   }),
   component: Dashboard,
@@ -23,7 +40,9 @@ function Dashboard() {
   const committed = budgetItems.reduce((s, b) => s + b.committed, 0);
   const remaining = totalBudget - committed;
   const vendorsBooked = vendors.filter((v) => v.status === "booked").length;
-  const vendorsPending = vendors.filter((v) => v.status !== "booked" && v.status !== "cancelled").length;
+  const vendorsPending = vendors.filter(
+    (v) => v.status !== "booked" && v.status !== "cancelled",
+  ).length;
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const invitedPax = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
 
@@ -52,13 +71,25 @@ function Dashboard() {
     >
       {/* Top summary */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <SummaryCard label="Planning progress" value={`${progress}%`} sub={`${done} of ${tasks.length} tasks done`}>
+        <SummaryCard
+          label="Planning progress"
+          value={`${progress}%`}
+          sub={`${done} of ${tasks.length} tasks done`}
+        >
           <ProgressBar value={progress} />
         </SummaryCard>
-        <SummaryCard label="Budget health" value={formatIDR(remaining)} sub={`${formatIDR(spent)} paid · ${formatIDR(committed)} committed`}>
+        <SummaryCard
+          label="Budget health"
+          value={formatIDR(remaining)}
+          sub={`${formatIDR(spent)} paid · ${formatIDR(committed)} committed`}
+        >
           <ProgressBar value={Math.round((committed / totalBudget) * 100)} tone="taupe" />
         </SummaryCard>
-        <SummaryCard label="Vendors" value={`${vendorsBooked} booked`} sub={`${vendorsPending} in review`}>
+        <SummaryCard
+          label="Vendors"
+          value={`${vendorsBooked} booked`}
+          sub={`${vendorsPending} in review`}
+        >
           <div className="mt-3 flex gap-1.5">
             {vendors.slice(0, 6).map((v) => (
               <span
@@ -69,7 +100,11 @@ function Dashboard() {
             ))}
           </div>
         </SummaryCard>
-        <SummaryCard label="Guests confirmed" value={`${confirmed}`} sub={`${invitedPax} invited · target ${event.guestEstimate}`}>
+        <SummaryCard
+          label="Guests confirmed"
+          value={`${confirmed}`}
+          sub={`${invitedPax} invited · target ${event.guestEstimate}`}
+        >
           <ProgressBar value={Math.round((confirmed / event.guestEstimate) * 100)} tone="sage" />
         </SummaryCard>
       </section>
@@ -82,17 +117,23 @@ function Dashboard() {
               <div className="eyebrow">Needs attention</div>
               <h2 className="serif text-xl mt-1">This week</h2>
             </div>
-            <Link to="/checklist" className="text-xs text-muted-foreground hover:text-foreground">View all →</Link>
+            <Link to="/checklist" className="text-xs text-muted-foreground hover:text-foreground">
+              View all →
+            </Link>
           </div>
           <ul className="divide-y divide-border">
             {urgent.map((t) => {
               const d = daysUntil(t.due);
               return (
                 <li key={t.id} className="py-3 flex items-center gap-4">
-                  <span className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`} />
+                  <span
+                    className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="text-sm text-foreground truncate">{t.title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{t.category} · {t.assignee ?? "Unassigned"}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {t.category} · {t.assignee ?? "Unassigned"}
+                    </div>
                   </div>
                   <Pill tone={d <= 7 ? "warn" : "neutral"}>in {d}d</Pill>
                 </li>
@@ -112,8 +153,16 @@ function Dashboard() {
                   <div className="text-xs text-muted-foreground mt-0.5">{p.category}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm tabular-nums text-foreground">{formatIDR(p.amount - p.paid)}</div>
-                  <div className="text-xs text-muted-foreground">by {new Date(p.dueDate!).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
+                  <div className="text-sm tabular-nums text-foreground">
+                    {formatIDR(p.amount - p.paid)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    by{" "}
+                    {new Date(p.dueDate!).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </div>
                 </div>
               </li>
             ))}
@@ -129,7 +178,9 @@ function Dashboard() {
               <div className="eyebrow">Timeline</div>
               <h2 className="serif text-xl mt-1">Next milestones</h2>
             </div>
-            <Link to="/timeline" className="text-xs text-muted-foreground hover:text-foreground">Open timeline →</Link>
+            <Link to="/timeline" className="text-xs text-muted-foreground hover:text-foreground">
+              Open timeline →
+            </Link>
           </div>
           <ol className="relative border-l border-border ml-2 space-y-5">
             {nextMilestones.map((m) => (
@@ -137,7 +188,13 @@ function Dashboard() {
                 <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-sage" />
                 <div className="text-sm text-foreground">{m.title}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  {new Date(m.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long", year: "numeric" })} · {daysUntil(m.date)} days away
+                  {new Date(m.date).toLocaleDateString("en-GB", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}{" "}
+                  · {daysUntil(m.date)} days away
                 </div>
               </li>
             ))}
@@ -150,14 +207,21 @@ function Dashboard() {
               <div className="eyebrow">Decision log</div>
               <h2 className="serif text-xl mt-1">Recent notes</h2>
             </div>
-            <Link to="/notes" className="text-xs text-muted-foreground hover:text-foreground">All →</Link>
+            <Link to="/notes" className="text-xs text-muted-foreground hover:text-foreground">
+              All →
+            </Link>
           </div>
           <ul className="space-y-4">
             {notes.slice(0, 3).map((n) => (
               <li key={n.id}>
                 <div className="flex items-center gap-2 mb-1">
                   <Pill tone="sage">{n.tag}</Pill>
-                  <span className="text-xs text-muted-foreground">{new Date(n.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(n.date).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
                 </div>
                 <div className="text-sm text-foreground">{n.title}</div>
                 <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.body}</div>
@@ -170,7 +234,17 @@ function Dashboard() {
   );
 }
 
-function SummaryCard({ label, value, sub, children }: { label: string; value: string; sub: string; children?: React.ReactNode }) {
+function SummaryCard({
+  label,
+  value,
+  sub,
+  children,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  children?: React.ReactNode;
+}) {
   return (
     <div className="panel p-5">
       <div className="eyebrow">{label}</div>

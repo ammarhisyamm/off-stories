@@ -29,7 +29,10 @@ function Timeline() {
         {[
           { label: "Total milestones", value: milestones.length },
           { label: "Completed", value: milestones.filter((m) => m.done).length },
-          { label: "Next 30 days", value: milestones.filter((m) => !m.done && daysUntil(m.date) <= 30).length },
+          {
+            label: "Next 30 days",
+            value: milestones.filter((m) => !m.done && daysUntil(m.date) <= 30).length,
+          },
         ].map((s) => (
           <div key={s.label} className="panel p-5">
             <div className="eyebrow">{s.label}</div>
@@ -43,13 +46,17 @@ function Timeline() {
           <section key={month}>
             <div className="flex items-baseline justify-between mb-4">
               <h2 className="serif text-xl">{month}</h2>
-              <span className="text-xs text-muted-foreground">{list.length} milestone{list.length > 1 ? "s" : ""}</span>
+              <span className="text-xs text-muted-foreground">
+                {list.length} milestone{list.length > 1 ? "s" : ""}
+              </span>
             </div>
             <ol className="panel divide-y divide-border">
               {list.map((m) => (
                 <li key={m.id} className="px-5 py-4 flex items-center gap-5">
                   <div className="w-14 text-center">
-                    <div className="serif text-2xl text-foreground tabular-nums">{new Date(m.date).getDate()}</div>
+                    <div className="serif text-2xl text-foreground tabular-nums">
+                      {new Date(m.date).getDate()}
+                    </div>
                     <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                       {new Date(m.date).toLocaleDateString("en-GB", { weekday: "short" })}
                     </div>

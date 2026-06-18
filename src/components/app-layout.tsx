@@ -145,15 +145,14 @@ export function AppLayout({
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setMobileOpen(false)}
-          />
+          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-border flex flex-col animate-in slide-in-from-left duration-200">
             <div className="px-5 py-5 border-b border-border flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="eyebrow mb-1">Workspace</div>
-                <div className="serif text-base leading-tight text-foreground truncate">{event.name}</div>
+                <div className="serif text-base leading-tight text-foreground truncate">
+                  {event.name}
+                </div>
                 <div className="mt-1.5 text-xs text-muted-foreground">{days} days to go</div>
               </div>
               <button
@@ -183,7 +182,9 @@ export function AppLayout({
             </button>
             <div className="min-w-0">
               <div className="text-xs text-muted-foreground truncate">{event.name}</div>
-              <div className="text-sm text-foreground truncate">{days} days to {event.type.toLowerCase()}</div>
+              <div className="text-sm text-foreground truncate">
+                {days} days to {event.type.toLowerCase()}
+              </div>
             </div>
           </div>
         </div>
@@ -220,7 +221,9 @@ export function Pill({
     warn: "bg-destructive/10 text-destructive border-destructive/30",
   };
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${map[tone]}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${map[tone]}`}
+    >
       {children}
     </span>
   );
@@ -231,7 +234,8 @@ export function QuietButton({
   variant = "ghost",
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
-  const base = "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors";
+  const base =
+    "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors";
   const styles =
     variant === "primary"
       ? "bg-primary text-primary-foreground hover:bg-primary/90"

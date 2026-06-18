@@ -6,7 +6,10 @@ export const Route = createFileRoute("/_authenticated/budget")({
   head: () => ({
     meta: [
       { title: "Budget — Wedding Preparation" },
-      { name: "description", content: "Track total budget, committed spend, payments, and remaining headroom." },
+      {
+        name: "description",
+        content: "Track total budget, committed spend, payments, and remaining headroom.",
+      },
     ],
   }),
   component: Budget,
@@ -28,7 +31,11 @@ function Budget() {
         <Stat label="Total budget" value={formatIDR(total)} />
         <Stat label="Paid" value={formatIDR(paid)} tone="sage" />
         <Stat label="Committed" value={formatIDR(committed)} tone="taupe" />
-        <Stat label="Remaining" value={formatIDR(remaining)} tone={remaining < 0 ? "warn" : "neutral"} />
+        <Stat
+          label="Remaining"
+          value={formatIDR(remaining)}
+          tone={remaining < 0 ? "warn" : "neutral"}
+        />
       </div>
 
       <div className="panel p-6 mb-8">
@@ -37,15 +44,23 @@ function Budget() {
             <div className="eyebrow">Allocation</div>
             <h2 className="serif text-xl mt-1">Spend distribution</h2>
           </div>
-          <span className="text-xs text-muted-foreground">{Math.round((committed / total) * 100)}% committed</span>
+          <span className="text-xs text-muted-foreground">
+            {Math.round((committed / total) * 100)}% committed
+          </span>
         </div>
         <div className="h-2.5 w-full rounded-full bg-secondary overflow-hidden flex">
           <div className="bg-sage" style={{ width: `${(paid / total) * 100}%` }} />
-          <div className="bg-[color:var(--taupe)]/60" style={{ width: `${((committed - paid) / total) * 100}%` }} />
+          <div
+            className="bg-[color:var(--taupe)]/60"
+            style={{ width: `${((committed - paid) / total) * 100}%` }}
+          />
         </div>
         <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">
           <Legend color="bg-sage" label={`Paid · ${formatIDR(paid)}`} />
-          <Legend color="bg-[color:var(--taupe)]/60" label={`Committed pending · ${formatIDR(committed - paid)}`} />
+          <Legend
+            color="bg-[color:var(--taupe)]/60"
+            label={`Committed pending · ${formatIDR(committed - paid)}`}
+          />
           <Legend color="bg-secondary" label={`Headroom · ${formatIDR(remaining)}`} />
         </div>
       </div>
@@ -72,16 +87,32 @@ function Budget() {
                 <td className="px-5 py-3 text-foreground">{b.category}</td>
                 <td className="px-5 py-3 text-muted-foreground">{b.vendor ?? "—"}</td>
                 <td className="px-5 py-3 text-right tabular-nums">{formatIDR(b.amount)}</td>
-                <td className="px-5 py-3 text-right tabular-nums text-muted-foreground">{formatIDR(b.paid)}</td>
+                <td className="px-5 py-3 text-right tabular-nums text-muted-foreground">
+                  {formatIDR(b.paid)}
+                </td>
                 <td className="px-5 py-3">
                   <Pill
-                    tone={b.status === "paid" ? "sage" : b.status === "partial" ? "taupe" : b.status === "due" ? "warn" : "neutral"}
+                    tone={
+                      b.status === "paid"
+                        ? "sage"
+                        : b.status === "partial"
+                          ? "taupe"
+                          : b.status === "due"
+                            ? "warn"
+                            : "neutral"
+                    }
                   >
                     {b.status}
                   </Pill>
                 </td>
                 <td className="px-5 py-3 text-muted-foreground text-xs">
-                  {b.dueDate ? new Date(b.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                  {b.dueDate
+                    ? new Date(b.dueDate).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "—"}
                 </td>
               </tr>
             ))}
@@ -92,7 +123,15 @@ function Budget() {
   );
 }
 
-function Stat({ label, value, tone = "neutral" }: { label: string; value: string; tone?: "neutral" | "sage" | "taupe" | "warn" }) {
+function Stat({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string;
+  tone?: "neutral" | "sage" | "taupe" | "warn";
+}) {
   const colors = {
     neutral: "text-foreground",
     sage: "text-[color:var(--sage)]",

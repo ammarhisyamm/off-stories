@@ -8,7 +8,10 @@ export const Route = createFileRoute("/_authenticated/documents")({
   head: () => ({
     meta: [
       { title: "Documents — Wedding Preparation" },
-      { name: "description", content: "Contracts, invoices, moodboards, and reference links in one vault." },
+      {
+        name: "description",
+        content: "Contracts, invoices, moodboards, and reference links in one vault.",
+      },
     ],
   }),
   component: Documents,
@@ -53,9 +56,7 @@ function Documents() {
     const url = formData.get("url") as string;
 
     if (editingDoc) {
-      saveDocs(
-        docs.map((d) => (d.id === editingDoc.id ? { ...d, title, kind, vendor, url } : d))
-      );
+      saveDocs(docs.map((d) => (d.id === editingDoc.id ? { ...d, title, kind, vendor, url } : d)));
     } else {
       const newDoc: DocRef = {
         id: `d${Date.now()}`,
@@ -84,7 +85,11 @@ function Documents() {
     <AppLayout
       eyebrow="Vault"
       title="Documents & references"
-      actions={<QuietButton variant="primary" onClick={handleOpenNew}>Add link</QuietButton>}
+      actions={
+        <QuietButton variant="primary" onClick={handleOpenNew}>
+          Add link
+        </QuietButton>
+      }
     >
       <div className="space-y-8">
         {Object.entries(byKind).map(([kind, list]) => (
@@ -103,7 +108,10 @@ function Documents() {
                   <div className="flex items-center justify-between mb-3">
                     <Pill tone="taupe">{d.kind}</Pill>
                     <span className="text-[11px] text-muted-foreground">
-                      {new Date(d.addedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      {new Date(d.addedAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </span>
                   </div>
                   <div className="text-sm text-foreground pr-6 relative">
@@ -196,10 +204,16 @@ function Documents() {
                   >
                     <Trash size={16} /> Delete
                   </button>
-                ) : <div></div>}
+                ) : (
+                  <div></div>
+                )}
                 <div className="flex gap-2">
-                  <QuietButton type="button" onClick={() => setIsModalOpen(false)}>Cancel</QuietButton>
-                  <QuietButton variant="primary" type="submit">Save Link</QuietButton>
+                  <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
+                    Cancel
+                  </QuietButton>
+                  <QuietButton variant="primary" type="submit">
+                    Save Link
+                  </QuietButton>
                 </div>
               </div>
             </form>

@@ -86,9 +86,6 @@ export const syncMilestonesToCalendar = createServerFn({ method: "POST" })
 export const clearCalendarSync = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await context.supabase
-      .from("calendar_sync_log")
-      .delete()
-      .eq("user_id", context.userId);
+    await context.supabase.from("calendar_sync_log").delete().eq("user_id", context.userId);
     return { ok: true };
   });

@@ -8,7 +8,11 @@ export const Route = createFileRoute("/_authenticated/notes")({
   head: () => ({
     meta: [
       { title: "Notes & Decisions — Wedding Preparation" },
-      { name: "description", content: "Decision log — keep meeting notes, family requests, and important calls in one place." },
+      {
+        name: "description",
+        content:
+          "Decision log — keep meeting notes, family requests, and important calls in one place.",
+      },
     ],
   }),
   component: Notes,
@@ -52,9 +56,7 @@ function Notes() {
     const date = formData.get("date") as string;
 
     if (editingNote) {
-      saveNotes(
-        notes.map((n) => (n.id === editingNote.id ? { ...n, title, body, tag, date } : n))
-      );
+      saveNotes(notes.map((n) => (n.id === editingNote.id ? { ...n, title, body, tag, date } : n)));
     } else {
       const newNote: Note = {
         id: `n${Date.now()}`,
@@ -77,7 +79,11 @@ function Notes() {
     <AppLayout
       eyebrow="Decision log"
       title="Notes & decisions"
-      actions={<QuietButton variant="primary" onClick={handleOpenNew}>New note</QuietButton>}
+      actions={
+        <QuietButton variant="primary" onClick={handleOpenNew}>
+          New note
+        </QuietButton>
+      }
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {notes.map((n) => (
@@ -87,13 +93,21 @@ function Notes() {
             onClick={() => handleOpenEdit(n)}
           >
             <div className="flex items-center justify-between mb-3">
-              <Pill tone={n.tag === "Decision" ? "sage" : n.tag === "Family" ? "rose" : "taupe"}>{n.tag}</Pill>
+              <Pill tone={n.tag === "Decision" ? "sage" : n.tag === "Family" ? "rose" : "taupe"}>
+                {n.tag}
+              </Pill>
               <span className="text-xs text-muted-foreground">
-                {new Date(n.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                {new Date(n.date).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
             </div>
             <h3 className="serif text-lg text-foreground">{n.title}</h3>
-            <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-wrap">{n.body}</p>
+            <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-wrap">
+              {n.body}
+            </p>
           </article>
         ))}
       </div>
@@ -166,10 +180,16 @@ function Notes() {
                   >
                     <Trash size={16} /> Delete
                   </button>
-                ) : <div></div>}
+                ) : (
+                  <div></div>
+                )}
                 <div className="flex gap-2">
-                  <QuietButton type="button" onClick={() => setIsModalOpen(false)}>Cancel</QuietButton>
-                  <QuietButton variant="primary" type="submit">Save Note</QuietButton>
+                  <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
+                    Cancel
+                  </QuietButton>
+                  <QuietButton variant="primary" type="submit">
+                    Save Note
+                  </QuietButton>
                 </div>
               </div>
             </form>

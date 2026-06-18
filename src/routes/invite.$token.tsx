@@ -78,9 +78,7 @@ function InvitePage() {
           You've been invited to collaborate on a wedding preparation workspace.
         </p>
 
-        {signedIn === null && (
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        )}
+        {signedIn === null && <p className="text-sm text-muted-foreground">Loading…</p>}
 
         {signedIn === false && (
           <button

@@ -7,7 +7,10 @@ export const Route = createFileRoute("/_authenticated/vendors")({
   head: () => ({
     meta: [
       { title: "Vendors — Wedding Preparation" },
-      { name: "description", content: "Centralized vendor list with quotes, status, and side-by-side comparison." },
+      {
+        name: "description",
+        content: "Centralized vendor list with quotes, status, and side-by-side comparison.",
+      },
     ],
   }),
   component: Vendors,
@@ -33,18 +36,36 @@ function Vendors() {
             {vendors.map((v) => (
               <li key={v.id} className="px-5 py-4 flex items-center gap-4">
                 <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs serif text-muted-foreground">
-                  {v.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                  {v.name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join("")}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-foreground">{v.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{v.category} · {v.packageName}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {v.category} · {v.packageName}
+                  </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm tabular-nums text-foreground">{formatIDR(v.final ?? v.quoted)}</div>
-                  <div className="text-[11px] text-muted-foreground">{v.final ? "final" : "quoted"}</div>
+                  <div className="text-sm tabular-nums text-foreground">
+                    {formatIDR(v.final ?? v.quoted)}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {v.final ? "final" : "quoted"}
+                  </div>
                 </div>
                 <Pill
-                  tone={v.status === "booked" ? "sage" : v.status === "shortlisted" ? "taupe" : v.status === "cancelled" ? "warn" : "neutral"}
+                  tone={
+                    v.status === "booked"
+                      ? "sage"
+                      : v.status === "shortlisted"
+                        ? "taupe"
+                        : v.status === "cancelled"
+                          ? "warn"
+                          : "neutral"
+                  }
                 >
                   {v.status}
                 </Pill>
@@ -66,7 +87,9 @@ function Vendors() {
                 key={c}
                 onClick={() => setCompareCat(c)}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                  compareCat === c ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"
+                  compareCat === c
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {c}
@@ -91,7 +114,9 @@ function Vendors() {
                     </div>
                     <div>
                       <div className="text-muted-foreground">Final</div>
-                      <div className="tabular-nums text-foreground">{v.final ? formatIDR(v.final) : "—"}</div>
+                      <div className="tabular-nums text-foreground">
+                        {v.final ? formatIDR(v.final) : "—"}
+                      </div>
                     </div>
                   </div>
                 </div>

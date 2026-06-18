@@ -31,8 +31,7 @@ function AuthPage() {
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
       extraParams: {
-        scope:
-          "openid email profile https://www.googleapis.com/auth/calendar.events",
+        scope: "openid email profile https://www.googleapis.com/auth/calendar.events",
         access_type: "offline",
         prompt: "consent",
       },
@@ -55,7 +54,8 @@ function AuthPage() {
         <div className="eyebrow mb-2">Wedding Preparation</div>
         <h1 className="serif text-3xl mb-3 text-foreground">Welcome back</h1>
         <p className="text-sm text-muted-foreground mb-8">
-          Sign in to plan your wedding, invite collaborators, and sync your timeline to Google Calendar.
+          Sign in to plan your wedding, invite collaborators, and sync your timeline to Google
+          Calendar.
         </p>
         <button
           onClick={signIn}
@@ -65,11 +65,10 @@ function AuthPage() {
           <GoogleLogo size={18} weight="bold" />
           {loading ? "Opening Google…" : "Continue with Google"}
         </button>
-        {error && (
-          <p className="mt-4 text-xs text-destructive">{error}</p>
-        )}
+        {error && <p className="mt-4 text-xs text-destructive">{error}</p>}
         <p className="mt-6 text-[11px] text-muted-foreground">
-          We request calendar access so you can sync milestones to Google Calendar later. You can revoke it any time.
+          We request calendar access so you can sync milestones to Google Calendar later. You can
+          revoke it any time.
         </p>
       </div>
     </div>
