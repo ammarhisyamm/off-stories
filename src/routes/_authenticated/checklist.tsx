@@ -69,13 +69,13 @@ function Checklist() {
           <div className="inline-flex rounded-md border border-border bg-surface p-0.5">
             <button
               onClick={() => setView("list")}
-              className={`px-3 py-1.5 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+              className={`px-3 py-1 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
             >
               List
             </button>
             <button
               onClick={() => setView("kanban")}
-              className={`px-3 py-1.5 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "kanban" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+              className={`px-3 py-1 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "kanban" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
             >
               Kanban
             </button>
