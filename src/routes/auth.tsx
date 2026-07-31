@@ -99,7 +99,7 @@ function AuthPage() {
           <Sparkle size={22} weight="duotone" />
         </div>
         <div className="eyebrow mb-2">Wedding Preparation</div>
-        <h1 className="serif text-3xl mb-3 text-foreground">Welcome back</h1>
+        <h1 className="serif text-3xl mb-3 text-foreground text-balance">Welcome back</h1>
         <p className="text-sm text-muted-foreground mb-8">
           Sign in to plan your wedding, invite collaborators, and sync your timeline to Google
           Calendar.
@@ -121,7 +121,7 @@ function AuthPage() {
             <span>{error}</span>
           </div>
         )}
-        <p className="mt-6 text-[11px] text-muted-foreground">
+        <p className="mt-6 text-xs text-muted-foreground">
           We request calendar access so you can sync milestones to Google Calendar later. You can
           revoke it any time.
         </p>

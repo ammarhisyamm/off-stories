@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { X } from "@phosphor-icons/react";
 
 const FOCUSABLE =
@@ -14,6 +14,15 @@ export function ModalShell({
   children: ReactNode;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const [closing, setClosing] = useState(false);
+  const closingRef = useRef(false);
+
+  const close = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    setClosing(true);
+    window.setTimeout(onClose, 150);
+  }, [onClose]);
 
   useEffect(() => {
     const original = document.body.style.overflow;
@@ -30,7 +39,7 @@ export function ModalShell({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        onClose();
+        close();
         return;
       }
       if (e.key !== "Tab") return;
@@ -55,24 +64,30 @@ export function ModalShell({
       document.body.style.overflow = original;
       previous?.focus?.();
     };
-  }, [onClose]);
+  }, [close]);
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/70 backdrop-blur-md"
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/70 backdrop-blur-md ${
+        closing ? "animate-out fade-out duration-150 ease-in" : "animate-in fade-in duration-200 ease-out"
+      }`}
     >
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className="bg-surface border border-border rounded-xl shadow-2xl ring-1 ring-black/5 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200 focus:outline-none"
+        className={`bg-surface border border-border rounded-xl shadow-2xl ring-1 ring-black/5 w-full max-w-lg p-6 focus:outline-none ${
+          closing
+            ? "animate-out fade-out zoom-out-95 duration-150 ease-in"
+            : "animate-in fade-in zoom-in-95 duration-200"
+        }`}
       >
         <div className="flex items-center justify-between mb-5">
           <h2 className="serif text-xl">{title}</h2>
           <button
-            onClick={onClose}
+            onClick={close}
             aria-label="Close"
             className="p-1 rounded-md text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
           >

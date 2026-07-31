@@ -42,7 +42,7 @@ export function AddGuestModal({
             required
             autoFocus
             defaultValue={initial?.name}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Keluarga besar — Bride"
           />
         </label>
@@ -53,7 +53,7 @@ export function AddGuestModal({
               name="side"
               value={side}
               onChange={(e) => setSide(e.target.value as Guest["side"])}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               <option value="Bride">Bride</option>
               <option value="Groom">Groom</option>
@@ -68,7 +68,7 @@ export function AddGuestModal({
               required
               min={1}
               defaultValue={initial?.pax ?? 1}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
         </div>
@@ -78,7 +78,7 @@ export function AddGuestModal({
             <button
               type="button"
               onClick={() => setInvited((v) => !v)}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               <span>{invited ? "Sent" : "Draft"}</span>
               <span
@@ -98,7 +98,7 @@ export function AddGuestModal({
               name="rsvp"
               value={rsvp}
               onChange={(e) => setRsvp(e.target.value as Guest["rsvp"])}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               <option value="pending">Pending</option>
               <option value="yes">Yes</option>

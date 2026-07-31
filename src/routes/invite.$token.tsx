@@ -121,12 +121,12 @@ function InvitePage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
-      <div className="w-full max-w-md panel p-10 text-center">
+      <div className="w-full max-w-md panel p-10 text-center animate-in fade-in zoom-in-97 duration-300 ease-out">
         <div className="mx-auto mb-6 grid h-12 w-12 place-items-center rounded-full bg-[color:var(--rose)]/15 text-[color:var(--rose)]">
           <Envelope size={22} weight="duotone" />
         </div>
         <div className="eyebrow mb-2">Invitation</div>
-        <h1 className="serif text-3xl mb-3 text-foreground">You're invited</h1>
+        <h1 className="serif text-3xl mb-3 text-foreground text-balance">You're invited</h1>
         <p className="text-sm text-muted-foreground mb-8">
           You've been invited to collaborate on a wedding preparation workspace.
         </p>

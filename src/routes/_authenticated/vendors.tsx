@@ -87,7 +87,7 @@ function Vendors() {
                   <div className="text-sm tabular-nums text-foreground">
                     {formatIDR(v.final ?? v.quoted)}
                   </div>
-                  <div className="text-[11px] text-muted-foreground">
+                  <div className="text-xs text-muted-foreground">
                     {v.final ? "final" : "quoted"}
                   </div>
                 </div>

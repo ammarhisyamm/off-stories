@@ -42,7 +42,7 @@ export function AddTaskModal({
             required
             autoFocus
             defaultValue={initial?.title}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Booking fotografer cadangan"
           />
         </label>
@@ -52,7 +52,7 @@ export function AddTaskModal({
             <select
               name="category"
               defaultValue={initial?.category ?? taskCategories[0]}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               {taskCategories.map((c) => (
                 <option key={c} value={c}>
@@ -68,7 +68,7 @@ export function AddTaskModal({
               name="priority"
               value={priority}
               onChange={(e) => setPriority(e.target.value as Priority)}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               <option value="high">High</option>
               <option value="medium">Medium</option>
@@ -84,7 +84,7 @@ export function AddTaskModal({
               name="due"
               required
               defaultValue={initial?.due ?? new Date().toISOString().split("T")[0]}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
           <label className="block">
@@ -92,7 +92,7 @@ export function AddTaskModal({
             <input
               name="assignee"
               defaultValue={initial?.assignee}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="e.g. Andra"
             />
           </label>

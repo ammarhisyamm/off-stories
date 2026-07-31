@@ -156,7 +156,7 @@ function Dashboard() {
           <div className="flex items-baseline justify-between mb-5">
             <div>
               <div className="eyebrow">Needs attention</div>
-              <h2 className="serif text-xl mt-1">This week</h2>
+              <h2 className="serif text-xl mt-1 text-balance">This week</h2>
             </div>
             <Link to="/checklist" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               View all →
@@ -192,7 +192,7 @@ function Dashboard() {
 
         <div className="panel p-6">
           <div className="eyebrow">Payments due</div>
-          <h2 className="serif text-xl mt-1 mb-5">Upcoming</h2>
+          <h2 className="serif text-xl mt-1 mb-5 text-balance">Upcoming</h2>
           <ul className="space-y-4">
             {upcomingPayments.map((p) => (
               <li key={p.id} className="flex items-start justify-between gap-3">
@@ -224,7 +224,7 @@ function Dashboard() {
           <div className="flex items-baseline justify-between mb-5">
             <div>
               <div className="eyebrow">Timeline</div>
-              <h2 className="serif text-xl mt-1">Next milestones</h2>
+              <h2 className="serif text-xl mt-1 text-balance">Next milestones</h2>
             </div>
             <Link to="/timeline" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               Open timeline →
@@ -253,7 +253,7 @@ function Dashboard() {
           <div className="flex items-baseline justify-between mb-5">
             <div>
               <div className="eyebrow">Decision log</div>
-              <h2 className="serif text-xl mt-1">Recent notes</h2>
+              <h2 className="serif text-xl mt-1 text-balance">Recent notes</h2>
             </div>
             <Link to="/notes" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               All →

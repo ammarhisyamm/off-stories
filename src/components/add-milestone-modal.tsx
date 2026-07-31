@@ -48,7 +48,7 @@ export function AddMilestoneModal({
             required
             autoFocus
             defaultValue={initial?.title}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Pelunasan catering"
           />
         </label>
@@ -60,7 +60,7 @@ export function AddMilestoneModal({
               name="date"
               required
               defaultValue={initial?.date ?? new Date().toISOString().split("T")[0]}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
           <label className="block">
@@ -69,7 +69,7 @@ export function AddMilestoneModal({
               name="kind"
               value={kind}
               onChange={(e) => setKind(e.target.value as Milestone["kind"])}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               {milestoneKinds.map((k) => (
                 <option key={k} value={k}>

@@ -95,7 +95,7 @@ function Timeline() {
                     <div className="serif text-2xl text-foreground tabular-nums">
                       {new Date(m.date).getDate()}
                     </div>
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    <div className="text-xs uppercase tracking-widest text-muted-foreground">
                       {new Date(m.date).toLocaleDateString("en-GB", { weekday: "short" })}
                     </div>
                   </div>

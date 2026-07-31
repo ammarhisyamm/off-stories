@@ -47,7 +47,7 @@ function Settings() {
             ))}
           </nav>
         </aside>
-        <section>
+        <section key={section} className="animate-in fade-in duration-200 ease-out">
           {section === "Event" && <EventDetailsPanel />}
           {section === "Collaborators" && <CollaboratorsPanel />}
           {section === "Calendar" && <CalendarPanel />}
@@ -85,7 +85,7 @@ function EventDetailsPanel() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="eyebrow mb-1">Event details</div>
-          <h2 className="serif text-2xl">{eventData.name}</h2>
+          <h2 className="serif text-2xl text-balance">{eventData.name}</h2>
         </div>
       </div>
       <form onSubmit={handleSave}>
@@ -134,13 +134,13 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="eyebrow block mb-1.5">{label}</span>
+      <span className="block text-sm font-medium mb-1.5">{label}</span>
       <input
         name={name}
         type={type}
         defaultValue={defaultValue}
         placeholder={placeholder}
-        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
       />
     </label>
   );
@@ -218,7 +218,7 @@ function CollaboratorsPanel() {
     <div className="space-y-6">
       <div className="panel p-7">
         <div className="eyebrow mb-1">Collaborators</div>
-        <h2 className="serif text-2xl mb-2">Share access</h2>
+        <h2 className="serif text-xl mb-2">Share access</h2>
         <p className="text-sm text-muted-foreground mb-6">
           Generate a shareable invite link. Anyone with the link can join your workspace with the
           role you choose.
@@ -226,11 +226,11 @@ function CollaboratorsPanel() {
 
         <div className="flex flex-wrap items-end gap-3">
           <label className="block">
-            <span className="eyebrow block mb-1.5">Role</span>
+            <span className="block text-sm font-medium mb-1.5">Role</span>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as "editor" | "viewer")}
-              className="rounded-md border border-border bg-surface-2 px-3 py-2 text-sm"
+              className="rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm"
             >
               <option value="editor">Editor — can edit anything</option>
               <option value="viewer">Viewer — read only</option>
@@ -370,7 +370,7 @@ function CalendarPanel() {
     <div className="space-y-6">
       <div className="panel p-7">
         <div className="eyebrow mb-1">Google Calendar</div>
-        <h2 className="serif text-2xl mb-2">Sync your wedding timeline</h2>
+        <h2 className="serif text-xl mb-2 text-balance">Sync your wedding timeline</h2>
         <p className="text-sm text-muted-foreground mb-6">
           Push all {milestones.length} milestones into your primary Google Calendar as all-day
           events. Re-syncing updates existing events instead of duplicating them.

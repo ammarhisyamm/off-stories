@@ -6,7 +6,7 @@
 
 @theme inline {
   --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-serif: "Fraunces", ui-serif, Georgia, serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -157,7 +157,7 @@
     border-radius: var(--radius-lg);
   }
   .eyebrow {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--color-muted-foreground);
@@ -165,7 +165,8 @@
   }
   .serif {
     font-family: var(--font-serif);
-    font-weight: 400;
+    font-weight: 500;
     letter-spacing: -0.01em;
+    font-optical-sizing: auto;
   }
 }

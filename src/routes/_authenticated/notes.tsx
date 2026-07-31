@@ -131,7 +131,7 @@ function Notes() {
                   name="title"
                   required
                   defaultValue={editingNote?.title}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   placeholder="e.g. Venue Meeting Notes"
                 />
               </label>
@@ -141,7 +141,7 @@ function Notes() {
                   <select
                     name="tag"
                     defaultValue={editingNote?.tag || "Decision"}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   >
                     <option value="Decision">Decision</option>
                     <option value="Family">Family</option>
@@ -156,7 +156,7 @@ function Notes() {
                     name="date"
                     required
                     defaultValue={editingNote?.date || new Date().toISOString().split("T")[0]}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   />
                 </label>
               </div>
@@ -167,7 +167,7 @@ function Notes() {
                   required
                   rows={5}
                   defaultValue={editingNote?.body}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary resize-none"
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary resize-none"
                   placeholder="Write your note here..."
                 ></textarea>
               </label>

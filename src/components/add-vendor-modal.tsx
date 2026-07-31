@@ -55,7 +55,7 @@ export function AddVendorModal({
             required
             autoFocus
             defaultValue={initial?.name}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Sanggar Rias Melati"
           />
         </label>
@@ -65,7 +65,7 @@ export function AddVendorModal({
             <select
               name="category"
               defaultValue={initial?.category ?? vendorCategories[0]}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               {vendorCategories.map((c) => (
                 <option key={c} value={c}>
@@ -80,7 +80,7 @@ export function AddVendorModal({
               name="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as Vendor["status"])}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               <option value="researching">Researching</option>
               <option value="shortlisted">Shortlisted</option>
@@ -95,7 +95,7 @@ export function AddVendorModal({
             <input
               name="contact"
               defaultValue={initial?.contact !== "—" ? initial?.contact : ""}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="e.g. Bu Maya"
             />
           </label>
@@ -104,7 +104,7 @@ export function AddVendorModal({
             <input
               name="phone"
               defaultValue={initial?.phone !== "—" ? initial?.phone : ""}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="+62 812-…"
             />
           </label>
@@ -115,7 +115,7 @@ export function AddVendorModal({
             <input
               name="packageName"
               defaultValue={initial?.packageName !== "—" ? initial?.packageName : ""}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="e.g. Full Rias + Baju Adat"
             />
           </label>
@@ -127,7 +127,7 @@ export function AddVendorModal({
               required
               min={0}
               defaultValue={initial?.quoted}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="e.g. 15000000"
             />
           </label>

@@ -55,7 +55,7 @@ export function AddExpenseModal({
           <select
             name="category"
             defaultValue={initial?.category ?? budgetCategories[0]}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
           >
             {budgetCategories.map((c) => (
               <option key={c} value={c}>
@@ -69,7 +69,7 @@ export function AddExpenseModal({
           <input
             name="vendor"
             defaultValue={initial?.vendor}
-            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Padma Hall"
           />
         </label>
@@ -83,7 +83,7 @@ export function AddExpenseModal({
               min={1}
               autoFocus={!initial}
               defaultValue={initial?.amount}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="e.g. 25000000"
             />
           </label>
@@ -94,7 +94,7 @@ export function AddExpenseModal({
               type="number"
               min={0}
               defaultValue={initial?.paid ?? 0}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="0"
             />
           </label>
@@ -106,7 +106,7 @@ export function AddExpenseModal({
               name="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as BudgetItem["status"])}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
               <option value="paid">Paid</option>
               <option value="partial">Partial</option>
@@ -120,7 +120,7 @@ export function AddExpenseModal({
               type="date"
               name="dueDate"
               defaultValue={initial?.dueDate}
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
         </div>

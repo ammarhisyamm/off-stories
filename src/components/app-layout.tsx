@@ -59,7 +59,7 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
             to={to}
             onClick={onNavigate}
             className={[
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-[transform,background-color,color] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               active
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
@@ -237,7 +237,7 @@ export function Pill({
   };
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${map[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${map[tone]}`}
     >
       {children}
     </span>

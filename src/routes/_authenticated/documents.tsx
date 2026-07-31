@@ -107,7 +107,7 @@ function Documents() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <Pill tone="taupe">{d.kind}</Pill>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {new Date(d.addedAt).toLocaleDateString("en-GB", {
                         day: "numeric",
                         month: "short",
@@ -154,7 +154,7 @@ function Documents() {
                   name="title"
                   required
                   defaultValue={editingDoc?.title}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   placeholder="e.g. Venue Contract v2"
                 />
               </label>
@@ -164,7 +164,7 @@ function Documents() {
                   <select
                     name="kind"
                     defaultValue={editingDoc?.kind || "Contract"}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   >
                     <option value="Contract">Contract</option>
                     <option value="Invoice">Invoice</option>
@@ -179,7 +179,7 @@ function Documents() {
                   <input
                     name="vendor"
                     defaultValue={editingDoc?.vendor}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                     placeholder="e.g. Padma Hall"
                   />
                 </label>
@@ -191,7 +191,7 @@ function Documents() {
                   type="url"
                   required
                   defaultValue={editingDoc?.url}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   placeholder="https://..."
                 />
               </label>

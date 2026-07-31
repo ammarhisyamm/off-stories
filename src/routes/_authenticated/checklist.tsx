@@ -135,7 +135,7 @@ function Checklist() {
                       <div className="text-sm text-foreground">{t.title}</div>
                       <div className="flex items-center gap-2 mt-2">
                         <Pill>{t.category}</Pill>
-                        <span className="text-[11px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           in {daysUntil(t.due)}d
                         </span>
                       </div>
