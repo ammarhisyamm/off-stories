@@ -70,7 +70,7 @@ function Vendors() {
                 onClick={() => openEdit(v)}
                 className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
               >
-                <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs serif text-muted-foreground">
+                <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs font-medium text-muted-foreground">
                   {v.name
                     .split(" ")
                     .map((w) => w[0])
