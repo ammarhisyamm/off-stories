@@ -100,7 +100,7 @@ function Vendors() {
               <button
                 key={c}
                 onClick={() => setCompareCat(c)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 ${
                   compareCat === c
                     ? "bg-primary text-primary-foreground border-primary"
                     : "border-border text-muted-foreground hover:text-foreground"

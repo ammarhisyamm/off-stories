@@ -142,32 +142,39 @@ export function AppLayout({
         <UserFooter />
       </aside>
 
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-border flex flex-col animate-in slide-in-from-left duration-200">
-            <div className="px-5 py-5 border-b border-border flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="eyebrow mb-1">Workspace</div>
-                <div className="serif text-base leading-tight text-foreground truncate">
-                  {event.name}
-                </div>
-                <div className="mt-1.5 text-xs text-muted-foreground">{days} days to go</div>
+      {/* Mobile drawer — slides in/out on the same path */}
+      <div className={`fixed inset-0 z-40 md:hidden ${mobileOpen ? "" : "pointer-events-none"}`}>
+        <div
+          className={`absolute inset-0 bg-black/40 transition-opacity duration-200 ${mobileOpen ? "opacity-100" : "opacity-0"}`}
+          onClick={() => setMobileOpen(false)}
+        />
+        <aside
+          inert={!mobileOpen}
+          aria-hidden={!mobileOpen}
+          className={`absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-border flex flex-col transition-transform duration-200 ease-out ${
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="px-5 py-5 border-b border-border flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="eyebrow mb-1">Workspace</div>
+              <div className="serif text-base leading-tight text-foreground truncate">
+                {event.name}
               </div>
-              <button
-                onClick={() => setMobileOpen(false)}
-                aria-label="Close menu"
-                className="p-1.5 rounded-md text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
-              >
-                <X size={18} />
-              </button>
+              <div className="mt-1.5 text-xs text-muted-foreground">{days} days to go</div>
             </div>
-            <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
-            <UserFooter compact />
-          </aside>
-        </div>
-      )}
+            <button
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+              className="p-1.5 rounded-md text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <NavList pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+          <UserFooter compact />
+        </aside>
+      </div>
 
       <main className="flex-1 min-w-0">
         {/* Mobile top bar */}
@@ -200,7 +207,11 @@ export function AppLayout({
             {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
           </div>
         </header>
-        <div className="max-w-6xl mx-auto px-4 md:px-10 py-8 md:py-10">{children}</div>
+        <div className="max-w-6xl mx-auto px-4 md:px-10 py-8 md:py-10">
+          <div key={pathname} className="animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
+            {children}
+          </div>
+        </div>
       </main>
     </div>
   );

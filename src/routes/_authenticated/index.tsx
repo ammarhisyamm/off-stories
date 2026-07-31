@@ -142,7 +142,7 @@ function Dashboard() {
               <div className="eyebrow">Needs attention</div>
               <h2 className="serif text-xl mt-1">This week</h2>
             </div>
-            <Link to="/checklist" className="text-xs text-muted-foreground hover:text-foreground">
+            <Link to="/checklist" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               View all →
             </Link>
           </div>
@@ -203,7 +203,7 @@ function Dashboard() {
               <div className="eyebrow">Timeline</div>
               <h2 className="serif text-xl mt-1">Next milestones</h2>
             </div>
-            <Link to="/timeline" className="text-xs text-muted-foreground hover:text-foreground">
+            <Link to="/timeline" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               Open timeline →
             </Link>
           </div>
@@ -232,7 +232,7 @@ function Dashboard() {
               <div className="eyebrow">Decision log</div>
               <h2 className="serif text-xl mt-1">Recent notes</h2>
             </div>
-            <Link to="/notes" className="text-xs text-muted-foreground hover:text-foreground">
+            <Link to="/notes" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               All →
             </Link>
           </div>
