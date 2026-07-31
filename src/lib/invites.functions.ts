@@ -72,35 +72,12 @@ export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ token: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: invite, error } = await supabase
-      .from("workspace_invites")
-      .select("id, workspace_id, role, accepted_at, revoked_at, expires_at")
-      .eq("token", data.token)
-      .maybeSingle();
+    const { supabase } = context;
+    const { data: workspaceId, error } = await supabase.rpc("accept_workspace_invite", {
+      p_token: data.token,
+    });
     if (error) throw new Error(error.message);
-    if (!invite) throw new Error("Invite not found");
-    if (invite.revoked_at) throw new Error("This invite was revoked");
-    if (invite.expires_at && new Date(invite.expires_at) < new Date())
-      throw new Error("This invite has expired");
-    const { error: memErr } = await supabase
-      .from("workspace_members")
-      .upsert(
-        { workspace_id: invite.workspace_id, user_id: userId, role: invite.role },
-        { onConflict: "workspace_id,user_id" },
-      );
-    if (memErr) throw new Error(memErr.message);
-    if (!invite.accepted_at) {
-      await supabase
-        .from("workspace_invites")
-        .update({ accepted_at: new Date().toISOString(), accepted_by: userId })
-        .eq("id", invite.id);
-    }
-    await supabase
-      .from("profiles")
-      .update({ active_workspace_id: invite.workspace_id })
-      .eq("id", userId);
-    return { ok: true, workspaceId: invite.workspace_id };
+    return { ok: true, workspaceId: workspaceId as string };
   });
 
 export const listMembers = createServerFn({ method: "GET" })

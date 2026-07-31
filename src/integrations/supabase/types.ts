@@ -199,6 +199,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_workspace_invite: {
+        Args: { p_token: string };
+        Returns: string;
+      };
       is_workspace_member: {
         Args: { _user: string; _workspace: string };
         Returns: boolean;
