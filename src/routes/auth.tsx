@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { GoogleLogo, Sparkle } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/auth")({
@@ -28,21 +27,23 @@ function AuthPage() {
   async function signIn() {
     setLoading(true);
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-      extraParams: {
-        scope: "openid email profile https://www.googleapis.com/auth/calendar.events",
-        access_type: "offline",
-        prompt: "consent",
+    // Supabase native Google OAuth — requests the calendar scope + offline
+    // refresh token so session.provider_token can be used for calendar sync.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+        scopes: "openid email profile https://www.googleapis.com/auth/calendar.events",
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
-    if (result.error) {
-      setError(result.error.message ?? "Sign-in failed");
+    if (error) {
+      setError(error.message ?? "Sign-in failed");
       setLoading(false);
-      return;
     }
-    if (result.redirected) return;
-    navigate({ to: "/" });
   }
 
   return (

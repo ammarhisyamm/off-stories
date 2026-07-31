@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { acceptInvite } from "@/lib/invites.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { GoogleLogo, Envelope } from "@phosphor-icons/react";
@@ -46,15 +45,20 @@ function InvitePage() {
   async function handleSignIn() {
     setStatus("signing");
     sessionStorage.setItem("pending_invite_token", token);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.href,
-      extraParams: {
-        scope: "openid email profile https://www.googleapis.com/auth/calendar.events",
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.href,
+        scopes: "openid email profile https://www.googleapis.com/auth/calendar.events",
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
-    if (result.error) {
+    if (error) {
       setStatus("error");
-      setError(result.error.message ?? "Sign-in failed");
+      setError(error.message ?? "Sign-in failed");
     }
   }
 
