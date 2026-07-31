@@ -212,7 +212,7 @@ export function AppLayout({
           </div>
         </header>
         <div className="max-w-6xl mx-auto px-4 md:px-10 py-8 md:py-10">
-          <div key={pathname} className="animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out">
+          <div key={pathname} className="animate-in fade-in duration-150 ease-out">
             {children}
           </div>
         </div>

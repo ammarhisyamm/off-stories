@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { X } from "@phosphor-icons/react";
+import { X, Trash, PencilSimple } from "@phosphor-icons/react";
+import { QuietButton } from "@/components/app-layout";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -98,4 +99,65 @@ export function ModalShell({
       </div>
     </div>
   );
+}
+
+export function ViewModal({
+  title,
+  onClose,
+  onEdit,
+  onDelete,
+  badge,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  badge?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <ModalShell title={title} onClose={onClose}>
+      <div className="space-y-3">
+        {badge}
+        {children}
+      </div>
+      <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
+        <button
+          type="button"
+          onClick={onDelete}
+          className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
+        >
+          <Trash size={16} /> Delete
+        </button>
+        <div className="flex items-center gap-2">
+          <QuietButton type="button" onClick={onClose}>
+            Close
+          </QuietButton>
+          <QuietButton type="button" variant="primary" onClick={onEdit}>
+            <PencilSimple size={15} /> Edit
+          </QuietButton>
+        </div>
+      </div>
+    </ModalShell>
+  );
+}
+
+export function Detail({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}) {
+  return (
+    <div>
+      <div className="eyebrow">{label}</div>
+      <div className="text-sm text-foreground mt-1 leading-relaxed whitespace-pre-wrap">{value}</div>
+    </div>
+  );
+}
+
+export function DetailGrid({ children }: { children: ReactNode }) {
+  return <div className="grid grid-cols-2 gap-4">{children}</div>;
 }

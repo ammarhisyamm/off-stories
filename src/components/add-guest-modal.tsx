@@ -15,9 +15,9 @@ export function AddGuestModal({
   onSave: (guest: Guest) => void;
   onDelete?: (id: string) => void;
 }) {
-  const [side, setSide] = useState<Guest["side"]>(initial?.side ?? "Bride");
-  const [rsvp, setRsvp] = useState<Guest["rsvp"]>(initial?.rsvp ?? "pending");
-  const [invited, setInvited] = useState(initial?.invited ?? true);
+  const [side, setSide] = useState<Guest["side"] | "">(initial?.side ?? "");
+  const [rsvp, setRsvp] = useState<Guest["rsvp"] | "">(initial?.rsvp ?? "");
+  const [invited, setInvited] = useState(initial?.invited ?? false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,10 +25,10 @@ export function AddGuestModal({
     onSave({
       id: initial?.id ?? `g${Date.now()}`,
       name: (form.get("name") as string).trim(),
-      side,
+      side: (side || "Bride") as Guest["side"],
       pax: Number(form.get("pax")) || 1,
       invited,
-      rsvp,
+      rsvp: (rsvp || "pending") as Guest["rsvp"],
     });
   }
 
@@ -51,10 +51,14 @@ export function AddGuestModal({
             <span className="block text-sm font-medium mb-1.5">Side</span>
             <select
               name="side"
+              required
               value={side}
-              onChange={(e) => setSide(e.target.value as Guest["side"])}
+              onChange={(e) => setSide(e.target.value as Guest["side"] | "")}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select side
+              </option>
               <option value="Bride">Bride</option>
               <option value="Groom">Groom</option>
               <option value="Both">Both</option>
@@ -67,7 +71,8 @@ export function AddGuestModal({
               type="number"
               required
               min={1}
-              defaultValue={initial?.pax ?? 1}
+              defaultValue={initial?.pax}
+              placeholder="e.g. 4"
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
@@ -96,10 +101,14 @@ export function AddGuestModal({
             <span className="block text-sm font-medium mb-1.5">RSVP</span>
             <select
               name="rsvp"
+              required
               value={rsvp}
-              onChange={(e) => setRsvp(e.target.value as Guest["rsvp"])}
+              onChange={(e) => setRsvp(e.target.value as Guest["rsvp"] | "")}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select RSVP
+              </option>
               <option value="pending">Pending</option>
               <option value="yes">Yes</option>
               <option value="no">No</option>

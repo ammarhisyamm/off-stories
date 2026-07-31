@@ -16,7 +16,7 @@ export function AddTaskModal({
   onSave: (task: Task) => void;
   onDelete?: (id: string) => void;
 }) {
-  const [priority, setPriority] = useState<Priority>(initial?.priority ?? "medium");
+  const [priority, setPriority] = useState<Priority | "">(initial?.priority ?? "");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,7 +26,7 @@ export function AddTaskModal({
       title: (form.get("title") as string).trim(),
       category: (form.get("category") as string) || "Other",
       due: (form.get("due") as string) || new Date().toISOString().split("T")[0],
-      priority,
+      priority: (priority || "medium") as Priority,
       status: initial?.status ?? "todo",
       assignee: (form.get("assignee") as string)?.trim() || undefined,
     });
@@ -51,9 +51,13 @@ export function AddTaskModal({
             <span className="block text-sm font-medium mb-1.5">Category</span>
             <select
               name="category"
-              defaultValue={initial?.category ?? taskCategories[0]}
+              required
+              defaultValue={initial?.category ?? ""}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select category
+              </option>
               {taskCategories.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -66,10 +70,14 @@ export function AddTaskModal({
             <span className="block text-sm font-medium mb-1.5">Priority</span>
             <select
               name="priority"
+              required
               value={priority}
-              onChange={(e) => setPriority(e.target.value as Priority)}
+              onChange={(e) => setPriority(e.target.value as Priority | "")}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select priority
+              </option>
               <option value="high">High</option>
               <option value="medium">Medium</option>
               <option value="low">Low</option>
@@ -83,7 +91,7 @@ export function AddTaskModal({
               type="date"
               name="due"
               required
-              defaultValue={initial?.due ?? new Date().toISOString().split("T")[0]}
+              defaultValue={initial?.due}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>

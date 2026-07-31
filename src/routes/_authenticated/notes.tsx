@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { notes as initialNotes, Note } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import { X, Trash } from "@phosphor-icons/react";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/notes")({
 function Notes() {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [viewingNote, setViewingNote] = useState<Note | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -45,6 +47,10 @@ function Notes() {
   const handleOpenEdit = (note: Note) => {
     setEditingNote(note);
     setIsModalOpen(true);
+  };
+
+  const handleOpenView = (note: Note) => {
+    setViewingNote(note);
   };
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
@@ -90,7 +96,7 @@ function Notes() {
           <article
             key={n.id}
             className="panel p-6 cursor-pointer hover:border-primary/50 transition-colors"
-            onClick={() => handleOpenEdit(n)}
+            onClick={() => handleOpenView(n)}
           >
             <div className="flex items-center justify-between mb-3">
               <Pill tone={n.tag === "Decision" ? "sage" : n.tag === "Family" ? "rose" : "taupe"}>
@@ -111,6 +117,46 @@ function Notes() {
           </article>
         ))}
       </div>
+
+      {viewingNote && (
+        <ViewModal
+          title="Note details"
+          onClose={() => setViewingNote(null)}
+          onDelete={() => handleDelete(viewingNote.id)}
+          onEdit={() => {
+            const n = viewingNote;
+            setViewingNote(null);
+            handleOpenEdit(n);
+          }}
+          badge={
+            <Pill
+              tone={
+                viewingNote.tag === "Decision"
+                  ? "sage"
+                  : viewingNote.tag === "Family"
+                    ? "rose"
+                    : "taupe"
+              }
+            >
+              {viewingNote.tag}
+            </Pill>
+          }
+        >
+          <Detail label="Title" value={viewingNote.title} />
+          <DetailGrid>
+            <Detail
+              label="Date"
+              value={new Date(viewingNote.date).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            />
+            <Detail label="Tag" value={viewingNote.tag} />
+          </DetailGrid>
+          <Detail label="Body" value={viewingNote.body} />
+        </ViewModal>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
@@ -140,9 +186,13 @@ function Notes() {
                   <span className="block text-sm font-medium mb-1.5">Tag</span>
                   <select
                     name="tag"
-                    defaultValue={editingNote?.tag || "Decision"}
+                    required
+                    defaultValue={editingNote?.tag || ""}
                     className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   >
+                    <option value="" disabled>
+                      Select tag
+                    </option>
                     <option value="Decision">Decision</option>
                     <option value="Family">Family</option>
                     <option value="Vendor">Vendor</option>
@@ -155,7 +205,7 @@ function Notes() {
                     type="date"
                     name="date"
                     required
-                    defaultValue={editingNote?.date || new Date().toISOString().split("T")[0]}
+                    defaultValue={editingNote?.date}
                     className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   />
                 </label>

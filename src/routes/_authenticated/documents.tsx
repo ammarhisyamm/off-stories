@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { documents as initialDocs, DocRef } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import { X, Trash, ArrowSquareOut } from "@phosphor-icons/react";
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/_authenticated/documents")({
 function Documents() {
   const [docs, setDocs] = useState<DocRef[]>(initialDocs);
   const [editingDoc, setEditingDoc] = useState<DocRef | null>(null);
+  const [viewingDoc, setViewingDoc] = useState<DocRef | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -41,10 +43,13 @@ function Documents() {
     setIsModalOpen(true);
   };
 
-  const handleOpenEdit = (e: React.MouseEvent, doc: DocRef) => {
-    e.preventDefault();
+  const handleOpenEdit = (doc: DocRef) => {
     setEditingDoc(doc);
     setIsModalOpen(true);
+  };
+
+  const handleOpenView = (doc: DocRef) => {
+    setViewingDoc(doc);
   };
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
@@ -103,7 +108,7 @@ function Documents() {
                 <div
                   key={d.id}
                   className="panel p-5 hover:bg-surface-2 transition-colors flex flex-col group cursor-pointer hover:border-primary/50"
-                  onClick={(e) => handleOpenEdit(e, d)}
+                  onClick={() => handleOpenView(d)}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <Pill tone="taupe">{d.kind}</Pill>
@@ -135,6 +140,46 @@ function Documents() {
         ))}
       </div>
 
+      {viewingDoc && (
+        <ViewModal
+          title="Document details"
+          onClose={() => setViewingDoc(null)}
+          onDelete={() => handleDelete(viewingDoc.id)}
+          onEdit={() => {
+            const d = viewingDoc;
+            setViewingDoc(null);
+            handleOpenEdit(d);
+          }}
+          badge={<Pill tone="taupe">{viewingDoc.kind}</Pill>}
+        >
+          <Detail label="Title" value={viewingDoc.title} />
+          <DetailGrid>
+            <Detail
+              label="Added"
+              value={new Date(viewingDoc.addedAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            />
+            <Detail label="Vendor" value={viewingDoc.vendor || "—"} />
+          </DetailGrid>
+          <Detail
+            label="URL"
+            value={
+              <a
+                href={viewingDoc.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[color:var(--sage)] hover:underline break-all inline-flex items-center gap-1"
+              >
+                {viewingDoc.url} <ArrowSquareOut size={13} />
+              </a>
+            }
+          />
+        </ViewModal>
+      )}
+
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
           <div className="bg-surface border border-border rounded-xl shadow-xl w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
@@ -163,9 +208,13 @@ function Documents() {
                   <span className="block text-sm font-medium mb-1.5">Type</span>
                   <select
                     name="kind"
-                    defaultValue={editingDoc?.kind || "Contract"}
+                    required
+                    defaultValue={editingDoc?.kind || ""}
                     className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                   >
+                    <option value="" disabled>
+                      Select type
+                    </option>
                     <option value="Contract">Contract</option>
                     <option value="Invoice">Invoice</option>
                     <option value="Moodboard">Moodboard</option>

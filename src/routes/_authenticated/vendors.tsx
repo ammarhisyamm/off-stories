@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddVendorModal } from "@/components/add-vendor-modal";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { vendorStore } from "@/lib/stores";
 import { formatIDR, type Vendor } from "@/lib/mock-data";
 
@@ -22,6 +23,7 @@ function Vendors() {
   const [compareCat, setCompareCat] = useState<string>("Dekorasi");
   const [vendors, setVendors] = useState<Vendor[]>(() => vendorStore.load());
   const [editing, setEditing] = useState<Vendor | null>(null);
+  const [viewing, setViewing] = useState<Vendor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = Array.from(new Set(vendors.map((v) => v.category)));
   const compare = vendors.filter((v) => v.category === compareCat);
@@ -48,6 +50,10 @@ function Vendors() {
     setIsModalOpen(true);
   }
 
+  function openView(vendor: Vendor) {
+    setViewing(vendor);
+  }
+
   return (
     <AppLayout
       eyebrow="Sourcing"
@@ -67,7 +73,7 @@ function Vendors() {
             {vendors.map((v) => (
               <li
                 key={v.id}
-                onClick={() => openEdit(v)}
+                onClick={() => openView(v)}
                 className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
               >
                 <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs font-medium text-muted-foreground">
@@ -136,7 +142,11 @@ function Vendors() {
           ) : (
             <div className="space-y-3">
               {compare.map((v) => (
-                <div key={v.id} className="panel-muted p-4">
+                <div
+                  key={v.id}
+                  onClick={() => openView(v)}
+                  className="panel-muted p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                >
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-foreground">{v.name}</div>
                     <Pill tone={v.status === "booked" ? "sage" : "neutral"}>{v.status}</Pill>
@@ -160,6 +170,43 @@ function Vendors() {
           )}
         </div>
       </div>
+      {viewing && (
+        <ViewModal
+          title="Vendor details"
+          onClose={() => setViewing(null)}
+          onDelete={() => handleDelete(viewing.id)}
+          onEdit={() => {
+            const v = viewing;
+            setViewing(null);
+            openEdit(v);
+          }}
+          badge={
+            <Pill
+              tone={
+                viewing.status === "booked"
+                  ? "sage"
+                  : viewing.status === "shortlisted"
+                    ? "taupe"
+                    : viewing.status === "cancelled"
+                      ? "warn"
+                      : "neutral"
+              }
+            >
+              {viewing.status}
+            </Pill>
+          }
+        >
+          <Detail label="Name" value={viewing.name} />
+          <DetailGrid>
+            <Detail label="Category" value={viewing.category} />
+            <Detail label="Package" value={viewing.packageName} />
+            <Detail label="Contact" value={viewing.contact} />
+            <Detail label="Phone" value={viewing.phone} />
+            <Detail label="Quoted" value={formatIDR(viewing.quoted)} />
+            <Detail label="Final" value={viewing.final ? formatIDR(viewing.final) : "—"} />
+          </DetailGrid>
+        </ViewModal>
+      )}
       {isModalOpen && (
         <AddVendorModal
           initial={editing ?? undefined}

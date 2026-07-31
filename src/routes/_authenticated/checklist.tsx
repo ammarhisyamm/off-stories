@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { loadTasks, saveTasks } from "@/lib/tasks-store";
 import { daysUntil, type Task } from "@/lib/mock-data";
 
@@ -23,6 +24,7 @@ function Checklist() {
   const [filter, setFilter] = useState<string>("All");
   const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
   const [editing, setEditing] = useState<Task | null>(null);
+  const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = ["All", ...Array.from(new Set(tasks.map((t) => t.category)))];
   const filtered = filter === "All" ? tasks : tasks.filter((t) => t.category === filter);
@@ -58,6 +60,10 @@ function Checklist() {
   function openEdit(task: Task) {
     setEditing(task);
     setIsModalOpen(true);
+  }
+
+  function openView(task: Task) {
+    setViewing(task);
   }
 
   return (
@@ -105,7 +111,7 @@ function Checklist() {
       {view === "list" ? (
         <div className="panel divide-y divide-border">
           {filtered.map((t) => (
-            <TaskRow key={t.id} task={t} onToggle={handleToggle} onEdit={openEdit} />
+            <TaskRow key={t.id} task={t} onToggle={handleToggle} onEdit={openView} />
           ))}
           {filtered.length === 0 && (
             <p className="px-5 py-8 text-sm text-muted-foreground">
@@ -129,7 +135,7 @@ function Checklist() {
                   .map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => openEdit(t)}
+                      onClick={() => openView(t)}
                       className="w-full text-left panel p-3 transition duration-150 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]"
                     >
                       <div className="text-sm text-foreground">{t.title}</div>
@@ -148,6 +154,46 @@ function Checklist() {
             </div>
           ))}
         </div>
+      )}
+      {viewing && (
+        <ViewModal
+          title="Task details"
+          onClose={() => setViewing(null)}
+          onDelete={() => handleDelete(viewing.id)}
+          onEdit={() => {
+            const t = viewing;
+            setViewing(null);
+            openEdit(t);
+          }}
+          badge={
+            <Pill
+              tone={
+                viewing.priority === "high"
+                  ? "rose"
+                  : viewing.priority === "medium"
+                    ? "taupe"
+                    : "neutral"
+              }
+            >
+              {viewing.priority}
+            </Pill>
+          }
+        >
+          <Detail label="Title" value={viewing.title} />
+          <DetailGrid>
+            <Detail label="Category" value={viewing.category} />
+            <Detail
+              label="Due"
+              value={new Date(viewing.due).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            />
+            <Detail label="Assignee" value={viewing.assignee ?? "Unassigned"} />
+            <Detail label="Status" value={viewing.status.replace("_", " ")} />
+          </DetailGrid>
+        </ViewModal>
       )}
       {isModalOpen && (
         <AddTaskModal

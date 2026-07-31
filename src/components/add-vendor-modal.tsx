@@ -27,7 +27,7 @@ export function AddVendorModal({
   onSave: (vendor: Vendor) => void;
   onDelete?: (id: string) => void;
 }) {
-  const [status, setStatus] = useState<Vendor["status"]>(initial?.status ?? "researching");
+  const [status, setStatus] = useState<Vendor["status"] | "">(initial?.status ?? "");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,7 +41,7 @@ export function AddVendorModal({
       packageName: (form.get("packageName") as string)?.trim() || "—",
       quoted: Number(form.get("quoted")) || 0,
       final: initial?.final,
-      status,
+      status: (status || "researching") as Vendor["status"],
     });
   }
 
@@ -64,9 +64,13 @@ export function AddVendorModal({
             <span className="block text-sm font-medium mb-1.5">Category</span>
             <select
               name="category"
-              defaultValue={initial?.category ?? vendorCategories[0]}
+              required
+              defaultValue={initial?.category ?? ""}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select category
+              </option>
               {vendorCategories.map((c) => (
                 <option key={c} value={c}>
                   {c}
@@ -78,10 +82,14 @@ export function AddVendorModal({
             <span className="block text-sm font-medium mb-1.5">Status</span>
             <select
               name="status"
+              required
               value={status}
-              onChange={(e) => setStatus(e.target.value as Vendor["status"])}
+              onChange={(e) => setStatus(e.target.value as Vendor["status"] | "")}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select status
+              </option>
               <option value="researching">Researching</option>
               <option value="shortlisted">Shortlisted</option>
               <option value="booked">Booked</option>

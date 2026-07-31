@@ -28,7 +28,7 @@ export function AddExpenseModal({
   onSave: (item: BudgetItem) => void;
   onDelete?: (id: string) => void;
 }) {
-  const [status, setStatus] = useState<BudgetItem["status"]>(initial?.status ?? "partial");
+  const [status, setStatus] = useState<BudgetItem["status"] | "">(initial?.status ?? "");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -42,7 +42,7 @@ export function AddExpenseModal({
       amount,
       paid,
       committed: amount,
-      status,
+      status: (status || "planned") as BudgetItem["status"],
       dueDate: (form.get("dueDate") as string) || undefined,
     });
   }
@@ -54,9 +54,13 @@ export function AddExpenseModal({
           <span className="block text-sm font-medium mb-1.5">Category</span>
           <select
             name="category"
-            defaultValue={initial?.category ?? budgetCategories[0]}
+            required
+            defaultValue={initial?.category ?? ""}
             className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
           >
+            <option value="" disabled>
+              Select category
+            </option>
             {budgetCategories.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -93,7 +97,7 @@ export function AddExpenseModal({
               name="paid"
               type="number"
               min={0}
-              defaultValue={initial?.paid ?? 0}
+              defaultValue={initial?.paid}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="0"
             />
@@ -104,10 +108,14 @@ export function AddExpenseModal({
             <span className="block text-sm font-medium mb-1.5">Status</span>
             <select
               name="status"
+              required
               value={status}
-              onChange={(e) => setStatus(e.target.value as BudgetItem["status"])}
+              onChange={(e) => setStatus(e.target.value as BudgetItem["status"] | "")}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             >
+              <option value="" disabled>
+                Select status
+              </option>
               <option value="paid">Paid</option>
               <option value="partial">Partial</option>
               <option value="due">Due</option>

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { budgetStore, eventStore } from "@/lib/stores";
 import { formatIDR, type BudgetItem } from "@/lib/mock-data";
 
@@ -22,6 +23,7 @@ function Budget() {
   const [items, setItems] = useState<BudgetItem[]>(() => budgetStore.load());
   const [wedding] = useState(() => eventStore.load());
   const [editing, setEditing] = useState<BudgetItem | null>(null);
+  const [viewing, setViewing] = useState<BudgetItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const total = wedding.budget;
   const paid = items.reduce((s, b) => s + b.paid, 0);
@@ -48,6 +50,10 @@ function Budget() {
   function openEdit(item: BudgetItem) {
     setEditing(item);
     setIsModalOpen(true);
+  }
+
+  function openView(item: BudgetItem) {
+    setViewing(item);
   }
 
   return (
@@ -118,7 +124,7 @@ function Budget() {
             {items.map((b) => (
               <tr
                 key={b.id}
-                onClick={() => openEdit(b)}
+                onClick={() => openView(b)}
                 className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60"
               >
                 <td className="px-5 py-3 text-foreground">{b.category}</td>
@@ -156,6 +162,52 @@ function Budget() {
           </tbody>
         </table>
       </div>
+      {viewing && (
+        <ViewModal
+          title="Expense details"
+          onClose={() => setViewing(null)}
+          onDelete={() => handleDelete(viewing.id)}
+          onEdit={() => {
+            const b = viewing;
+            setViewing(null);
+            openEdit(b);
+          }}
+          badge={
+            <Pill
+              tone={
+                viewing.status === "paid"
+                  ? "sage"
+                  : viewing.status === "partial"
+                    ? "taupe"
+                    : viewing.status === "due"
+                      ? "warn"
+                      : "neutral"
+              }
+            >
+              {viewing.status}
+            </Pill>
+          }
+        >
+          <DetailGrid>
+            <Detail label="Category" value={viewing.category} />
+            <Detail label="Vendor" value={viewing.vendor ?? "—"} />
+            <Detail label="Amount" value={formatIDR(viewing.amount)} />
+            <Detail label="Paid" value={formatIDR(viewing.paid)} />
+          </DetailGrid>
+          <Detail
+            label="Due date"
+            value={
+              viewing.dueDate
+                ? new Date(viewing.dueDate).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "—"
+            }
+          />
+        </ViewModal>
+      )}
       {isModalOpen && (
         <AddExpenseModal
           initial={editing ?? undefined}

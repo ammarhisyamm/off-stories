@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddGuestModal } from "@/components/add-guest-modal";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { guestStore } from "@/lib/stores";
 import type { Guest } from "@/lib/mock-data";
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/guests")({
 function Guests() {
   const [guests, setGuests] = useState<Guest[]>(() => guestStore.load());
   const [editing, setEditing] = useState<Guest | null>(null);
+  const [viewing, setViewing] = useState<Guest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const totalInvited = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
@@ -47,6 +49,10 @@ function Guests() {
   function openEdit(guest: Guest) {
     setEditing(guest);
     setIsModalOpen(true);
+  }
+
+  function openView(guest: Guest) {
+    setViewing(guest);
   }
 
   return (
@@ -81,7 +87,7 @@ function Guests() {
             {guests.map((g) => (
               <tr
                 key={g.id}
-                onClick={() => openEdit(g)}
+                onClick={() => openView(g)}
                 className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60"
               >
                 <td className="px-5 py-3 text-foreground">{g.name}</td>
@@ -110,6 +116,43 @@ function Guests() {
           </tbody>
         </table>
       </div>
+      {viewing && (
+        <ViewModal
+          title="Guest group details"
+          onClose={() => setViewing(null)}
+          onDelete={() => handleDelete(viewing.id)}
+          onEdit={() => {
+            const g = viewing;
+            setViewing(null);
+            openEdit(g);
+          }}
+          badge={
+            <Pill
+              tone={
+                viewing.rsvp === "yes"
+                  ? "sage"
+                  : viewing.rsvp === "no"
+                    ? "warn"
+                    : viewing.rsvp === "maybe"
+                      ? "taupe"
+                      : "neutral"
+              }
+            >
+              {viewing.rsvp}
+            </Pill>
+          }
+        >
+          <Detail label="Group name" value={viewing.name} />
+          <DetailGrid>
+            <Detail label="Side" value={viewing.side} />
+            <Detail label="Pax" value={viewing.pax} />
+          </DetailGrid>
+          <Detail
+            label="Invitation"
+            value={viewing.invited ? "Invitation sent" : "Draft — not yet sent"}
+          />
+        </ViewModal>
+      )}
       {isModalOpen && (
         <AddGuestModal
           initial={editing ?? undefined}

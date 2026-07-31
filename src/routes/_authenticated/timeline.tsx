@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddMilestoneModal } from "@/components/add-milestone-modal";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { milestoneStore } from "@/lib/stores";
 import { daysUntil, type Milestone } from "@/lib/mock-data";
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/timeline")({
 function Timeline() {
   const [milestones, setMilestones] = useState<Milestone[]>(() => milestoneStore.load());
   const [editing, setEditing] = useState<Milestone | null>(null);
+  const [viewing, setViewing] = useState<Milestone | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const byMonth = milestones.reduce<Record<string, Milestone[]>>((acc, m) => {
     const k = new Date(m.date).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
@@ -47,6 +49,10 @@ function Timeline() {
   function openEdit(milestone: Milestone) {
     setEditing(milestone);
     setIsModalOpen(true);
+  }
+
+  function openView(milestone: Milestone) {
+    setViewing(milestone);
   }
 
   return (
@@ -88,7 +94,7 @@ function Timeline() {
               {list.map((m) => (
                 <li
                   key={m.id}
-                  onClick={() => openEdit(m)}
+                  onClick={() => openView(m)}
                   className="px-5 py-4 flex items-center gap-5 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
                 >
                   <div className="w-14 text-center">
@@ -110,6 +116,33 @@ function Timeline() {
           </section>
         ))}
       </div>
+      {viewing && (
+        <ViewModal
+          title="Milestone details"
+          onClose={() => setViewing(null)}
+          onDelete={() => handleDelete(viewing.id)}
+          onEdit={() => {
+            const m = viewing;
+            setViewing(null);
+            openEdit(m);
+          }}
+          badge={viewing.done ? <Pill tone="sage">Done</Pill> : undefined}
+        >
+          <Detail label="Title" value={viewing.title} />
+          <DetailGrid>
+            <Detail
+              label="Date"
+              value={new Date(viewing.date).toLocaleDateString("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            />
+            <Detail label="Kind" value={viewing.kind} />
+          </DetailGrid>
+        </ViewModal>
+      )}
       {isModalOpen && (
         <AddMilestoneModal
           initial={editing ?? undefined}

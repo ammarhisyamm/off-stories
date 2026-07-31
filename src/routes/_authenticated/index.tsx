@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
+import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { loadTasks, saveTasks } from "@/lib/tasks-store";
 import {
   budgetStore,
@@ -50,6 +51,7 @@ function Dashboard() {
   const [notes] = useState<Note[]>(() => notesStore.load());
   const [event, setEvent] = useState(() => eventStore.load());
   const [editing, setEditing] = useState<Task | null>(null);
+  const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => eventStore.subscribe(() => setEvent(eventStore.load())), []);
@@ -168,10 +170,7 @@ function Dashboard() {
               return (
                 <li
                   key={t.id}
-                  onClick={() => {
-                    setEditing(t);
-                    setIsModalOpen(true);
-                  }}
+                  onClick={() => setViewing(t)}
                   className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
                 >
                   <span
@@ -278,6 +277,47 @@ function Dashboard() {
           </ul>
         </div>
       </section>
+      {viewing && (
+        <ViewModal
+          title="Task details"
+          onClose={() => setViewing(null)}
+          onDelete={() => handleDeleteTask(viewing.id)}
+          onEdit={() => {
+            const t = viewing;
+            setViewing(null);
+            setEditing(t);
+            setIsModalOpen(true);
+          }}
+          badge={
+            <Pill
+              tone={
+                viewing.priority === "high"
+                  ? "rose"
+                  : viewing.priority === "medium"
+                    ? "taupe"
+                    : "neutral"
+              }
+            >
+              {viewing.priority}
+            </Pill>
+          }
+        >
+          <Detail label="Title" value={viewing.title} />
+          <DetailGrid>
+            <Detail label="Category" value={viewing.category} />
+            <Detail
+              label="Due"
+              value={new Date(viewing.due).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            />
+            <Detail label="Assignee" value={viewing.assignee ?? "Unassigned"} />
+            <Detail label="Status" value={viewing.status.replace("_", " ")} />
+          </DetailGrid>
+        </ViewModal>
+      )}
       {isModalOpen && (
         <AddTaskModal
           initial={editing ?? undefined}
