@@ -1,15 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { AddTaskModal } from "@/components/add-task-modal";
+import { loadTasks, saveTasks } from "@/lib/tasks-store";
 import {
   event,
   daysUntil,
   formatIDR,
-  tasks,
   budgetItems,
   vendors,
   guests,
   milestones,
   notes,
+  type Task,
 } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -32,6 +35,8 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 function Dashboard() {
+  const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const days = daysUntil(event.date);
   const done = tasks.filter((t) => t.status === "done").length;
   const progress = Math.round((done / tasks.length) * 100);
@@ -58,14 +63,22 @@ function Dashboard() {
 
   const nextMilestones = milestones.filter((m) => !m.done).slice(0, 4);
 
+  function handleAddTask(task: Task) {
+    const next = [task, ...tasks];
+    saveTasks(next);
+    setTasks(next);
+  }
+
   return (
     <AppLayout
       eyebrow={`${event.type} · ${event.location}`}
       title={`${days} days to ${event.name.split(" & ")[0]} & ${event.name.split(" & ")[1]}`}
       actions={
         <>
-          <QuietButton>Export</QuietButton>
-          <QuietButton variant="primary">Add task</QuietButton>
+          <QuietButton onClick={() => window.print()}>Export</QuietButton>
+          <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+            Add task
+          </QuietButton>
         </>
       }
     >
@@ -230,6 +243,9 @@ function Dashboard() {
           </ul>
         </div>
       </section>
+      {isModalOpen && (
+        <AddTaskModal onClose={() => setIsModalOpen(false)} onSave={handleAddTask} />
+      )}
     </AppLayout>
   );
 }

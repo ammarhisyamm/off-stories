@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { tasks, daysUntil, type Task } from "@/lib/mock-data";
+import { AddTaskModal } from "@/components/add-task-modal";
+import { loadTasks, saveTasks } from "@/lib/tasks-store";
+import { daysUntil, type Task } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
@@ -19,8 +21,16 @@ export const Route = createFileRoute("/_authenticated/checklist")({
 function Checklist() {
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filter, setFilter] = useState<string>("All");
+  const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = ["All", ...Array.from(new Set(tasks.map((t) => t.category)))];
   const filtered = filter === "All" ? tasks : tasks.filter((t) => t.category === filter);
+
+  function handleAddTask(task: Task) {
+    const next = [task, ...tasks];
+    saveTasks(next);
+    setTasks(next);
+  }
 
   return (
     <AppLayout
@@ -42,7 +52,9 @@ function Checklist() {
               Kanban
             </button>
           </div>
-          <QuietButton variant="primary">Add task</QuietButton>
+          <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+            Add task
+          </QuietButton>
         </>
       }
     >
@@ -96,6 +108,9 @@ function Checklist() {
             </div>
           ))}
         </div>
+      )}
+      {isModalOpen && (
+        <AddTaskModal onClose={() => setIsModalOpen(false)} onSave={handleAddTask} />
       )}
     </AppLayout>
   );
