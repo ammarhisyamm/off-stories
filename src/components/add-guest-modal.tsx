@@ -1,24 +1,29 @@
 import { useState } from "react";
 import { ModalShell } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
+import { Trash } from "@phosphor-icons/react";
 import type { Guest } from "@/lib/mock-data";
 
 export function AddGuestModal({
+  initial,
   onClose,
   onSave,
+  onDelete,
 }: {
+  initial?: Guest;
   onClose: () => void;
   onSave: (guest: Guest) => void;
+  onDelete?: (id: string) => void;
 }) {
-  const [side, setSide] = useState<Guest["side"]>("Bride");
-  const [rsvp, setRsvp] = useState<Guest["rsvp"]>("pending");
-  const [invited, setInvited] = useState(true);
+  const [side, setSide] = useState<Guest["side"]>(initial?.side ?? "Bride");
+  const [rsvp, setRsvp] = useState<Guest["rsvp"]>(initial?.rsvp ?? "pending");
+  const [invited, setInvited] = useState(initial?.invited ?? true);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     onSave({
-      id: `g${Date.now()}`,
+      id: initial?.id ?? `g${Date.now()}`,
       name: (form.get("name") as string).trim(),
       side,
       pax: Number(form.get("pax")) || 1,
@@ -28,7 +33,7 @@ export function AddGuestModal({
   }
 
   return (
-    <ModalShell title="Add Guest Group" onClose={onClose}>
+    <ModalShell title={initial ? "Edit Guest Group" : "Add Guest Group"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="block text-sm font-medium mb-1.5">Group name</span>
@@ -36,6 +41,7 @@ export function AddGuestModal({
             name="name"
             required
             autoFocus
+            defaultValue={initial?.name}
             className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Keluarga besar — Bride"
           />
@@ -61,7 +67,7 @@ export function AddGuestModal({
               type="number"
               required
               min={1}
-              defaultValue={1}
+              defaultValue={initial?.pax ?? 1}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
@@ -101,13 +107,26 @@ export function AddGuestModal({
             </select>
           </label>
         </div>
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <QuietButton type="button" onClick={onClose}>
-            Cancel
-          </QuietButton>
-          <QuietButton variant="primary" type="submit">
-            Add Guest Group
-          </QuietButton>
+        <div className="flex items-center justify-between pt-2">
+          {initial && onDelete ? (
+            <button
+              type="button"
+              onClick={() => onDelete(initial.id)}
+              className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
+            >
+              <Trash size={16} /> Delete
+            </button>
+          ) : (
+            <div />
+          )}
+          <div className="flex items-center gap-2">
+            <QuietButton type="button" onClick={onClose}>
+              Cancel
+            </QuietButton>
+            <QuietButton variant="primary" type="submit">
+              {initial ? "Save Guest Group" : "Add Guest Group"}
+            </QuietButton>
+          </div>
         </div>
       </form>
     </ModalShell>

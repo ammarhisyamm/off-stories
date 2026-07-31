@@ -15,7 +15,8 @@ import {
   SignOut,
   X,
 } from "@phosphor-icons/react";
-import { event, daysUntil } from "@/lib/mock-data";
+import { eventStore } from "@/lib/stores";
+import { daysUntil } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
@@ -119,6 +120,7 @@ export function AppLayout({
   actions?: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [event] = useState(() => eventStore.load());
   const days = daysUntil(event.date);
   const [mobileOpen, setMobileOpen] = useState(false);
 

@@ -17,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/timeline")({
 
 function Timeline() {
   const [milestones, setMilestones] = useState<Milestone[]>(() => milestoneStore.load());
+  const [editing, setEditing] = useState<Milestone | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const byMonth = milestones.reduce<Record<string, Milestone[]>>((acc, m) => {
     const k = new Date(m.date).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
@@ -24,10 +25,28 @@ function Timeline() {
     return acc;
   }, {});
 
-  function handleAdd(milestone: Milestone) {
-    const next = [...milestones, milestone];
+  function handleSave(milestone: Milestone) {
+    const exists = milestones.some((m) => m.id === milestone.id);
+    const next = exists
+      ? milestones.map((m) => (m.id === milestone.id ? milestone : m))
+      : [...milestones, milestone];
     milestoneStore.save(next);
     setMilestones(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function handleDelete(id: string) {
+    const next = milestones.filter((m) => m.id !== id);
+    milestoneStore.save(next);
+    setMilestones(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function openEdit(milestone: Milestone) {
+    setEditing(milestone);
+    setIsModalOpen(true);
   }
 
   return (
@@ -67,7 +86,11 @@ function Timeline() {
             </div>
             <ol className="panel divide-y divide-border">
               {list.map((m) => (
-                <li key={m.id} className="px-5 py-4 flex items-center gap-5">
+                <li
+                  key={m.id}
+                  onClick={() => openEdit(m)}
+                  className="px-5 py-4 flex items-center gap-5 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
+                >
                   <div className="w-14 text-center">
                     <div className="serif text-2xl text-foreground tabular-nums">
                       {new Date(m.date).getDate()}
@@ -88,7 +111,15 @@ function Timeline() {
         ))}
       </div>
       {isModalOpen && (
-        <AddMilestoneModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+        <AddMilestoneModal
+          initial={editing ?? undefined}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditing(null);
+          }}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
       )}
     </AppLayout>
   );

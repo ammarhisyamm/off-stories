@@ -9,9 +9,9 @@ import {
   guestStore,
   milestoneStore,
   notesStore,
+  eventStore,
 } from "@/lib/stores";
 import {
-  event,
   daysUntil,
   formatIDR,
   type Task,
@@ -48,6 +48,8 @@ function Dashboard() {
   const [guests] = useState<Guest[]>(() => guestStore.load());
   const [milestones] = useState<Milestone[]>(() => milestoneStore.load());
   const [notes] = useState<Note[]>(() => notesStore.load());
+  const [event] = useState(() => eventStore.load());
+  const [editing, setEditing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const days = daysUntil(event.date);
   const done = tasks.filter((t) => t.status === "done").length;
@@ -75,10 +77,21 @@ function Dashboard() {
 
   const nextMilestones = milestones.filter((m) => !m.done).slice(0, 4);
 
-  function handleAddTask(task: Task) {
-    const next = [task, ...tasks];
+  function handleSaveTask(task: Task) {
+    const exists = tasks.some((t) => t.id === task.id);
+    const next = exists ? tasks.map((t) => (t.id === task.id ? task : t)) : [task, ...tasks];
     saveTasks(next);
     setTasks(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function handleDeleteTask(id: string) {
+    const next = tasks.filter((t) => t.id !== id);
+    saveTasks(next);
+    setTasks(next);
+    setIsModalOpen(false);
+    setEditing(null);
   }
 
   return (
@@ -88,7 +101,7 @@ function Dashboard() {
       actions={
         <>
           <QuietButton onClick={() => window.print()}>Export</QuietButton>
-          <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+          <QuietButton variant="primary" onClick={() => { setEditing(null); setIsModalOpen(true); }}>
             Add task
           </QuietButton>
         </>
@@ -150,7 +163,14 @@ function Dashboard() {
             {urgent.map((t) => {
               const d = daysUntil(t.due);
               return (
-                <li key={t.id} className="py-3 flex items-center gap-4">
+                <li
+                  key={t.id}
+                  onClick={() => {
+                    setEditing(t);
+                    setIsModalOpen(true);
+                  }}
+                  className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
+                >
                   <span
                     className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
                   />
@@ -256,7 +276,15 @@ function Dashboard() {
         </div>
       </section>
       {isModalOpen && (
-        <AddTaskModal onClose={() => setIsModalOpen(false)} onSave={handleAddTask} />
+        <AddTaskModal
+          initial={editing ?? undefined}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditing(null);
+          }}
+          onSave={handleSaveTask}
+          onDelete={handleDeleteTask}
+        />
       )}
     </AppLayout>
   );

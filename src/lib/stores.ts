@@ -4,6 +4,7 @@ import {
   milestones as initialMilestones,
   vendors as initialVendors,
   notes as initialNotes,
+  event as initialEvent,
   type BudgetItem,
   type Guest,
   type Milestone,
@@ -32,3 +33,19 @@ export const guestStore = createStore<Guest>("wedding_guests", initialGuests);
 export const milestoneStore = createStore<Milestone>("wedding_milestones", initialMilestones);
 export const vendorStore = createStore<Vendor>("wedding_vendors", initialVendors);
 export const notesStore = createStore<Note>("wedding_notes", initialNotes);
+
+type EventData = typeof initialEvent;
+
+export const eventStore = {
+  load: (): EventData => {
+    if (typeof window === "undefined") return initialEvent;
+    try {
+      const saved = localStorage.getItem("wedding_event");
+      if (saved) return { ...initialEvent, ...(JSON.parse(saved) as Partial<EventData>) };
+    } catch {
+      // ignore corrupt storage
+    }
+    return initialEvent;
+  },
+  save: (data: EventData) => localStorage.setItem("wedding_event", JSON.stringify(data)),
+};

@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
-import { budgetStore } from "@/lib/stores";
-import { event, formatIDR, type BudgetItem } from "@/lib/mock-data";
+import { budgetStore, eventStore } from "@/lib/stores";
+import { formatIDR, type BudgetItem } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/budget")({
   head: () => ({
@@ -20,16 +20,34 @@ export const Route = createFileRoute("/_authenticated/budget")({
 
 function Budget() {
   const [items, setItems] = useState<BudgetItem[]>(() => budgetStore.load());
+  const [wedding] = useState(() => eventStore.load());
+  const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const total = event.budget;
+  const total = wedding.budget;
   const paid = items.reduce((s, b) => s + b.paid, 0);
   const committed = items.reduce((s, b) => s + b.committed, 0);
   const remaining = total - committed;
 
-  function handleAdd(item: BudgetItem) {
-    const next = [item, ...items];
+  function handleSave(item: BudgetItem) {
+    const exists = items.some((i) => i.id === item.id);
+    const next = exists ? items.map((i) => (i.id === item.id ? item : i)) : [item, ...items];
     budgetStore.save(next);
     setItems(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function handleDelete(id: string) {
+    const next = items.filter((i) => i.id !== id);
+    budgetStore.save(next);
+    setItems(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function openEdit(item: BudgetItem) {
+    setEditing(item);
+    setIsModalOpen(true);
   }
 
   return (
@@ -98,7 +116,11 @@ function Budget() {
           </thead>
           <tbody className="divide-y divide-border">
             {items.map((b) => (
-              <tr key={b.id} className="hover:bg-surface-2/60">
+              <tr
+                key={b.id}
+                onClick={() => openEdit(b)}
+                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60"
+              >
                 <td className="px-5 py-3 text-foreground">{b.category}</td>
                 <td className="px-5 py-3 text-muted-foreground">{b.vendor ?? "—"}</td>
                 <td className="px-5 py-3 text-right tabular-nums">{formatIDR(b.amount)}</td>
@@ -135,7 +157,15 @@ function Budget() {
         </table>
       </div>
       {isModalOpen && (
-        <AddExpenseModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+        <AddExpenseModal
+          initial={editing ?? undefined}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditing(null);
+          }}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
       )}
     </AppLayout>
   );

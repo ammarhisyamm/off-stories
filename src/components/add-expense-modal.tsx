@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ModalShell } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
+import { Trash } from "@phosphor-icons/react";
 import type { BudgetItem } from "@/lib/mock-data";
 
 const budgetCategories = [
@@ -17,13 +18,17 @@ const budgetCategories = [
 ];
 
 export function AddExpenseModal({
+  initial,
   onClose,
   onSave,
+  onDelete,
 }: {
+  initial?: BudgetItem;
   onClose: () => void;
   onSave: (item: BudgetItem) => void;
+  onDelete?: (id: string) => void;
 }) {
-  const [status, setStatus] = useState<BudgetItem["status"]>("partial");
+  const [status, setStatus] = useState<BudgetItem["status"]>(initial?.status ?? "partial");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,7 +36,7 @@ export function AddExpenseModal({
     const amount = Number(form.get("amount"));
     const paid = Math.min(Number(form.get("paid") ?? 0) || 0, amount);
     onSave({
-      id: `b${Date.now()}`,
+      id: initial?.id ?? `b${Date.now()}`,
       category: (form.get("category") as string) || "Other",
       vendor: (form.get("vendor") as string)?.trim() || undefined,
       amount,
@@ -43,12 +48,13 @@ export function AddExpenseModal({
   }
 
   return (
-    <ModalShell title="Add Expense" onClose={onClose}>
+    <ModalShell title={initial ? "Edit Expense" : "Add Expense"} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="block text-sm font-medium mb-1.5">Category</span>
           <select
             name="category"
+            defaultValue={initial?.category ?? budgetCategories[0]}
             className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
           >
             {budgetCategories.map((c) => (
@@ -62,6 +68,7 @@ export function AddExpenseModal({
           <span className="block text-sm font-medium mb-1.5">Vendor (optional)</span>
           <input
             name="vendor"
+            defaultValue={initial?.vendor}
             className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             placeholder="e.g. Padma Hall"
           />
@@ -74,7 +81,8 @@ export function AddExpenseModal({
               type="number"
               required
               min={1}
-              autoFocus
+              autoFocus={!initial}
+              defaultValue={initial?.amount}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="e.g. 25000000"
             />
@@ -85,7 +93,7 @@ export function AddExpenseModal({
               name="paid"
               type="number"
               min={0}
-              defaultValue={0}
+              defaultValue={initial?.paid ?? 0}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               placeholder="0"
             />
@@ -111,17 +119,31 @@ export function AddExpenseModal({
             <input
               type="date"
               name="dueDate"
+              defaultValue={initial?.dueDate}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
         </div>
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <QuietButton type="button" onClick={onClose}>
-            Cancel
-          </QuietButton>
-          <QuietButton variant="primary" type="submit">
-            Add Expense
-          </QuietButton>
+        <div className="flex items-center justify-between pt-2">
+          {initial && onDelete ? (
+            <button
+              type="button"
+              onClick={() => onDelete(initial.id)}
+              className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
+            >
+              <Trash size={16} /> Delete
+            </button>
+          ) : (
+            <div />
+          )}
+          <div className="flex items-center gap-2">
+            <QuietButton type="button" onClick={onClose}>
+              Cancel
+            </QuietButton>
+            <QuietButton variant="primary" type="submit">
+              {initial ? "Save Expense" : "Add Expense"}
+            </QuietButton>
+          </div>
         </div>
       </form>
     </ModalShell>

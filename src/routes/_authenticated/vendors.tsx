@@ -21,14 +21,31 @@ export const Route = createFileRoute("/_authenticated/vendors")({
 function Vendors() {
   const [compareCat, setCompareCat] = useState<string>("Dekorasi");
   const [vendors, setVendors] = useState<Vendor[]>(() => vendorStore.load());
+  const [editing, setEditing] = useState<Vendor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = Array.from(new Set(vendors.map((v) => v.category)));
   const compare = vendors.filter((v) => v.category === compareCat);
 
-  function handleAdd(vendor: Vendor) {
-    const next = [vendor, ...vendors];
+  function handleSave(vendor: Vendor) {
+    const exists = vendors.some((v) => v.id === vendor.id);
+    const next = exists ? vendors.map((v) => (v.id === vendor.id ? vendor : v)) : [vendor, ...vendors];
     vendorStore.save(next);
     setVendors(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function handleDelete(id: string) {
+    const next = vendors.filter((v) => v.id !== id);
+    vendorStore.save(next);
+    setVendors(next);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function openEdit(vendor: Vendor) {
+    setEditing(vendor);
+    setIsModalOpen(true);
   }
 
   return (
@@ -48,7 +65,11 @@ function Vendors() {
           </div>
           <ul className="divide-y divide-border">
             {vendors.map((v) => (
-              <li key={v.id} className="px-5 py-4 flex items-center gap-4">
+              <li
+                key={v.id}
+                onClick={() => openEdit(v)}
+                className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
+              >
                 <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs serif text-muted-foreground">
                   {v.name
                     .split(" ")
@@ -140,7 +161,15 @@ function Vendors() {
         </div>
       </div>
       {isModalOpen && (
-        <AddVendorModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+        <AddVendorModal
+          initial={editing ?? undefined}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditing(null);
+          }}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
       )}
     </AppLayout>
   );

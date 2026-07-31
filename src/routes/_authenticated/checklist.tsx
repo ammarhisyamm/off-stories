@@ -22,14 +22,42 @@ function Checklist() {
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filter, setFilter] = useState<string>("All");
   const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
+  const [editing, setEditing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = ["All", ...Array.from(new Set(tasks.map((t) => t.category)))];
   const filtered = filter === "All" ? tasks : tasks.filter((t) => t.category === filter);
 
-  function handleAddTask(task: Task) {
-    const next = [task, ...tasks];
+  function persist(next: Task[]) {
     saveTasks(next);
     setTasks(next);
+  }
+
+  function handleSave(task: Task) {
+    const exists = tasks.some((t) => t.id === task.id);
+    persist(exists ? tasks.map((t) => (t.id === task.id ? task : t)) : [task, ...tasks]);
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function handleDelete(id: string) {
+    persist(tasks.filter((t) => t.id !== id));
+    setIsModalOpen(false);
+    setEditing(null);
+  }
+
+  function handleToggle(id: string) {
+    persist(
+      tasks.map((t) =>
+        t.id === id
+          ? { ...t, status: t.status === "done" ? "todo" : "done" }
+          : t,
+      ),
+    );
+  }
+
+  function openEdit(task: Task) {
+    setEditing(task);
+    setIsModalOpen(true);
   }
 
   return (
@@ -77,8 +105,13 @@ function Checklist() {
       {view === "list" ? (
         <div className="panel divide-y divide-border">
           {filtered.map((t) => (
-            <TaskRow key={t.id} task={t} />
+            <TaskRow key={t.id} task={t} onToggle={handleToggle} onEdit={openEdit} />
           ))}
+          {filtered.length === 0 && (
+            <p className="px-5 py-8 text-sm text-muted-foreground">
+              No tasks in this category yet.
+            </p>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -94,7 +127,11 @@ function Checklist() {
                 {filtered
                   .filter((t) => t.status === status)
                   .map((t) => (
-                    <div key={t.id} className="panel p-3">
+                    <button
+                      key={t.id}
+                      onClick={() => openEdit(t)}
+                      className="w-full text-left panel p-3 transition duration-150 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]"
+                    >
                       <div className="text-sm text-foreground">{t.title}</div>
                       <div className="flex items-center gap-2 mt-2">
                         <Pill>{t.category}</Pill>
@@ -102,27 +139,60 @@ function Checklist() {
                           in {daysUntil(t.due)}d
                         </span>
                       </div>
-                    </div>
+                    </button>
                   ))}
+                {filtered.filter((t) => t.status === status).length === 0 && (
+                  <p className="text-xs text-muted-foreground py-2">Nothing here.</p>
+                )}
               </div>
             </div>
           ))}
         </div>
       )}
       {isModalOpen && (
-        <AddTaskModal onClose={() => setIsModalOpen(false)} onSave={handleAddTask} />
+        <AddTaskModal
+          initial={editing ?? undefined}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditing(null);
+          }}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
       )}
     </AppLayout>
   );
 }
 
-function TaskRow({ task }: { task: Task }) {
-  const [done, setDone] = useState(task.status === "done");
+function TaskRow({
+  task,
+  onToggle,
+  onEdit,
+}: {
+  task: Task;
+  onToggle: (id: string) => void;
+  onEdit: (task: Task) => void;
+}) {
+  const done = task.status === "done";
   const d = daysUntil(task.due);
   return (
-    <div className="px-5 py-4 flex items-center gap-4">
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onEdit(task)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onEdit(task);
+        }
+      }}
+      className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    >
       <button
-        onClick={() => setDone((v) => !v)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggle(task.id);
+        }}
         aria-label="Toggle done"
         className={`h-4 w-4 rounded-sm border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 ${done ? "bg-sage border-sage" : "border-border hover:border-muted-foreground"}`}
       >
