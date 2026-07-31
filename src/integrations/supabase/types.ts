@@ -115,6 +115,35 @@ export type Database = {
           },
         ];
       };
+      workspace_data: {
+        Row: {
+          workspace_id: string;
+          kind: string;
+          payload: unknown;
+          updated_at: string;
+        };
+        Insert: {
+          workspace_id: string;
+          kind: string;
+          payload?: unknown;
+          updated_at?: string;
+        };
+        Update: {
+          workspace_id?: string;
+          kind?: string;
+          payload?: unknown;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "workspace_data_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       workspace_members: {
         Row: {
           joined_at: string;

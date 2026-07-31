@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { milestones, event as weddingEvent } from "@/lib/mock-data";
+import { resolveWorkspace, emptyEvent } from "@/lib/data.functions";
+
+type Milestone = { id: string; title: string; date: string; kind: string };
 
 export const getCalendarSyncStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -43,6 +45,20 @@ export const syncMilestonesToCalendar = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ providerToken: z.string().min(10) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const workspaceId = await resolveWorkspace(supabase, userId);
+    if (!workspaceId) throw new Error("No workspace found");
+
+    const { data: rows } = await supabase
+      .from("workspace_data")
+      .select("kind,payload")
+      .eq("workspace_id", workspaceId)
+      .in("kind", ["milestones", "event"]);
+    const map = new Map<string, unknown>((rows ?? []).map((r) => [r.kind, r.payload]));
+    const milestones = (map.get("milestones") as Milestone[] | undefined) ?? [];
+    const weddingEvent = { ...emptyEvent, ...((map.get("event") as object) ?? {}) } as {
+      name?: string;
+    };
+
     const { data: existing } = await supabase
       .from("calendar_sync_log")
       .select("milestone_key, gcal_event_id")
@@ -56,7 +72,7 @@ export const syncMilestonesToCalendar = createServerFn({ method: "POST" })
     for (const m of milestones) {
       try {
         const existingId = idMap.get(m.id) ?? null;
-        const summary = `${weddingEvent.name} — ${m.title}`;
+        const summary = `${weddingEvent.name ?? "Wedding"} — ${m.title}`;
         const body = {
           summary,
           description: `Wedding milestone (${m.kind}).`,

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
-import { budgetStore, eventStore } from "@/lib/stores";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { formatIDR, type BudgetItem } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/budget")({
@@ -20,8 +20,9 @@ export const Route = createFileRoute("/_authenticated/budget")({
 });
 
 function Budget() {
-  const [items, setItems] = useState<BudgetItem[]>(() => budgetStore.load());
-  const [wedding] = useState(() => eventStore.load());
+  const { data, setKind } = useWorkspaceData();
+  const items = data.budget as BudgetItem[];
+  const wedding = data.event;
   const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [viewing, setViewing] = useState<BudgetItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,20 +30,20 @@ function Budget() {
   const paid = items.reduce((s, b) => s + b.paid, 0);
   const committed = items.reduce((s, b) => s + b.committed, 0);
   const remaining = total - committed;
+  const committedPct = total ? Math.round((committed / total) * 100) : 0;
+  const paidPct = total ? (paid / total) * 100 : 0;
+  const committedPendingPct = total ? ((committed - paid) / total) * 100 : 0;
 
   function handleSave(item: BudgetItem) {
     const exists = items.some((i) => i.id === item.id);
     const next = exists ? items.map((i) => (i.id === item.id ? item : i)) : [item, ...items];
-    budgetStore.save(next);
-    setItems(next);
+    setKind("budget", next);
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleDelete(id: string) {
-    const next = items.filter((i) => i.id !== id);
-    budgetStore.save(next);
-    setItems(next);
+    setKind("budget", items.filter((i) => i.id !== id));
     setIsModalOpen(false);
     setEditing(null);
   }
@@ -84,14 +85,14 @@ function Budget() {
             <h2 className="serif text-xl mt-1">Spend distribution</h2>
           </div>
           <span className="text-xs text-muted-foreground">
-            {Math.round((committed / total) * 100)}% committed
+            {committedPct}% committed
           </span>
         </div>
         <div className="h-2.5 w-full rounded-full bg-secondary overflow-hidden flex">
-          <div className="bg-sage" style={{ width: `${(paid / total) * 100}%` }} />
+          <div className="bg-sage" style={{ width: `${paidPct}%` }} />
           <div
             className="bg-[color:var(--taupe)]/60"
-            style={{ width: `${((committed - paid) / total) * 100}%` }}
+            style={{ width: `${committedPendingPct}%` }}
           />
         </div>
         <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
-import { loadTasks, saveTasks } from "@/lib/tasks-store";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { daysUntil, type Task } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/checklist")({
 function Checklist() {
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filter, setFilter] = useState<string>("All");
-  const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
+  const { data, setKind } = useWorkspaceData();
+  const tasks = data.tasks as Task[];
   const [editing, setEditing] = useState<Task | null>(null);
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,8 +31,7 @@ function Checklist() {
   const filtered = filter === "All" ? tasks : tasks.filter((t) => t.category === filter);
 
   function persist(next: Task[]) {
-    saveTasks(next);
-    setTasks(next);
+    setKind("tasks", next);
   }
 
   function handleSave(task: Task) {

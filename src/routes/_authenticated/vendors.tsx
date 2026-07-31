@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddVendorModal } from "@/components/add-vendor-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
-import { vendorStore } from "@/lib/stores";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { formatIDR, type Vendor } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/vendors")({
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/_authenticated/vendors")({
 
 function Vendors() {
   const [compareCat, setCompareCat] = useState<string>("Dekorasi");
-  const [vendors, setVendors] = useState<Vendor[]>(() => vendorStore.load());
+  const { data, setKind } = useWorkspaceData();
+  const vendors = data.vendors as Vendor[];
   const [editing, setEditing] = useState<Vendor | null>(null);
   const [viewing, setViewing] = useState<Vendor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,16 +32,13 @@ function Vendors() {
   function handleSave(vendor: Vendor) {
     const exists = vendors.some((v) => v.id === vendor.id);
     const next = exists ? vendors.map((v) => (v.id === vendor.id ? vendor : v)) : [vendor, ...vendors];
-    vendorStore.save(next);
-    setVendors(next);
+    setKind("vendors", next);
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleDelete(id: string) {
-    const next = vendors.filter((v) => v.id !== id);
-    vendorStore.save(next);
-    setVendors(next);
+    setKind("vendors", vendors.filter((v) => v.id !== id));
     setIsModalOpen(false);
     setEditing(null);
   }

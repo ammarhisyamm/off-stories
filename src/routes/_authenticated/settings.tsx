@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { event, milestones } from "@/lib/mock-data";
-import { eventStore } from "@/lib/stores";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { listInvites, createInvite, revokeInvite } from "@/lib/invites.functions";
 import {
   getCalendarSyncStatus,
@@ -64,7 +63,8 @@ function Settings() {
 }
 
 function EventDetailsPanel() {
-  const [eventData, setEventData] = useState<typeof event>(() => eventStore.load());
+  const { data, setKind } = useWorkspaceData();
+  const eventData = data.event;
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
@@ -81,8 +81,7 @@ function EventDetailsPanel() {
       guestEstimate: Number.isNaN(guestEstimate) ? eventData.guestEstimate : guestEstimate,
       budget: Number.isNaN(budget) ? eventData.budget : budget,
     };
-    setEventData(newEvent);
-    eventStore.save(newEvent);
+    setKind("event", newEvent);
     setTimeout(() => setIsSaving(false), 500);
   };
 
@@ -312,6 +311,8 @@ function CalendarPanel() {
   const getStatus = useServerFn(getCalendarSyncStatus);
   const sync = useServerFn(syncMilestonesToCalendar);
   const clear = useServerFn(clearCalendarSync);
+  const { data } = useWorkspaceData();
+  const milestoneCount = (data.milestones as unknown[]).length;
   const [synced, setSynced] = useState<
     Array<{
       milestone_key: string;
@@ -378,8 +379,8 @@ function CalendarPanel() {
         <div className="eyebrow mb-1">Google Calendar</div>
         <h2 className="serif text-xl mb-2 text-balance">Sync your wedding timeline</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Push all {milestones.length} milestones into your primary Google Calendar as all-day
-          events. Re-syncing updates existing events instead of duplicating them.
+          Push your timeline milestones into your primary Google Calendar as all-day events.
+          Re-syncing updates existing events instead of duplicating them.
         </p>
 
         <div className="flex flex-wrap items-center gap-3">

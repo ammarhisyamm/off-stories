@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
-import { notes as initialNotes, Note } from "@/lib/mock-data";
-import { useState, useEffect } from "react";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
+import type { Note } from "@/lib/mock-data";
+import { useState } from "react";
 import { X, Trash } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/notes")({
@@ -20,24 +21,15 @@ export const Route = createFileRoute("/_authenticated/notes")({
 });
 
 function Notes() {
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const { data, setKind } = useWorkspaceData();
+  const notes = data.notes as Note[];
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [viewingNote, setViewingNote] = useState<Note | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("wedding_notes");
-    if (saved) {
-      setNotes(JSON.parse(saved));
-    } else {
-      localStorage.setItem("wedding_notes", JSON.stringify(initialNotes));
-    }
-  }, []);
-
   const saveNotes = (newNotes: Note[]) => {
-    setNotes(newNotes);
-    localStorage.setItem("wedding_notes", JSON.stringify(newNotes));
+    setKind("notes", newNotes);
   };
 
   const handleOpenNew = () => {

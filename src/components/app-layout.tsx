@@ -15,9 +15,9 @@ import {
   SignOut,
   X,
 } from "@phosphor-icons/react";
-import { eventStore } from "@/lib/stores";
 import { daysUntil } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 
 const nav = [
   { to: "/", label: "Dashboard", Icon: House },
@@ -120,11 +120,11 @@ export function AppLayout({
   actions?: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [event, setEvent] = useState(() => eventStore.load());
+  const { data } = useWorkspaceData();
+  const event = data.event;
+  const hasEvent = Boolean(event.date && event.name);
   const days = daysUntil(event.date);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => eventStore.subscribe(() => setEvent(eventStore.load())), []);
 
   // Close drawer when route changes
   useEffect(() => {
@@ -137,9 +137,13 @@ export function AppLayout({
       <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
         <div className="px-6 py-7 border-b border-border">
           <div className="eyebrow mb-2">Workspace</div>
-          <div className="serif text-lg leading-tight text-foreground">{event.name}</div>
+          <div className="serif text-lg leading-tight text-foreground">
+            {event.name || "Your wedding"}
+          </div>
           <div className="mt-3 text-xs text-muted-foreground">
-            {days} days until {event.type.toLowerCase()}
+            {hasEvent
+              ? `${days} days until ${event.type.toLowerCase()}`
+              : "Set up your event in Settings"}
           </div>
         </div>
         <NavList pathname={pathname} />
@@ -164,9 +168,11 @@ export function AppLayout({
             <div className="min-w-0">
               <div className="eyebrow mb-1">Workspace</div>
               <div className="serif text-base leading-tight text-foreground truncate">
-                {event.name}
+                {event.name || "Your wedding"}
               </div>
-              <div className="mt-1.5 text-xs text-muted-foreground">{days} days to go</div>
+              <div className="mt-1.5 text-xs text-muted-foreground">
+                {hasEvent ? `${days} days to go` : "Set up your event"}
+              </div>
             </div>
             <button
               onClick={() => setMobileOpen(false)}
@@ -195,9 +201,11 @@ export function AppLayout({
               <ListIcon size={22} />
             </button>
             <div className="min-w-0">
-              <div className="text-xs text-muted-foreground truncate">{event.name}</div>
+              <div className="text-xs text-muted-foreground truncate">
+                {event.name || "Your wedding"}
+              </div>
               <div className="text-sm text-foreground truncate">
-                {days} days to {event.type.toLowerCase()}
+                {hasEvent ? `${days} days to ${event.type.toLowerCase()}` : "Set up your event"}
               </div>
             </div>
           </div>

@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
-import { documents as initialDocs, DocRef } from "@/lib/mock-data";
-import { useState, useEffect } from "react";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
+import type { DocRef } from "@/lib/mock-data";
+import { useState } from "react";
 import { X, Trash, ArrowSquareOut } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/documents")({
@@ -19,24 +20,15 @@ export const Route = createFileRoute("/_authenticated/documents")({
 });
 
 function Documents() {
-  const [docs, setDocs] = useState<DocRef[]>(initialDocs);
+  const { data, setKind } = useWorkspaceData();
+  const docs = data.documents as DocRef[];
   const [editingDoc, setEditingDoc] = useState<DocRef | null>(null);
   const [viewingDoc, setViewingDoc] = useState<DocRef | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("wedding_documents");
-    if (saved) {
-      setDocs(JSON.parse(saved));
-    } else {
-      localStorage.setItem("wedding_documents", JSON.stringify(initialDocs));
-    }
-  }, []);
-
   const saveDocs = (newDocs: DocRef[]) => {
-    setDocs(newDocs);
-    localStorage.setItem("wedding_documents", JSON.stringify(newDocs));
+    setKind("documents", newDocs);
   };
 
   const handleOpenNew = () => {

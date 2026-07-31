@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddGuestModal } from "@/components/add-guest-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
-import { guestStore } from "@/lib/stores";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { Guest } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/guests")({
@@ -20,7 +20,8 @@ export const Route = createFileRoute("/_authenticated/guests")({
 });
 
 function Guests() {
-  const [guests, setGuests] = useState<Guest[]>(() => guestStore.load());
+  const { data, setKind } = useWorkspaceData();
+  const guests = data.guests as Guest[];
   const [editing, setEditing] = useState<Guest | null>(null);
   const [viewing, setViewing] = useState<Guest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,16 +33,13 @@ function Guests() {
   function handleSave(guest: Guest) {
     const exists = guests.some((g) => g.id === guest.id);
     const next = exists ? guests.map((g) => (g.id === guest.id ? guest : g)) : [guest, ...guests];
-    guestStore.save(next);
-    setGuests(next);
+    setKind("guests", next);
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleDelete(id: string) {
-    const next = guests.filter((g) => g.id !== id);
-    guestStore.save(next);
-    setGuests(next);
+    setKind("guests", guests.filter((g) => g.id !== id));
     setIsModalOpen(false);
     setEditing(null);
   }

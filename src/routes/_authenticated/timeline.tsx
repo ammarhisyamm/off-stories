@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddMilestoneModal } from "@/components/add-milestone-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
-import { milestoneStore } from "@/lib/stores";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { daysUntil, type Milestone } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/timeline")({
@@ -17,7 +17,8 @@ export const Route = createFileRoute("/_authenticated/timeline")({
 });
 
 function Timeline() {
-  const [milestones, setMilestones] = useState<Milestone[]>(() => milestoneStore.load());
+  const { data, setKind } = useWorkspaceData();
+  const milestones = data.milestones as Milestone[];
   const [editing, setEditing] = useState<Milestone | null>(null);
   const [viewing, setViewing] = useState<Milestone | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,16 +33,13 @@ function Timeline() {
     const next = exists
       ? milestones.map((m) => (m.id === milestone.id ? milestone : m))
       : [...milestones, milestone];
-    milestoneStore.save(next);
-    setMilestones(next);
+    setKind("milestones", next);
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleDelete(id: string) {
-    const next = milestones.filter((m) => m.id !== id);
-    milestoneStore.save(next);
-    setMilestones(next);
+    setKind("milestones", milestones.filter((m) => m.id !== id));
     setIsModalOpen(false);
     setEditing(null);
   }

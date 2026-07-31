@@ -1,17 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
-import { loadTasks, saveTasks } from "@/lib/tasks-store";
-import {
-  budgetStore,
-  vendorStore,
-  guestStore,
-  milestoneStore,
-  notesStore,
-  eventStore,
-} from "@/lib/stores";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 import {
   daysUntil,
   formatIDR,
@@ -43,32 +35,36 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 function Dashboard() {
-  const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
-  const [budgetItems] = useState<BudgetItem[]>(() => budgetStore.load());
-  const [vendors] = useState<Vendor[]>(() => vendorStore.load());
-  const [guests] = useState<Guest[]>(() => guestStore.load());
-  const [milestones] = useState<Milestone[]>(() => milestoneStore.load());
-  const [notes] = useState<Note[]>(() => notesStore.load());
-  const [event, setEvent] = useState(() => eventStore.load());
+  const { data, setKind, loading } = useWorkspaceData();
+  const tasks = data.tasks as Task[];
+  const budgetItems = data.budget as BudgetItem[];
+  const vendors = data.vendors as Vendor[];
+  const guests = data.guests as Guest[];
+  const milestones = data.milestones as Milestone[];
+  const notes = data.notes as Note[];
+  const event = data.event;
   const [editing, setEditing] = useState<Task | null>(null);
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => eventStore.subscribe(() => setEvent(eventStore.load())), []);
-
-  const days = daysUntil(event.date);
+  const hasEvent = Boolean(event.date && event.name);
+  const days = hasEvent ? daysUntil(event.date) : null;
   const done = tasks.filter((t) => t.status === "done").length;
-  const progress = Math.round((done / tasks.length) * 100);
+  const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
   const totalBudget = event.budget;
   const spent = budgetItems.reduce((s, b) => s + b.paid, 0);
   const committed = budgetItems.reduce((s, b) => s + b.committed, 0);
   const remaining = totalBudget - committed;
+  const budgetPct = totalBudget ? Math.round((committed / totalBudget) * 100) : 0;
   const vendorsBooked = vendors.filter((v) => v.status === "booked").length;
   const vendorsPending = vendors.filter(
     (v) => v.status !== "booked" && v.status !== "cancelled",
   ).length;
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const invitedPax = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
+  const confirmedPct = event.guestEstimate
+    ? Math.round((confirmed / event.guestEstimate) * 100)
+    : 0;
 
   const urgent = tasks
     .filter((t) => t.status !== "done")
@@ -85,24 +81,29 @@ function Dashboard() {
   function handleSaveTask(task: Task) {
     const exists = tasks.some((t) => t.id === task.id);
     const next = exists ? tasks.map((t) => (t.id === task.id ? task : t)) : [task, ...tasks];
-    saveTasks(next);
-    setTasks(next);
+    setKind("tasks", next);
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleDeleteTask(id: string) {
-    const next = tasks.filter((t) => t.id !== id);
-    saveTasks(next);
-    setTasks(next);
+    setKind("tasks", tasks.filter((t) => t.id !== id));
     setIsModalOpen(false);
     setEditing(null);
   }
 
+  const eyebrowParts = [event.type, event.location].filter(Boolean).join(" · ");
+
   return (
     <AppLayout
-      eyebrow={`${event.type} · ${event.location}`}
-      title={`${days} days to ${event.name}`}
+      eyebrow={eyebrowParts || undefined}
+      title={
+        hasEvent
+          ? days !== null
+            ? `${days} days to ${event.name}`
+            : event.name
+          : "Set up your event"
+      }
       actions={
         <>
           <QuietButton onClick={() => window.print()}>Export</QuietButton>
@@ -112,6 +113,10 @@ function Dashboard() {
         </>
       }
     >
+      {loading ? (
+        <LoadingNote />
+      ) : (
+        <>
       {/* Top summary */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         <SummaryCard
@@ -126,7 +131,7 @@ function Dashboard() {
           value={formatIDR(remaining)}
           sub={`${formatIDR(spent)} paid · ${formatIDR(committed)} committed`}
         >
-          <ProgressBar value={Math.round((committed / totalBudget) * 100)} tone="taupe" />
+          <ProgressBar value={budgetPct} tone="taupe" />
         </SummaryCard>
         <SummaryCard
           label="Vendors"
@@ -148,7 +153,7 @@ function Dashboard() {
           value={`${confirmed}`}
           sub={`${invitedPax} invited · target ${event.guestEstimate}`}
         >
-          <ProgressBar value={Math.round((confirmed / event.guestEstimate) * 100)} tone="sage" />
+          <ProgressBar value={confirmedPct} tone="sage" />
         </SummaryCard>
       </section>
 
@@ -285,6 +290,8 @@ function Dashboard() {
           </ul>
         </div>
       </section>
+        </>
+      )}
       {viewing && (
         <ViewModal
           title="Task details"
@@ -341,8 +348,16 @@ function Dashboard() {
   );
 }
 
-function SummaryCard({
-  label,
+function LoadingNote() {
+  return (
+    <div className="py-16 text-center">
+      <div className="mx-auto h-8 w-8 rounded-full border-2 border-border border-t-[color:var(--sage)] animate-spin" />
+      <p className="text-sm text-muted-foreground mt-4">Loading workspace…</p>
+    </div>
+  );
+}
+
+function SummaryCard({  label,
   value,
   sub,
   children,
