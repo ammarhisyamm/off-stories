@@ -74,7 +74,15 @@ function Vendors() {
               <li
                 key={v.id}
                 onClick={() => openView(v)}
-                className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openView(v);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
                 <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs font-medium text-muted-foreground">
                   {v.name
@@ -127,7 +135,7 @@ function Vendors() {
               <button
                 key={c}
                 onClick={() => setCompareCat(c)}
-                className={`text-xs px-3 py-1.5 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${
+                className={`text-xs px-3 py-2 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${
                   compareCat === c
                     ? "bg-primary text-primary-foreground border-primary"
                     : "border-border text-muted-foreground hover:text-foreground"
@@ -145,7 +153,15 @@ function Vendors() {
                 <div
                   key={v.id}
                   onClick={() => openView(v)}
-                  className="panel-muted p-4 cursor-pointer hover:border-primary/50 transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openView(v);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="panel-muted p-4 cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-foreground">{v.name}</div>

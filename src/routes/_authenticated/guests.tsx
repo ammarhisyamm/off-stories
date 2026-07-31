@@ -65,15 +65,15 @@ function Guests() {
         </QuietButton>
       }
     >
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Stat label="Invited" value={totalInvited} />
         <Stat label="Confirmed" value={confirmed} tone="sage" />
         <Stat label="Pending" value={pending} tone="taupe" />
         <Stat label="Declined" value={declined} tone="warn" />
       </div>
 
-      <div className="panel overflow-hidden">
-        <table className="w-full text-sm">
+      <div className="panel overflow-x-auto">
+        <table className="w-full text-sm min-w-[620px]">
           <thead>
             <tr className="text-left text-xs text-muted-foreground bg-surface-2">
               <th className="px-5 py-3 font-medium">Group</th>
@@ -88,7 +88,15 @@ function Guests() {
               <tr
                 key={g.id}
                 onClick={() => openView(g)}
-                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openView(g);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
                 <td className="px-5 py-3 text-foreground">{g.name}</td>
                 <td className="px-5 py-3 text-muted-foreground">{g.side}</td>

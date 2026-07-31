@@ -66,7 +66,7 @@ function Budget() {
         </QuietButton>
       }
     >
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Stat label="Total budget" value={formatIDR(total)} />
         <Stat label="Paid" value={formatIDR(paid)} tone="sage" />
         <Stat label="Committed" value={formatIDR(committed)} tone="taupe" />
@@ -104,12 +104,12 @@ function Budget() {
         </div>
       </div>
 
-      <div className="panel overflow-hidden">
+      <div className="panel overflow-x-auto">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h2 className="serif text-lg">Line items</h2>
           <span className="text-xs text-muted-foreground">{items.length} entries</span>
         </div>
-        <table className="w-full text-sm">
+        <table className="w-full text-sm min-w-[680px]">
           <thead>
             <tr className="text-left text-xs text-muted-foreground bg-surface-2">
               <th className="px-5 py-3 font-medium">Category</th>
@@ -125,7 +125,15 @@ function Budget() {
               <tr
                 key={b.id}
                 onClick={() => openView(b)}
-                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openView(b);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
                 <td className="px-5 py-3 text-foreground">{b.category}</td>
                 <td className="px-5 py-3 text-muted-foreground">{b.vendor ?? "—"}</td>

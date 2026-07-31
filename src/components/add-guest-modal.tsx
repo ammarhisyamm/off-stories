@@ -54,7 +54,7 @@ export function AddGuestModal({
             placeholder="e.g. Keluarga besar — Bride"
           />
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Side</span>
             <select
@@ -85,7 +85,7 @@ export function AddGuestModal({
             />
           </label>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Invitation</span>
             <button

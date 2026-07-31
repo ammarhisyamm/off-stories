@@ -67,7 +67,7 @@ export function AddVendorModal({
             placeholder="e.g. Sanggar Rias Melati"
           />
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Category</span>
             <select
@@ -105,7 +105,7 @@ export function AddVendorModal({
             </select>
           </label>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Contact name</span>
             <input
@@ -125,7 +125,7 @@ export function AddVendorModal({
             />
           </label>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Package name</span>
             <input

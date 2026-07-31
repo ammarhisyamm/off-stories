@@ -79,7 +79,7 @@ export function ModalShell({
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`bg-surface border border-border rounded-xl shadow-2xl ring-1 ring-black/5 w-full max-w-lg p-6 focus:outline-none ${
+        className={`bg-surface border border-border rounded-xl shadow-2xl ring-1 ring-black/5 w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto focus:outline-none ${
           closing
             ? "animate-out fade-out zoom-out-95 duration-150 ease-in"
             : "animate-in fade-in zoom-in-95 duration-200"
@@ -201,5 +201,5 @@ export function Detail({
 }
 
 export function DetailGrid({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-2 gap-4">{children}</div>;
+  return <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{children}</div>;
 }

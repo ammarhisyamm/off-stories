@@ -97,7 +97,7 @@ function Checklist() {
           <button
             key={c}
             onClick={() => setFilter(c)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${
+            className={`text-xs px-3 py-2 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${
               filter === c
                 ? "bg-primary text-primary-foreground border-primary"
                 : "border-border bg-surface text-muted-foreground hover:text-foreground"
@@ -239,14 +239,20 @@ function TaskRow({
           e.stopPropagation();
           onToggle(task.id);
         }}
-        aria-label="Toggle done"
-        className={`h-4 w-4 rounded-sm border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 ${done ? "bg-sage border-sage" : "border-border hover:border-muted-foreground"}`}
+        aria-label={done ? "Mark as not done" : "Mark as done"}
+        className={`-m-2 p-2 rounded-md transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90`}
       >
-        {done && (
-          <svg viewBox="0 0 16 16" className="text-primary-foreground">
-            <path fill="currentColor" d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1z" />
-          </svg>
-        )}
+        <span
+          className={`h-4 w-4 grid place-items-center rounded-sm border ${
+            done ? "bg-sage border-sage" : "border-border hover:border-muted-foreground"
+          }`}
+        >
+          {done && (
+            <svg viewBox="0 0 16 16" className="text-primary-foreground">
+              <path fill="currentColor" d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1z" />
+            </svg>
+          )}
+        </span>
       </button>
       <div className="flex-1 min-w-0">
         <div

@@ -153,6 +153,7 @@ export function AppLayout({
           onClick={() => setMobileOpen(false)}
         />
         <aside
+          id="mobile-nav"
           inert={!mobileOpen}
           aria-hidden={!mobileOpen}
           className={`absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-border flex flex-col transition-transform duration-200 ease-out ${
@@ -187,6 +188,8 @@ export function AppLayout({
             <button
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
               className="p-2 -ml-2 rounded-md text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
             >
               <ListIcon size={22} />
@@ -250,7 +253,7 @@ export function QuietButton({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
   const base =
-    "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]";
+    "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]";
   const styles =
     variant === "primary"
       ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85"

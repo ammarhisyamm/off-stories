@@ -95,7 +95,15 @@ function Timeline() {
                 <li
                   key={m.id}
                   onClick={() => openView(m)}
-                  className="px-5 py-4 flex items-center gap-5 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openView(m);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="px-5 py-4 flex items-center gap-5 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                   <div className="w-14 text-center">
                     <div className="serif text-2xl text-foreground tabular-nums">

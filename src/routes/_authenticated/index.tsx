@@ -160,7 +160,7 @@ function Dashboard() {
               <div className="eyebrow">Needs attention</div>
               <h2 className="serif text-xl mt-1 text-balance">This week</h2>
             </div>
-            <Link to="/checklist" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Link to="/checklist" className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               View all →
             </Link>
           </div>
@@ -171,7 +171,15 @@ function Dashboard() {
                 <li
                   key={t.id}
                   onClick={() => setViewing(t)}
-                  className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setViewing(t);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                   <span
                     className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
@@ -225,7 +233,7 @@ function Dashboard() {
               <div className="eyebrow">Timeline</div>
               <h2 className="serif text-xl mt-1 text-balance">Next milestones</h2>
             </div>
-            <Link to="/timeline" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Link to="/timeline" className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               Open timeline →
             </Link>
           </div>
@@ -254,7 +262,7 @@ function Dashboard() {
               <div className="eyebrow">Decision log</div>
               <h2 className="serif text-xl mt-1 text-balance">Recent notes</h2>
             </div>
-            <Link to="/notes" className="text-xs text-muted-foreground rounded-sm transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Link to="/notes" className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
               All →
             </Link>
           </div>

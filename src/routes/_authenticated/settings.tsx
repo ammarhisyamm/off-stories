@@ -31,12 +31,18 @@ function Settings() {
     <AppLayout eyebrow="Workspace" title="Settings">
       <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6">
         <aside>
-          <nav className="panel p-2 text-sm">
+          <nav
+            className="panel p-1 flex gap-1 text-sm lg:flex-col lg:p-2"
+            role="tablist"
+            aria-label="Settings sections"
+          >
             {(["Event", "Collaborators", "Calendar"] as Section[]).map((s) => (
               <button
                 key={s}
+                role="tab"
+                aria-selected={section === s}
                 onClick={() => setSection(s)}
-                className={`w-full text-left px-3 py-2 rounded-md ${
+                className={`flex-1 lg:w-full text-left px-3 py-2 rounded-md transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
                   section === s
                     ? "bg-secondary text-foreground"
                     : "text-muted-foreground hover:text-foreground"
