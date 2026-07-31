@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
+import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
 import { documents as initialDocs, DocRef } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import { X, Trash, ArrowSquareOut } from "@phosphor-icons/react";
@@ -22,6 +22,7 @@ function Documents() {
   const [docs, setDocs] = useState<DocRef[]>(initialDocs);
   const [editingDoc, setEditingDoc] = useState<DocRef | null>(null);
   const [viewingDoc, setViewingDoc] = useState<DocRef | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -193,6 +194,17 @@ function Documents() {
               </button>
             </div>
             <form onSubmit={handleSave} className="space-y-4">
+              {confirming ? (
+                <ConfirmDelete
+                  message="Delete this document? This can't be undone."
+                  onCancel={() => setConfirming(false)}
+                  onConfirm={() => {
+                    setConfirming(false);
+                    handleDelete(editingDoc!.id);
+                  }}
+                />
+              ) : (
+                <>
               <label className="block">
                 <span className="block text-sm font-medium mb-1.5">Title</span>
                 <input
@@ -248,7 +260,7 @@ function Documents() {
                 {editingDoc ? (
                   <button
                     type="button"
-                    onClick={() => handleDelete(editingDoc.id)}
+                    onClick={() => setConfirming(true)}
                     className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
                   >
                     <Trash size={16} /> Delete
@@ -265,6 +277,8 @@ function Documents() {
                   </QuietButton>
                 </div>
               </div>
+                </>
+              )}
             </form>
           </div>
         </div>

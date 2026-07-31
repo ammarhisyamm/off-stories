@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ModalShell } from "@/components/modal-shell";
+import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
 import type { Vendor } from "@/lib/mock-data";
@@ -28,6 +28,7 @@ export function AddVendorModal({
   onDelete?: (id: string) => void;
 }) {
   const [status, setStatus] = useState<Vendor["status"] | "">(initial?.status ?? "");
+  const [confirming, setConfirming] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -47,6 +48,13 @@ export function AddVendorModal({
 
   return (
     <ModalShell title={initial ? "Edit Vendor" : "Add Vendor"} onClose={onClose}>
+      {confirming ? (
+        <ConfirmDelete
+          message="Delete this vendor? This can't be undone."
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => { if (initial) onDelete?.(initial.id); }}
+        />
+      ) : (
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="block text-sm font-medium mb-1.5">Vendor name</span>
@@ -144,7 +152,7 @@ export function AddVendorModal({
           {initial && onDelete ? (
             <button
               type="button"
-              onClick={() => onDelete(initial.id)}
+              onClick={() => setConfirming(true)}
               className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
             >
               <Trash size={16} /> Delete
@@ -162,6 +170,7 @@ export function AddVendorModal({
           </div>
         </div>
       </form>
+      )}
     </ModalShell>
   );
 }

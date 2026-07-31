@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
+import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
 import { notes as initialNotes, Note } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import { X, Trash } from "@phosphor-icons/react";
@@ -23,6 +23,7 @@ function Notes() {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [viewingNote, setViewingNote] = useState<Note | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -171,6 +172,17 @@ function Notes() {
               </button>
             </div>
             <form onSubmit={handleSave} className="space-y-4">
+              {confirming ? (
+                <ConfirmDelete
+                  message="Delete this note? This can't be undone."
+                  onCancel={() => setConfirming(false)}
+                  onConfirm={() => {
+                    setConfirming(false);
+                    handleDelete(editingNote!.id);
+                  }}
+                />
+              ) : (
+                <>
               <label className="block">
                 <span className="block text-sm font-medium mb-1.5">Title</span>
                 <input
@@ -225,7 +237,7 @@ function Notes() {
                 {editingNote ? (
                   <button
                     type="button"
-                    onClick={() => handleDelete(editingNote.id)}
+                    onClick={() => setConfirming(true)}
                     className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
                   >
                     <Trash size={16} /> Delete
@@ -242,6 +254,8 @@ function Notes() {
                   </QuietButton>
                 </div>
               </div>
+                </>
+              )}
             </form>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ModalShell } from "@/components/modal-shell";
+import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { taskCategories } from "@/lib/tasks-store";
 import { Trash } from "@phosphor-icons/react";
@@ -17,6 +17,7 @@ export function AddTaskModal({
   onDelete?: (id: string) => void;
 }) {
   const [priority, setPriority] = useState<Priority | "">(initial?.priority ?? "");
+  const [confirming, setConfirming] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,6 +35,13 @@ export function AddTaskModal({
 
   return (
     <ModalShell title={initial ? "Edit Task" : "Add Task"} onClose={onClose}>
+      {confirming ? (
+        <ConfirmDelete
+          message="Delete this task? This can't be undone."
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => { if (initial) onDelete?.(initial.id); }}
+        />
+      ) : (
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="block text-sm font-medium mb-1.5">Title</span>
@@ -109,7 +117,7 @@ export function AddTaskModal({
           {initial && onDelete ? (
             <button
               type="button"
-              onClick={() => onDelete(initial.id)}
+              onClick={() => setConfirming(true)}
               className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
             >
               <Trash size={16} /> Delete
@@ -127,6 +135,7 @@ export function AddTaskModal({
           </div>
         </div>
       </form>
+      )}
     </ModalShell>
   );
 }

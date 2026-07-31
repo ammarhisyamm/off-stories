@@ -101,6 +101,34 @@ export function ModalShell({
   );
 }
 
+export function ConfirmDelete({
+  message,
+  onCancel,
+  onConfirm,
+}: {
+  message: string;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-foreground">{message}</p>
+      <div className="flex items-center justify-end gap-2 pt-2">
+        <QuietButton type="button" onClick={onCancel}>
+          Cancel
+        </QuietButton>
+        <button
+          type="button"
+          onClick={onConfirm}
+          className="inline-flex items-center gap-2 rounded-md bg-destructive text-destructive-foreground px-3 py-1.5 text-sm font-medium hover:bg-destructive/90 transition duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Trash size={15} /> Delete
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ViewModal({
   title,
   onClose,
@@ -116,6 +144,20 @@ export function ViewModal({
   badge?: ReactNode;
   children: ReactNode;
 }) {
+  const [confirming, setConfirming] = useState(false);
+
+  if (confirming) {
+    return (
+      <ModalShell title="Confirm delete" onClose={onClose}>
+        <ConfirmDelete
+          message="This can't be undone. The item will be removed permanently."
+          onCancel={() => setConfirming(false)}
+          onConfirm={onDelete}
+        />
+      </ModalShell>
+    );
+  }
+
   return (
     <ModalShell title={title} onClose={onClose}>
       <div className="space-y-3">
@@ -125,7 +167,7 @@ export function ViewModal({
       <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
         <button
           type="button"
-          onClick={onDelete}
+          onClick={() => setConfirming(true)}
           className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
         >
           <Trash size={16} /> Delete

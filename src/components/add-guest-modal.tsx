@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ModalShell } from "@/components/modal-shell";
+import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
 import type { Guest } from "@/lib/mock-data";
@@ -18,6 +18,7 @@ export function AddGuestModal({
   const [side, setSide] = useState<Guest["side"] | "">(initial?.side ?? "");
   const [rsvp, setRsvp] = useState<Guest["rsvp"] | "">(initial?.rsvp ?? "");
   const [invited, setInvited] = useState(initial?.invited ?? false);
+  const [confirming, setConfirming] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,6 +35,13 @@ export function AddGuestModal({
 
   return (
     <ModalShell title={initial ? "Edit Guest Group" : "Add Guest Group"} onClose={onClose}>
+      {confirming ? (
+        <ConfirmDelete
+          message="Delete this guest group? This can't be undone."
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => { if (initial) onDelete?.(initial.id); }}
+        />
+      ) : (
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="block text-sm font-medium mb-1.5">Group name</span>
@@ -120,7 +128,7 @@ export function AddGuestModal({
           {initial && onDelete ? (
             <button
               type="button"
-              onClick={() => onDelete(initial.id)}
+              onClick={() => setConfirming(true)}
               className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
             >
               <Trash size={16} /> Delete
@@ -138,6 +146,7 @@ export function AddGuestModal({
           </div>
         </div>
       </form>
+      )}
     </ModalShell>
   );
 }

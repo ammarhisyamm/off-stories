@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ModalShell } from "@/components/modal-shell";
+import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
 import type { Milestone } from "@/lib/mock-data";
@@ -25,6 +25,7 @@ export function AddMilestoneModal({
   onDelete?: (id: string) => void;
 }) {
   const [kind, setKind] = useState<Milestone["kind"] | "">(initial?.kind ?? "");
+  const [confirming, setConfirming] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,6 +41,13 @@ export function AddMilestoneModal({
 
   return (
     <ModalShell title={initial ? "Edit Milestone" : "Add Milestone"} onClose={onClose}>
+      {confirming ? (
+        <ConfirmDelete
+          message="Delete this milestone? This can't be undone."
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => { if (initial) onDelete?.(initial.id); }}
+        />
+      ) : (
       <form onSubmit={handleSubmit} className="space-y-4">
         <label className="block">
           <span className="block text-sm font-medium mb-1.5">Title</span>
@@ -87,7 +95,7 @@ export function AddMilestoneModal({
           {initial && onDelete ? (
             <button
               type="button"
-              onClick={() => onDelete(initial.id)}
+              onClick={() => setConfirming(true)}
               className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
             >
               <Trash size={16} /> Delete
@@ -105,6 +113,7 @@ export function AddMilestoneModal({
           </div>
         </div>
       </form>
+      )}
     </ModalShell>
   );
 }
