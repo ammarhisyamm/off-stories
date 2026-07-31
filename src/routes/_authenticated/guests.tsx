@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { guests } from "@/lib/mock-data";
+import { AddGuestModal } from "@/components/add-guest-modal";
+import { guestStore } from "@/lib/stores";
+import type { Guest } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
@@ -16,16 +19,28 @@ export const Route = createFileRoute("/_authenticated/guests")({
 });
 
 function Guests() {
+  const [guests, setGuests] = useState<Guest[]>(() => guestStore.load());
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const totalInvited = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const pending = guests.filter((g) => g.rsvp === "pending").reduce((s, g) => s + g.pax, 0);
   const declined = guests.filter((g) => g.rsvp === "no").reduce((s, g) => s + g.pax, 0);
 
+  function handleAdd(guest: Guest) {
+    const next = [guest, ...guests];
+    guestStore.save(next);
+    setGuests(next);
+  }
+
   return (
     <AppLayout
       eyebrow="Hospitality"
       title="Guest list"
-      actions={<QuietButton variant="primary">Add guest group</QuietButton>}
+      actions={
+        <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+          Add guest group
+        </QuietButton>
+      }
     >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Stat label="Invited" value={totalInvited} />
@@ -74,6 +89,9 @@ function Guests() {
           </tbody>
         </table>
       </div>
+      {isModalOpen && (
+        <AddGuestModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+      )}
     </AppLayout>
   );
 }

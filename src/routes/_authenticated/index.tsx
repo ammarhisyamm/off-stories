@@ -4,15 +4,22 @@ import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { loadTasks, saveTasks } from "@/lib/tasks-store";
 import {
+  budgetStore,
+  vendorStore,
+  guestStore,
+  milestoneStore,
+  notesStore,
+} from "@/lib/stores";
+import {
   event,
   daysUntil,
   formatIDR,
-  budgetItems,
-  vendors,
-  guests,
-  milestones,
-  notes,
   type Task,
+  type BudgetItem,
+  type Vendor,
+  type Guest,
+  type Milestone,
+  type Note,
 } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -36,6 +43,11 @@ export const Route = createFileRoute("/_authenticated/")({
 
 function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>(() => loadTasks());
+  const [budgetItems] = useState<BudgetItem[]>(() => budgetStore.load());
+  const [vendors] = useState<Vendor[]>(() => vendorStore.load());
+  const [guests] = useState<Guest[]>(() => guestStore.load());
+  const [milestones] = useState<Milestone[]>(() => milestoneStore.load());
+  const [notes] = useState<Note[]>(() => notesStore.load());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const days = daysUntil(event.date);
   const done = tasks.filter((t) => t.status === "done").length;

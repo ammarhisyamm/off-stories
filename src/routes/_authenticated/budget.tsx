@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { budgetItems, event, formatIDR } from "@/lib/mock-data";
+import { AddExpenseModal } from "@/components/add-expense-modal";
+import { budgetStore } from "@/lib/stores";
+import { event, formatIDR, type BudgetItem } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/budget")({
   head: () => ({
@@ -16,16 +19,28 @@ export const Route = createFileRoute("/_authenticated/budget")({
 });
 
 function Budget() {
+  const [items, setItems] = useState<BudgetItem[]>(() => budgetStore.load());
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const total = event.budget;
-  const paid = budgetItems.reduce((s, b) => s + b.paid, 0);
-  const committed = budgetItems.reduce((s, b) => s + b.committed, 0);
+  const paid = items.reduce((s, b) => s + b.paid, 0);
+  const committed = items.reduce((s, b) => s + b.committed, 0);
   const remaining = total - committed;
+
+  function handleAdd(item: BudgetItem) {
+    const next = [item, ...items];
+    budgetStore.save(next);
+    setItems(next);
+  }
 
   return (
     <AppLayout
       eyebrow="Financials"
       title="Budget tracker"
-      actions={<QuietButton variant="primary">Add expense</QuietButton>}
+      actions={
+        <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+          Add expense
+        </QuietButton>
+      }
     >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Stat label="Total budget" value={formatIDR(total)} />
@@ -68,7 +83,7 @@ function Budget() {
       <div className="panel overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h2 className="serif text-lg">Line items</h2>
-          <span className="text-xs text-muted-foreground">{budgetItems.length} entries</span>
+          <span className="text-xs text-muted-foreground">{items.length} entries</span>
         </div>
         <table className="w-full text-sm">
           <thead>
@@ -82,7 +97,7 @@ function Budget() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {budgetItems.map((b) => (
+            {items.map((b) => (
               <tr key={b.id} className="hover:bg-surface-2/60">
                 <td className="px-5 py-3 text-foreground">{b.category}</td>
                 <td className="px-5 py-3 text-muted-foreground">{b.vendor ?? "—"}</td>
@@ -119,6 +134,9 @@ function Budget() {
           </tbody>
         </table>
       </div>
+      {isModalOpen && (
+        <AddExpenseModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+      )}
     </AppLayout>
   );
 }

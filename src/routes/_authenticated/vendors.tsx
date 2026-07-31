@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { vendors, formatIDR } from "@/lib/mock-data";
+import { AddVendorModal } from "@/components/add-vendor-modal";
+import { vendorStore } from "@/lib/stores";
+import { formatIDR, type Vendor } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/vendors")({
   head: () => ({
@@ -18,14 +20,26 @@ export const Route = createFileRoute("/_authenticated/vendors")({
 
 function Vendors() {
   const [compareCat, setCompareCat] = useState<string>("Dekorasi");
+  const [vendors, setVendors] = useState<Vendor[]>(() => vendorStore.load());
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const categories = Array.from(new Set(vendors.map((v) => v.category)));
   const compare = vendors.filter((v) => v.category === compareCat);
+
+  function handleAdd(vendor: Vendor) {
+    const next = [vendor, ...vendors];
+    vendorStore.save(next);
+    setVendors(next);
+  }
 
   return (
     <AppLayout
       eyebrow="Sourcing"
       title="Vendor manager"
-      actions={<QuietButton variant="primary">Add vendor</QuietButton>}
+      actions={
+        <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+          Add vendor
+        </QuietButton>
+      }
     >
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 panel overflow-hidden">
@@ -125,6 +139,9 @@ function Vendors() {
           )}
         </div>
       </div>
+      {isModalOpen && (
+        <AddVendorModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+      )}
     </AppLayout>
   );
 }

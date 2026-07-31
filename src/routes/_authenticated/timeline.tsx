@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
-import { milestones, daysUntil } from "@/lib/mock-data";
+import { AddMilestoneModal } from "@/components/add-milestone-modal";
+import { milestoneStore } from "@/lib/stores";
+import { daysUntil, type Milestone } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/timeline")({
   head: () => ({
@@ -13,17 +16,29 @@ export const Route = createFileRoute("/_authenticated/timeline")({
 });
 
 function Timeline() {
-  const byMonth = milestones.reduce<Record<string, typeof milestones>>((acc, m) => {
+  const [milestones, setMilestones] = useState<Milestone[]>(() => milestoneStore.load());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const byMonth = milestones.reduce<Record<string, Milestone[]>>((acc, m) => {
     const k = new Date(m.date).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
     (acc[k] ||= []).push(m);
     return acc;
   }, {});
 
+  function handleAdd(milestone: Milestone) {
+    const next = [...milestones, milestone];
+    milestoneStore.save(next);
+    setMilestones(next);
+  }
+
   return (
     <AppLayout
       eyebrow="Planning"
       title="Timeline & milestones"
-      actions={<QuietButton variant="primary">Add milestone</QuietButton>}
+      actions={
+        <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+          Add milestone
+        </QuietButton>
+      }
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {[
@@ -72,6 +87,9 @@ function Timeline() {
           </section>
         ))}
       </div>
+      {isModalOpen && (
+        <AddMilestoneModal onClose={() => setIsModalOpen(false)} onSave={handleAdd} />
+      )}
     </AppLayout>
   );
 }
