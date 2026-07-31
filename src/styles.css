@@ -102,6 +102,7 @@
   body {
     font-family: var(--font-sans);
     font-feature-settings: "cv11", "ss01";
+    font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
   }
   body {
@@ -113,6 +114,29 @@
   h3,
   h4 {
     letter-spacing: -0.015em;
+  }
+  button {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Respect reduced motion: replace slides/springs with static or cross-fade */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Respect reduced transparency: drop the blur, keep the tint */
+@media (prefers-reduced-transparency: reduce) {
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
   }
 }
 

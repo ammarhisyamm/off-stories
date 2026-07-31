@@ -58,7 +58,7 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
             to={to}
             onClick={onNavigate}
             className={[
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               active
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
@@ -98,7 +98,7 @@ function UserFooter({ compact = false }: { compact?: boolean }) {
       </div>
       <button
         onClick={signOut}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-surface-2"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]"
       >
         <SignOut size={14} />
         Sign out
@@ -158,7 +158,7 @@ export function AppLayout({
               <button
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close menu"
-                className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-surface-2"
+                className="p-1.5 rounded-md text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
               >
                 <X size={18} />
               </button>
@@ -176,7 +176,7 @@ export function AppLayout({
             <button
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
-              className="p-2 -ml-2 rounded-md text-foreground hover:bg-surface-2"
+              className="p-2 -ml-2 rounded-md text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
             >
               <ListIcon size={22} />
             </button>
@@ -235,11 +235,11 @@ export function QuietButton({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
   const base =
-    "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors";
+    "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]";
   const styles =
     variant === "primary"
-      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-      : "border border-border bg-surface text-foreground hover:bg-surface-2";
+      ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85"
+      : "border border-border bg-surface text-foreground hover:bg-surface-2 active:bg-surface-2";
   return (
     <button {...props} className={`${base} ${styles} ${props.className ?? ""}`}>
       {children}
