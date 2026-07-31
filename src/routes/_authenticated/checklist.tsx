@@ -66,16 +66,16 @@ function Checklist() {
       title="Master checklist"
       actions={
         <>
-          <div className="inline-flex rounded-md border border-border bg-surface p-0.5 text-xs">
+          <div className="inline-flex rounded-md border border-border bg-surface p-0.5">
             <button
               onClick={() => setView("list")}
-              className={`px-3 py-1.5 rounded-sm transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+              className={`px-3 py-1.5 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
             >
               List
             </button>
             <button
               onClick={() => setView("kanban")}
-              className={`px-3 py-1.5 rounded-sm transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 ${view === "kanban" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+              className={`px-3 py-1.5 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "kanban" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
             >
               Kanban
             </button>
@@ -91,7 +91,7 @@ function Checklist() {
           <button
             key={c}
             onClick={() => setFilter(c)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 ${
+            className={`text-xs px-3 py-1.5 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${
               filter === c
                 ? "bg-primary text-primary-foreground border-primary"
                 : "border-border bg-surface text-muted-foreground hover:text-foreground"

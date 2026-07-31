@@ -99,7 +99,7 @@ function UserFooter({ compact = false }: { compact?: boolean }) {
       </div>
       <button
         onClick={signOut}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]"
+        className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]"
       >
         <SignOut size={14} />
         Sign out
@@ -120,9 +120,11 @@ export function AppLayout({
   actions?: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const [event] = useState(() => eventStore.load());
+  const [event, setEvent] = useState(() => eventStore.load());
   const days = daysUntil(event.date);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => eventStore.subscribe(() => setEvent(eventStore.load())), []);
 
   // Close drawer when route changes
   useEffect(() => {

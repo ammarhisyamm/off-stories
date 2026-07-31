@@ -36,6 +36,9 @@ export const notesStore = createStore<Note>("wedding_notes", initialNotes);
 
 type EventData = typeof initialEvent;
 
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
 export const eventStore = {
   load: (): EventData => {
     if (typeof window === "undefined") return initialEvent;
@@ -47,5 +50,14 @@ export const eventStore = {
     }
     return initialEvent;
   },
-  save: (data: EventData) => localStorage.setItem("wedding_event", JSON.stringify(data)),
+  save: (data: EventData) => {
+    localStorage.setItem("wedding_event", JSON.stringify(data));
+    listeners.forEach((l) => l());
+  },
+  subscribe: (listener: Listener) => {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  },
 };

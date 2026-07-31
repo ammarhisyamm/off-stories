@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { event, milestones } from "@/lib/mock-data";
+import { eventStore } from "@/lib/stores";
 import { listInvites, createInvite, revokeInvite } from "@/lib/invites.functions";
 import {
   getCalendarSyncStatus,
@@ -63,9 +64,9 @@ function EventDetailsPanel() {
   useEffect(() => {
     const saved = localStorage.getItem("wedding_event");
     if (saved) {
-      setEventData(JSON.parse(saved));
+      setEventData({ ...event, ...(JSON.parse(saved) as Partial<typeof event>) });
     } else {
-      localStorage.setItem("wedding_event", JSON.stringify(event));
+      eventStore.save(event);
     }
   }, []);
 
@@ -73,16 +74,18 @@ function EventDetailsPanel() {
     e.preventDefault();
     setIsSaving(true);
     const formData = new FormData(e.currentTarget);
+    const guestEstimate = parseInt(formData.get("guestEstimate") as string, 10);
+    const budget = parseInt(formData.get("budget") as string, 10);
     const newEvent = {
       name: formData.get("name") as string,
       type: formData.get("type") as string,
       date: formData.get("date") as string,
       location: formData.get("location") as string,
-      guestEstimate: parseInt(formData.get("guestEstimate") as string, 10),
-      budget: parseInt(formData.get("budget") as string, 10),
+      guestEstimate: Number.isNaN(guestEstimate) ? eventData.guestEstimate : guestEstimate,
+      budget: Number.isNaN(budget) ? eventData.budget : budget,
     };
     setEventData(newEvent);
-    localStorage.setItem("wedding_event", JSON.stringify(newEvent));
+    eventStore.save(newEvent);
     setTimeout(() => setIsSaving(false), 500);
   };
 

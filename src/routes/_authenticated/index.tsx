@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { loadTasks, saveTasks } from "@/lib/tasks-store";
@@ -48,9 +48,12 @@ function Dashboard() {
   const [guests] = useState<Guest[]>(() => guestStore.load());
   const [milestones] = useState<Milestone[]>(() => milestoneStore.load());
   const [notes] = useState<Note[]>(() => notesStore.load());
-  const [event] = useState(() => eventStore.load());
+  const [event, setEvent] = useState(() => eventStore.load());
   const [editing, setEditing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => eventStore.subscribe(() => setEvent(eventStore.load())), []);
+
   const days = daysUntil(event.date);
   const done = tasks.filter((t) => t.status === "done").length;
   const progress = Math.round((done / tasks.length) * 100);
