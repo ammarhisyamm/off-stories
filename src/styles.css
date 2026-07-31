@@ -119,6 +119,11 @@
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-muted-foreground);
+    opacity: 0.7;
+  }
 }
 
 /* Respect reduced motion: replace slides/springs with static or cross-fade */

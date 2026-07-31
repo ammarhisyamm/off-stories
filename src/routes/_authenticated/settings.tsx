@@ -58,17 +58,8 @@ function Settings() {
 }
 
 function EventDetailsPanel() {
-  const [eventData, setEventData] = useState(event);
+  const [eventData, setEventData] = useState<typeof event>(() => eventStore.load());
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("wedding_event");
-    if (saved) {
-      setEventData({ ...event, ...(JSON.parse(saved) as Partial<typeof event>) });
-    } else {
-      eventStore.save(event);
-    }
-  }, []);
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -99,21 +90,23 @@ function EventDetailsPanel() {
       </div>
       <form onSubmit={handleSave}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label="Event name" name="name" type="text" defaultValue={eventData.name} />
-          <Field label="Event type" name="type" type="text" defaultValue={eventData.type} />
+          <Field label="Event name" name="name" type="text" defaultValue={eventData.name} placeholder="e.g. Andra & Kirana" />
+          <Field label="Event type" name="type" type="text" defaultValue={eventData.type} placeholder="e.g. Akad + Resepsi" />
           <Field label="Date" name="date" type="date" defaultValue={eventData.date} />
-          <Field label="Location" name="location" type="text" defaultValue={eventData.location} />
+          <Field label="Location" name="location" type="text" defaultValue={eventData.location} placeholder="e.g. Bandung, ID" />
           <Field
             label="Estimated guests"
             name="guestEstimate"
             type="number"
             defaultValue={String(eventData.guestEstimate)}
+            placeholder="e.g. 320"
           />
           <Field
             label="Estimated budget (Rp)"
             name="budget"
             type="number"
             defaultValue={String(eventData.budget)}
+            placeholder="e.g. 425000000"
           />
         </div>
         <div className="mt-6 flex justify-end">
@@ -131,11 +124,13 @@ function Field({
   name,
   type,
   defaultValue,
+  placeholder,
 }: {
   label: string;
   name: string;
   type: string;
   defaultValue: string;
+  placeholder?: string;
 }) {
   return (
     <label className="block">
@@ -144,6 +139,7 @@ function Field({
         name={name}
         type={type}
         defaultValue={defaultValue}
+        placeholder={placeholder}
         className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
       />
     </label>

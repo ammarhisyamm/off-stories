@@ -100,7 +100,7 @@ function Dashboard() {
   return (
     <AppLayout
       eyebrow={`${event.type} · ${event.location}`}
-      title={`${days} days to ${event.name.split(" & ")[0]} & ${event.name.split(" & ")[1]}`}
+      title={`${days} days to ${event.name}`}
       actions={
         <>
           <QuietButton onClick={() => window.print()}>Export</QuietButton>
