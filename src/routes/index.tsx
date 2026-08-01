@@ -372,7 +372,7 @@ function Workflow() {
       className="relative scroll-mt-16 border-b border-border lg:h-[340vh]"
     >
       <div className="lg:sticky lg:top-0 lg:flex lg:h-screen lg:items-center lg:overflow-hidden">
-        <div className="container-landing grid grid-cols-12 items-center gap-12 py-16 lg:py-8">
+        <div className="container-landing grid grid-cols-12 items-center gap-y-12 py-16 lg:gap-12 lg:py-8">
           <div className="col-span-12 lg:col-span-5">
             <Reveal>
               <p className="eyebrow text-xs">How it works</p>
@@ -611,7 +611,7 @@ function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <LandingHeader hasSession={hasSession} />
       <main>
         <Hero hasSession={hasSession} />
