@@ -7,7 +7,7 @@ import { GoogleLogo } from "@phosphor-icons/react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "offstories — wedding planning dashboard" },
+      { title: "offstories" },
       {
         name: "description",
         content:
