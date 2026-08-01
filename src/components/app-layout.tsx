@@ -57,12 +57,6 @@ function NavList({
   onNavigate?: () => void;
   collapsed?: boolean;
 }) {
-  const [entered, setEntered] = useState(false);
-  useEffect(() => {
-    const t = window.setTimeout(() => setEntered(true), 1500);
-    return () => window.clearTimeout(t);
-  }, []);
-  const iconClass = entered ? "h-[18px] w-[18px]" : "h-[18px] w-[18px] is-drawing";
   return (
     <nav className="flex-1 px-3 py-5 space-y-1">
       {nav.map(({ to, label, Icon }) => {
@@ -79,7 +73,7 @@ function NavList({
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
             ].join(" ")}
           >
-            <Icon className={iconClass} />
+            <Icon className={active ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"} />
             {!collapsed && <span className="flex-1">{label}</span>}
             {!collapsed && active && <span className="h-1 w-1 rounded-full bg-sage" />}
           </Link>

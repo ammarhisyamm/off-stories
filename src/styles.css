@@ -323,13 +323,6 @@
     animation: sidebar-icon-draw 0.6s var(--ease-gentle) both;
     animation-delay: calc(var(--i, 0) * 55ms);
   }
-  .sidebar-icon:hover path,
-  .sidebar-icon:hover circle {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: sidebar-icon-draw 0.45s var(--ease-gentle) both;
-    animation-delay: calc(var(--i, 0) * 35ms);
-  }
   @keyframes sidebar-icon-draw {
     to {
       stroke-dashoffset: 0;

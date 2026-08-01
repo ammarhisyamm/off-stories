@@ -85,7 +85,14 @@ export function GuestsDemo() {
             style={{ transitionDelay: `${i * 70}ms` }}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-current transition-transform duration-300 ease-out group-hover:scale-125" />
-            Pending
+            <span className="relative block h-[10px] overflow-hidden">
+              <span className="block leading-none transition-all duration-300 ease-out group-hover:-translate-y-full group-hover:opacity-0">
+                Pending
+              </span>
+              <span className="absolute inset-x-0 top-full block translate-y-0 leading-none transition-all duration-300 ease-out group-hover:-translate-y-full group-hover:opacity-100">
+                Confirmed
+              </span>
+            </span>
           </span>
         </div>
       ))}
@@ -94,10 +101,10 @@ export function GuestsDemo() {
 }
 
 const timelineRows = [
-  { label: "Venue secured", t: "T-260" },
-  { label: "Send the invites", t: "T-90" },
-  { label: "Final fitting", t: "T-14" },
-  { label: "The big day", t: "T-0" },
+  { label: "Venue secured", d: "D-250" },
+  { label: "Send the invites", d: "D-90" },
+  { label: "Final fitting", d: "D-20" },
+  { label: "The big day", d: "D-0" },
 ];
 
 export function TimelineDemo() {
@@ -115,7 +122,7 @@ export function TimelineDemo() {
               />
               <span className="min-w-0 truncate text-sm text-foreground">{m.label}</span>
               <span className="ml-auto shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
-                {m.t}
+                {m.d}
               </span>
             </div>
           ))}

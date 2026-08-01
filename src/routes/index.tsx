@@ -192,19 +192,19 @@ function Hero({ hasSession }: { hasSession: boolean }) {
         <div className="absolute -right-40 top-1/3 h-96 w-96 rounded-full bg-slate-100/70 blur-3xl" />
         <div className="absolute -left-40 bottom-0 h-80 w-80 rounded-full bg-white/80 blur-3xl" />
       </ParallaxBackdrop>
-      <div className="container-landing relative py-16 text-center sm:py-20 lg:py-24">
-        <div className="mx-auto max-w-3xl">
+      <div className="container-landing relative py-16 sm:py-20 lg:py-24">
+        <div className="max-w-3xl">
           <p className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out mb-6 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Wedding preparation for two
           </p>
-          <h1 className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:90ms] display mx-auto text-[2.5rem] text-foreground text-balance sm:text-5xl lg:text-6xl">
+          <h1 className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:90ms] display text-[2.5rem] text-foreground text-balance sm:text-5xl lg:text-6xl">
             Plan your wedding in one calm place.
           </h1>
-          <p className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:180ms] mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          <p className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:180ms] mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             A shared workspace for you and your partner: checklist, budget, vendors, guests,
             timeline, and notes, together instead of scattered.
           </p>
-          <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:270ms] mt-9 flex flex-wrap items-center justify-center gap-3">
+          <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:270ms] mt-9 flex flex-wrap items-center justify-start gap-3">
             <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
               {hasSession ? "Open your dashboard" : "Get started"}
             </CTAButton>
@@ -498,55 +498,55 @@ function Testimonials() {
   );
 }
 
-function DataSection() {
-  const dataUses = [
+function FAQ() {
+  const faqs = [
     {
-      title: "Sign in with Google",
-      body: "We use Google sign-in only to identify you. We receive your name, email address, and profile picture, and we use them to create your account and show them to your partner.",
+      q: "Is it free to start planning?",
+      a: "Yes. Creating your workspace is free, and your partner can join as an editor without paying anything. You can plan your checklist, budget, vendors, guests, timeline, and notes together from day one.",
     },
     {
-      title: "Email & password",
-      body: "You can also create an account with your email and a password you choose. We store your email so you can sign back in and receive confirmation messages; your password is stored securely and never shared.",
+      q: "Can my partner and I use the same workspace?",
+      a: "Yes. Invite your partner by email and they join with their own account as an editor — no shared logins, and either of you can leave the workspace whenever you need to.",
     },
     {
-      title: "Your wedding data",
-      body: "Your checklist, budget, vendors, guest list, and notes are stored securely in your own workspace. We do not sell or share this data with anyone: only you and your partner can see it.",
+      q: "What data does offstories collect?",
+      a: "Only what is needed to run the app: your name, email, and profile picture for sign-in, plus the wedding data you add yourself. We use them to show you and your partner your shared workspace, and we never sell or share them.",
+    },
+    {
+      q: "Can we get a copy of our data or delete it?",
+      a: "Anytime. You can request a copy or deletion of your data, or you can delete it yourself from your account. See our Privacy policy for the details.",
+    },
+    {
+      q: "What if we change the date or the venue?",
+      a: "Update the event details in Settings and the workspace adjusts with you — the countdown, the budget, and the timeline all recalculate from the new date.",
+    },
+    {
+      q: "What can we actually plan in one workspace?",
+      a: "A checklist, a budget with per-item breakdowns, a vendor directory, a guest list with RSVP tracking, a timeline of milestones, and shared notes — everything in one calm place.",
     },
   ];
   return (
-    <section id="data" className="scroll-mt-16 border-b border-border">
-      <div className="container-landing section-landing grid grid-cols-12 gap-y-12 lg:gap-16">
-        <div className="col-span-12 lg:col-span-5">
+    <section id="faq" className="scroll-mt-16 border-b border-border">
+      <div className="container-landing section-landing">
+        <div className="max-w-2xl">
           <Reveal variant="left">
             <h2 className="display text-3xl text-foreground text-balance sm:text-4xl">
-              Why we ask for what we ask for.
+              Frequently asked questions.
             </h2>
             <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-              We keep data requests to the minimum, and we keep them honest. Here is exactly what we
-              use, and what we never do with it.
+              The short version of how offstories works — and what we do with what you put in it.
             </p>
           </Reveal>
         </div>
-        <div className="col-span-12 lg:col-span-6 lg:col-start-7">
-          <div className="space-y-4">
-            {dataUses.map((d, i) => (
-              <Reveal key={d.title} variant="right" delay={i * 100}>
-                <div className="panel p-6">
-                  <h3 className="serif text-lg text-foreground">{d.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d.body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={200}>
-            <p className="mt-8 text-sm text-muted-foreground">
-              You can request a copy or deletion of your data at any time. See our{" "}
-              <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
-                Privacy policy
-              </Link>{" "}
-              for details.
-            </p>
-          </Reveal>
+        <div className="mt-14 max-w-3xl space-y-3">
+          {faqs.map((f, i) => (
+            <Reveal key={f.q} delay={i * 60}>
+              <div className="panel p-6">
+                <h3 className="text-sm font-semibold text-foreground">{f.q}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -614,7 +614,7 @@ function Landing() {
         <Showcase />
         <Workflow />
         <Testimonials />
-        <DataSection />
+        <FAQ />
         <FinalCTA hasSession={hasSession} />
       </main>
       <LandingFooter />
