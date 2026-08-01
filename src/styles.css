@@ -44,6 +44,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --ease-gentle: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark {
@@ -275,14 +276,28 @@
   }
   .reveal {
     opacity: 0;
-    transform: translateY(0.75rem);
+    transform: translateY(1.5rem);
     transition:
-      opacity 500ms ease-out,
-      transform 500ms ease-out;
+      opacity 700ms var(--ease-gentle),
+      transform 700ms var(--ease-gentle);
+    will-change: opacity, transform;
+  }
+  .reveal-scale {
+    transform: scale(0.94) translateY(1rem);
+  }
+  .reveal-left {
+    transform: translateX(-1.5rem);
+  }
+  .reveal-right {
+    transform: translateX(1.5rem);
   }
   .reveal.is-visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+  }
+  .parallax {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
   }
   .bar-fill {
     transform-origin: left;

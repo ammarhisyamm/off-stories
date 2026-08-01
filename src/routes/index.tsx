@@ -1,14 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { DashboardPreview } from "@/components/landing/previews";
 import {
-  BudgetPreview,
-  ChecklistPreview,
-  DashboardPreview,
-  GuestsPreview,
-  TimelinePreview,
-} from "@/components/landing/previews";
+  BudgetDemo,
+  ChecklistDemo,
+  GuestsDemo,
+  TimelineDemo,
+} from "@/components/landing/bento-demos";
 import { useReveal } from "@/hooks/use-reveal";
+import { useParallax } from "@/hooks/use-parallax";
+import { useScrollProgress } from "@/hooks/use-scroll-progress";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,16 +59,64 @@ function ProductPreview({
   children,
   reveal = false,
   className = "",
+  delay = 0,
 }: {
   children: ReactNode;
   reveal?: boolean;
   className?: string;
+  delay?: number;
 }) {
   const ref = useReveal();
   return (
     <div
       ref={reveal ? ref : undefined}
+      style={reveal && delay ? { transitionDelay: `${delay}ms` } : undefined}
       className={`${reveal ? "reveal " : ""}${className} [perspective:1200px]`.trim()}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+  variant = "up",
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+  variant?: "up" | "scale" | "left" | "right";
+}) {
+  const ref = useReveal();
+  const variantClass = variant === "up" ? "" : `reveal-${variant}`;
+  return (
+    <div
+      ref={ref}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+      className={`reveal ${variantClass} ${className}`.trim()}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ParallaxBackdrop({
+  speed = 0.15,
+  className = "",
+  children,
+}: {
+  speed?: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  const ref = useParallax(speed);
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className={`parallax pointer-events-none absolute inset-0 overflow-hidden ${className}`}
     >
       {children}
     </div>
@@ -141,8 +191,13 @@ function LandingFooter() {
 
 function Hero({ hasSession }: { hasSession: boolean }) {
   return (
-    <section className="border-b border-border">
-      <div className="container-landing py-16 text-center sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden border-b border-border">
+      <ParallaxBackdrop speed={0.12}>
+        <div className="absolute -top-40 left-1/2 h-[36rem] w-[44rem] -translate-x-1/2 rounded-full bg-sage/10 blur-3xl" />
+        <div className="absolute -right-40 top-1/3 h-96 w-96 rounded-full bg-rose/5 blur-3xl" />
+        <div className="absolute -left-40 bottom-0 h-80 w-80 rounded-full bg-[color:var(--taupe)]/5 blur-3xl" />
+      </ParallaxBackdrop>
+      <div className="container-landing relative py-16 text-center sm:py-20 lg:py-24">
         <div className="mx-auto max-w-3xl">
           <p className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out mb-6 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Wedding preparation for two
@@ -181,17 +236,24 @@ function Storytelling() {
     <section className="border-b border-border">
       <div className="container-landing section-landing">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-[2.75rem]">
-            Planning a wedding is a story told in a thousand small decisions.
-          </h2>
-          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Spreadsheets drift. Group chats bury the good parts. Reminders get forgotten the moment
-            they are sent. The things that matter most end up living in five different places.
-          </p>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            offstories gathers it all into one workspace that breathes: calm by default, structured
-            by design, and shared between the two of you from the very first list.
-          </p>
+          <Reveal>
+            <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-[2.75rem]">
+              Planning a wedding is a story told in a thousand small decisions.
+            </h2>
+          </Reveal>
+          <Reveal delay={120}>
+            <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+              Spreadsheets drift. Group chats bury the good parts. Reminders get forgotten the
+              moment they are sent. The things that matter most end up living in five different
+              places.
+            </p>
+          </Reveal>
+          <Reveal delay={240}>
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+              offstories gathers it all into one workspace that breathes: calm by default,
+              structured by design, and shared between the two of you from the very first list.
+            </p>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -200,110 +262,85 @@ function Storytelling() {
 
 function ShowcaseCard({
   id,
+  tag,
   title,
   body,
-  bullets,
-  preview,
-  gridClass,
+  demo,
+  index = 0,
 }: {
   id: string;
+  tag: string;
   title: string;
   body: string;
-  bullets: string[];
-  preview: ReactNode;
-  gridClass: string;
+  demo: ReactNode;
+  index?: number;
 }) {
   return (
     <article
       id={id}
-      className={`flex scroll-mt-16 flex-col overflow-hidden rounded-2xl border border-border bg-surface ${gridClass}`}
+      className="group flex scroll-mt-16 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-6 sm:p-8"
     >
-      <ProductPreview reveal>
-        <div className="flex flex-col">
-          <div className="bg-background">{preview}</div>
-          <div className="flex flex-col gap-4 p-6 sm:p-8">
-            <h3 className="display text-2xl text-foreground text-balance sm:text-3xl">{title}</h3>
-            <p className="text-base leading-relaxed text-muted-foreground">{body}</p>
-            <ul className="space-y-3">
-              {bullets.map((b) => (
-                <li
-                  key={b}
-                  className="flex items-start gap-3 text-[15px] leading-relaxed text-muted-foreground"
-                >
-                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+      <ProductPreview reveal delay={index * 90} className="flex flex-1 flex-col">
+        <p className="eyebrow text-xs">{tag}</p>
+        <h3 className="display mt-3 text-2xl text-foreground text-balance sm:text-3xl">{title}</h3>
+        <div className="mt-6 flex flex-1 items-center justify-center">{demo}</div>
+        <p className="mt-6 text-sm leading-relaxed text-muted-foreground sm:text-base">{body}</p>
       </ProductPreview>
     </article>
   );
 }
 
 function Showcase() {
+  const cards = [
+    {
+      id: "checklist",
+      tag: "01 · Checklist",
+      title: "The checklist",
+      body: "Every task has its place. Tick one off and watch the day get a little closer.",
+      demo: <ChecklistDemo />,
+    },
+    {
+      id: "budget",
+      tag: "02 · Budget",
+      title: "The budget",
+      body: "See your headroom at a glance as each commitment lands and the bar settles.",
+      demo: <BudgetDemo />,
+    },
+    {
+      id: "guests",
+      tag: "03 · Guests",
+      title: "The guests",
+      body: "Replies roll in and the list stays honest — one status at a time.",
+      demo: <GuestsDemo />,
+    },
+    {
+      id: "timeline",
+      tag: "04 · Timeline",
+      title: "The timeline",
+      body: "Milestones draw themselves out, from the first venue tour to the big day.",
+      demo: <TimelineDemo />,
+    },
+  ];
   return (
     <section id="features" className="scroll-mt-16 border-b border-border">
       <div className="container-landing pt-20 sm:pt-24">
-        <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
-          Everything, quietly in its place.
-        </h2>
-        <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Five modules that fit together like a well-run wedding: each simple alone, effortless
-          together.
-        </p>
+        <Reveal>
+          <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
+            Everything, quietly in its place.
+          </h2>
+        </Reveal>
+        <Reveal delay={120}>
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Five modules that fit together like a well-run wedding: each simple alone, effortless
+            together.
+          </p>
+        </Reveal>
       </div>
       <div className="container-landing pb-20 pt-10 sm:pt-14 sm:pb-24">
-        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12">
-          <ShowcaseCard
-            id="checklist"
-            gridClass="lg:col-span-7"
-            title="The checklist"
-            body="Tasks grouped by category and priority, with a simple list-to-kanban view. Nothing slips because nothing is written anywhere else."
-            bullets={[
-              "Auto-grouped tasks for every part of the wedding",
-              "High, medium, and low priorities at a glance",
-              "Track what is done, due, and coming next week",
-            ]}
-            preview={<ChecklistPreview frameless />}
-          />
-          <ShowcaseCard
-            id="budget"
-            gridClass="lg:col-span-5"
-            title="The budget"
-            body="Know exactly what is committed, what is paid, and what headroom remains before a deposit slips through."
-            bullets={[
-              "Track committed, paid, and remaining in real time",
-              "Compare vendors side by side before you book",
-              "Watch every category against your total",
-            ]}
-            preview={<BudgetPreview frameless />}
-          />
-          <ShowcaseCard
-            id="guests"
-            gridClass="lg:col-span-5"
-            title="The guests"
-            body="Invitation status and running RSVP totals for every group: family, friends, colleagues. The final count is always honest."
-            bullets={[
-              "Group your list by side, circle, or table",
-              "Live RSVP totals as replies come in",
-              "Pax counts per group, no more guesswork",
-            ]}
-            preview={<GuestsPreview frameless />}
-          />
-          <ShowcaseCard
-            id="timeline"
-            gridClass="lg:col-span-7"
-            title="The timeline"
-            body="Milestones month by month, from the first venue tour to the morning of the day itself, plus notes that keep every decision in its place."
-            bullets={[
-              "Milestones mapped from engagement to day one",
-              "A decision log so nothing gets re-litigated",
-              "Notes tagged by family, vendor, or meeting",
-            ]}
-            preview={<TimelinePreview frameless />}
-          />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:gap-6">
+          {cards.map((c, i) => (
+            <ShowcaseCard key={c.id} {...c} index={i} />
+          ))}
         </div>
       </div>
     </section>
@@ -325,28 +362,95 @@ function Workflow() {
       body: "Tasks, budgets, and RSVPs update in one shared view, so you both work from the same page.",
     },
   ];
+  const { ref: sectionRef, progress } = useScrollProgress<HTMLElement>();
+  const active = Math.min(steps.length - 1, Math.floor(progress * steps.length));
+
   return (
-    <section id="workflow" className="scroll-mt-16 border-b border-border">
-      <div className="container-landing section-landing">
-        <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
-          From first idea to the final toast.
-        </h2>
-        <ol className="mt-14 divide-y divide-border">
-          {steps.map((s) => (
-            <li key={s.title} className="grid grid-cols-12 items-baseline gap-4 py-8">
-              <h3 className="display col-span-12 text-xl text-foreground sm:col-span-4 sm:text-2xl">
-                {s.title}
-              </h3>
-              <p className="col-span-12 text-base leading-relaxed text-muted-foreground sm:col-span-7 sm:col-start-6 sm:text-lg">
-                {s.body}
+    <section
+      id="workflow"
+      ref={sectionRef}
+      className="relative scroll-mt-16 border-b border-border lg:h-[340vh]"
+    >
+      <div className="lg:sticky lg:top-0 lg:flex lg:h-screen lg:items-center lg:overflow-hidden">
+        <div className="container-landing grid grid-cols-12 items-center gap-12 py-16 lg:py-8">
+          <div className="col-span-12 lg:col-span-5">
+            <Reveal>
+              <p className="eyebrow text-xs">How it works</p>
+              <h2 className="display mt-3 text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
+                From first idea to the final toast.
+              </h2>
+              <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">
+                Three quiet steps, and the two of you are planning from the same page.
               </p>
-            </li>
-          ))}
-        </ol>
-        <div className="mt-12">
-          <CTAButton to="/auth" primary>
-            Get started
-          </CTAButton>
+            </Reveal>
+            <div className="mt-10 hidden space-y-3 lg:block">
+              {steps.map((s, i) => (
+                <div
+                  key={s.title}
+                  className={`flex items-center gap-3 text-sm transition-colors duration-500 ease-gentle ${
+                    i === active ? "text-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 shrink-0 rounded-full transition-colors duration-500 ease-gentle ${
+                      i <= active ? "bg-sage" : "bg-border"
+                    }`}
+                  />
+                  {s.title}
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 hidden lg:block">
+              <CTAButton to="/auth" primary>
+                Get started
+              </CTAButton>
+            </div>
+          </div>
+
+          <div className="col-span-12 lg:col-span-6 lg:col-start-7">
+            <div className="relative hidden aspect-[4/3] lg:block">
+              {steps.map((s, i) => (
+                <div
+                  key={s.title}
+                  className={`absolute inset-0 flex flex-col justify-center rounded-2xl border border-border bg-surface p-8 shadow-soft transition-all duration-500 ease-gentle ${
+                    i === active
+                      ? "translate-y-0 scale-100 opacity-100"
+                      : "pointer-events-none translate-y-8 scale-[0.97] opacity-0"
+                  }`}
+                  style={{ transitionDelay: i === active ? "40ms" : "0ms" }}
+                >
+                  <span className="serif text-7xl text-sage/25">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">{s.title}</h3>
+                  <p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground">
+                    {s.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-4 lg:hidden">
+              {steps.map((s, i) => (
+                <Reveal key={s.title} delay={i * 90}>
+                  <div className="flex items-start gap-4 rounded-2xl border border-border bg-surface p-6">
+                    <span className="serif text-3xl text-sage/40">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <h3 className="display text-xl text-foreground">{s.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+              <div className="pt-2">
+                <CTAButton to="/auth" primary>
+                  Get started
+                </CTAButton>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -374,18 +478,24 @@ function Testimonials() {
   return (
     <section className="border-b border-border">
       <div className="container-landing section-landing">
-        <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
-          Told better with one list.
-        </h2>
+        <Reveal>
+          <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
+            Told better with one list.
+          </h2>
+        </Reveal>
         <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
-          {quotes.map((t) => (
-            <figure key={t.who} className="flex flex-col justify-between bg-background p-8">
-              <blockquote className="text-base leading-relaxed text-foreground">“{t.q}”</blockquote>
-              <figcaption className="mt-8">
-                <div className="text-sm font-medium text-foreground">{t.who}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{t.when}</div>
-              </figcaption>
-            </figure>
+          {quotes.map((t, i) => (
+            <Reveal key={t.who} variant="scale" delay={i * 100} className="bg-background">
+              <figure className="flex h-full flex-col justify-between p-8">
+                <blockquote className="text-base leading-relaxed text-foreground">
+                  “{t.q}”
+                </blockquote>
+                <figcaption className="mt-8">
+                  <div className="text-sm font-medium text-foreground">{t.who}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{t.when}</div>
+                </figcaption>
+              </figure>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -412,30 +522,36 @@ function DataSection() {
     <section id="data" className="scroll-mt-16 border-b border-border">
       <div className="container-landing section-landing grid grid-cols-12 gap-y-12 lg:gap-16">
         <div className="col-span-12 lg:col-span-5">
-          <h2 className="display text-3xl text-foreground text-balance sm:text-4xl">
-            Why we ask for what we ask for.
-          </h2>
-          <p className="mt-6 text-base leading-relaxed text-muted-foreground">
-            We keep data requests to the minimum, and we keep them honest. Here is exactly what we
-            use, and what we never do with it.
-          </p>
+          <Reveal variant="left">
+            <h2 className="display text-3xl text-foreground text-balance sm:text-4xl">
+              Why we ask for what we ask for.
+            </h2>
+            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+              We keep data requests to the minimum, and we keep them honest. Here is exactly what we
+              use, and what we never do with it.
+            </p>
+          </Reveal>
         </div>
         <div className="col-span-12 lg:col-span-6 lg:col-start-7">
           <div className="space-y-4">
-            {dataUses.map((d) => (
-              <div key={d.title} className="panel p-6">
-                <h3 className="serif text-lg text-foreground">{d.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d.body}</p>
-              </div>
+            {dataUses.map((d, i) => (
+              <Reveal key={d.title} variant="right" delay={i * 100}>
+                <div className="panel p-6">
+                  <h3 className="serif text-lg text-foreground">{d.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{d.body}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
-          <p className="mt-8 text-sm text-muted-foreground">
-            You can request a copy or deletion of your data at any time. See our{" "}
-            <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
-              Privacy policy
-            </Link>{" "}
-            for details.
-          </p>
+          <Reveal delay={200}>
+            <p className="mt-8 text-sm text-muted-foreground">
+              You can request a copy or deletion of your data at any time. See our{" "}
+              <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
+                Privacy policy
+              </Link>{" "}
+              for details.
+            </p>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -445,31 +561,43 @@ function DataSection() {
 function FinalCTA({ hasSession }: { hasSession: boolean }) {
   return (
     <section className="relative overflow-hidden">
+      <ParallaxBackdrop speed={0.18}>
+        <div className="absolute -bottom-48 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-sage/10 blur-3xl" />
+        <div className="absolute -left-32 top-0 h-72 w-72 rounded-full bg-[color:var(--taupe)]/5 blur-3xl" />
+      </ParallaxBackdrop>
       <div className="container-landing relative section-landing">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="display text-4xl text-foreground text-balance sm:text-5xl md:text-6xl">
-            Your story deserves a quiet place to grow.
-          </h2>
-          <p className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Start your workspace in under a minute. Free to begin, calm to live in, ready for the
-            two of you.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
-              {hasSession ? "Open your dashboard" : "Get started"}
-            </CTAButton>
-          </div>
-          <p className="mt-7 text-xs text-muted-foreground">
-            By continuing, you agree to our{" "}
-            <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
-              Privacy policy
-            </Link>
-            .
-          </p>
+          <Reveal>
+            <h2 className="display text-4xl text-foreground text-balance sm:text-5xl md:text-6xl">
+              Your story deserves a quiet place to grow.
+            </h2>
+          </Reveal>
+          <Reveal delay={120}>
+            <p className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Start your workspace in under a minute. Free to begin, calm to live in, ready for the
+              two of you.
+            </p>
+          </Reveal>
+          <Reveal delay={240}>
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
+                {hasSession ? "Open your dashboard" : "Get started"}
+              </CTAButton>
+            </div>
+          </Reveal>
+          <Reveal delay={320}>
+            <p className="mt-7 text-xs text-muted-foreground">
+              By continuing, you agree to our{" "}
+              <Link to="/terms" className="underline underline-offset-2 hover:text-foreground">
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link to="/privacy" className="underline underline-offset-2 hover:text-foreground">
+                Privacy policy
+              </Link>
+              .
+            </p>
+          </Reveal>
         </div>
       </div>
     </section>
