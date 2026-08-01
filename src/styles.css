@@ -144,6 +144,9 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    scroll-behavior: smooth;
+  }
   html,
   body {
     font-family: var(--font-sans);
@@ -269,5 +272,26 @@
     font-weight: 500;
     letter-spacing: -0.01em;
     font-optical-sizing: auto;
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    transition:
+      opacity 500ms ease-out,
+      transform 500ms ease-out;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .bar-fill {
+    transform-origin: left;
+    transition: transform 800ms ease-out;
+  }
+  .reveal:not(.is-visible) .bar-fill {
+    transform: scaleX(0);
+  }
+  .is-visible .bar-fill {
+    transform: scaleX(var(--bar-fill, 1));
   }
 }

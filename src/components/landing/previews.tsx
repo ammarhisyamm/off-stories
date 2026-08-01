@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   CalendarDots,
   CheckSquare,
@@ -215,8 +216,8 @@ function SummaryStat({
       {!mini && (
         <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-secondary">
           <div
-            className={`h-full rounded-full ${tone === "sage" ? "bg-sage" : "bg-[color:var(--taupe)]"}`}
-            style={{ width: `${Math.min(100, pct)}%` }}
+            className={`bar-fill h-full rounded-full ${tone === "sage" ? "bg-sage" : "bg-[color:var(--taupe)]"}`}
+            style={{ "--bar-fill": Math.min(100, pct) / 100 } as CSSProperties}
           />
         </div>
       )}
@@ -238,7 +239,10 @@ export function ChecklistPreview() {
             <span className="text-[10px] text-foreground">{progress}% done</span>
           </div>
           <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-sage" style={{ width: `${progress}%` }} />
+            <div
+              className="bar-fill h-full rounded-full bg-sage"
+              style={{ "--bar-fill": progress / 100 } as CSSProperties}
+            />
           </div>
           <div className="space-y-1.5">
             {rows.map((r) => (
@@ -285,8 +289,12 @@ export function BudgetPreview() {
           </div>
           <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
             <div
-              className="h-full rounded-full bg-sage"
-              style={{ width: `${Math.round((committed / event.budget) * 100)}%` }}
+              className="bar-fill h-full rounded-full bg-sage"
+              style={
+                {
+                  "--bar-fill": Math.round((committed / event.budget) * 100) / 100,
+                } as CSSProperties
+              }
             />
           </div>
           <div className="space-y-2">
@@ -305,8 +313,8 @@ export function BudgetPreview() {
                   </div>
                   <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-secondary">
                     <div
-                      className={`h-full rounded-full ${pct === 0 ? "bg-[color:var(--taupe)]/60" : "bg-sage"}`}
-                      style={{ width: `${pct}%` }}
+                      className={`bar-fill h-full rounded-full ${pct === 0 ? "bg-[color:var(--taupe)]/60" : "bg-sage"}`}
+                      style={{ "--bar-fill": pct / 100 } as CSSProperties}
                     />
                   </div>
                 </div>

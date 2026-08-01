@@ -8,6 +8,7 @@ import {
   GuestsPreview,
   TimelinePreview,
 } from "@/components/landing/previews";
+import { useReveal } from "@/hooks/use-reveal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -52,8 +53,24 @@ function CTAButton({
   );
 }
 
-function ProductPreview({ children }: { children: ReactNode }) {
-  return <div className="[perspective:1200px]">{children}</div>;
+function ProductPreview({
+  children,
+  reveal = false,
+  className = "",
+}: {
+  children: ReactNode;
+  reveal?: boolean;
+  className?: string;
+}) {
+  const ref = useReveal();
+  return (
+    <div
+      ref={reveal ? ref : undefined}
+      className={`${reveal ? "reveal " : ""}${className} [perspective:1200px]`.trim()}
+    >
+      {children}
+    </div>
+  );
 }
 
 function LandingHeader({ hasSession }: { hasSession: boolean }) {
@@ -127,30 +144,30 @@ function Hero({ hasSession }: { hasSession: boolean }) {
     <section className="border-b border-border">
       <div className="container-landing py-16 text-center sm:py-20 lg:py-24">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-6 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out mb-6 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Wedding preparation for two
           </p>
-          <h1 className="display mx-auto text-[2.5rem] text-foreground text-balance sm:text-5xl lg:text-6xl">
+          <h1 className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:90ms] display mx-auto text-[2.5rem] text-foreground text-balance sm:text-5xl lg:text-6xl">
             Plan your wedding in one calm place.
           </h1>
-          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+          <p className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:180ms] mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             A shared workspace for you and your partner: checklist, budget, vendors, guests,
             timeline, and notes, together instead of scattered.
           </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:270ms] mt-9 flex flex-wrap items-center justify-center gap-3">
             <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
               {hasSession ? "Open your dashboard" : "Get started"}
             </CTAButton>
             <a
               href="#features"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-6 py-3.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-6 py-3.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             >
               See the workspace
             </a>
           </div>
         </div>
         <div className="mx-auto mt-12 w-full max-w-4xl sm:mt-16">
-          <ProductPreview>
+          <ProductPreview className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:420ms]">
             <DashboardPreview />
           </ProductPreview>
         </div>
@@ -221,7 +238,7 @@ function ShowcaseRow({
       <div
         className={`col-span-12 lg:col-span-6 ${reverse ? "lg:order-1 lg:col-start-1" : "lg:col-start-7"}`}
       >
-        <ProductPreview>{preview}</ProductPreview>
+        <ProductPreview reveal>{preview}</ProductPreview>
       </div>
     </div>
   );
@@ -268,7 +285,7 @@ function Showcase() {
       <div className="container-landing pb-16">
         <div className="grid grid-cols-12 gap-y-12 lg:gap-8">
           <div id="guests" className="col-span-12 scroll-mt-16 lg:col-span-7">
-            <ProductPreview>
+            <ProductPreview reveal>
               <GuestsPreview />
             </ProductPreview>
             <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">The guests</h3>
@@ -293,7 +310,7 @@ function Showcase() {
             </ul>
           </div>
           <div id="timeline" className="col-span-12 scroll-mt-16 lg:col-span-5">
-            <ProductPreview>
+            <ProductPreview reveal>
               <TimelinePreview />
             </ProductPreview>
             <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">The timeline</h3>
