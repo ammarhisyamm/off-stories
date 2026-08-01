@@ -6,7 +6,7 @@ import { GoogleLogo, Sparkle, WarningCircle } from "@phosphor-icons/react";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — offstories" },
+      { title: "Sign in, offstories" },
       { name: "description", content: "Sign in to your wedding preparation workspace." },
     ],
   }),
@@ -151,7 +151,7 @@ function AuthPage() {
           // Supabase intentionally does not reveal whether the account already
           // exists (anti-enumeration), so keep the message neutral.
           setNotice(
-            "We've sent a confirmation link to your email if this is a new account. Check your inbox — and spam — then sign in.",
+            "We've sent a confirmation link to your email if this is a new account. Check your inbox and spam, then sign in.",
           );
           setPendingEmail(email);
           startResendCooldown(60);

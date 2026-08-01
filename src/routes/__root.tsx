@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "offstories — a quiet, modular dashboard for managing every part of your wedding preparation in one place.",
+          "offstories, a quiet, modular dashboard for managing every part of your wedding preparation in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -40,7 +40,7 @@ export function PublicFooter() {
   return (
     <footer className="border-t border-border mt-16">
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
-        <div>offstories — one calm place for planning your wedding.</div>
+        <div>offstories, one calm place for planning your wedding.</div>
         <nav className="flex items-center gap-4">
           <Link to="/privacy" className="hover:text-foreground transition-colors">
             Privacy

@@ -3,7 +3,7 @@ import { PublicPage } from "@/components/public-page";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
-    meta: [{ title: "Terms of Service — offstories" }],
+    meta: [{ title: "Terms of Service, offstories" }],
   }),
   component: Terms,
 });

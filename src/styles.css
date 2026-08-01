@@ -46,6 +46,52 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+.dark {
+  --radius: 0.625rem;
+  /* Warm charcoal foundation */
+  --background: oklch(0.18 0.008 70);
+  --foreground: oklch(0.93 0.01 80);
+  --surface: oklch(0.22 0.01 70);
+  --surface-2: oklch(0.26 0.01 70);
+
+  --card: oklch(0.22 0.01 70);
+  --card-foreground: oklch(0.93 0.01 80);
+  --popover: oklch(0.22 0.01 70);
+  --popover-foreground: oklch(0.93 0.01 80);
+
+  --primary: oklch(0.92 0.01 85);
+  --primary-foreground: oklch(0.2 0.01 70);
+
+  --secondary: oklch(0.26 0.01 70);
+  --secondary-foreground: oklch(0.9 0.01 80);
+
+  --muted: oklch(0.26 0.01 70);
+  --muted-foreground: oklch(0.72 0.012 80);
+
+  --accent: oklch(0.78 0.05 145);
+  --accent-foreground: oklch(0.2 0.025 145);
+
+  --sage: oklch(0.78 0.05 145);
+  --rose: oklch(0.82 0.05 25);
+  --taupe: oklch(0.74 0.03 60);
+
+  --destructive: oklch(0.66 0.13 28);
+  --destructive-foreground: oklch(0.98 0.005 80);
+
+  --border: oklch(0.3 0.012 70);
+  --input: oklch(0.34 0.012 70);
+  --ring: oklch(0.78 0.05 145);
+
+  --sidebar: oklch(0.2 0.01 70);
+  --sidebar-foreground: oklch(0.9 0.01 80);
+  --sidebar-primary: oklch(0.92 0.01 85);
+  --sidebar-primary-foreground: oklch(0.2 0.01 70);
+  --sidebar-accent: oklch(0.28 0.01 70);
+  --sidebar-accent-foreground: oklch(0.93 0.01 80);
+  --sidebar-border: oklch(0.3 0.012 70);
+  --sidebar-ring: oklch(0.78 0.05 145);
+}
+
 :root {
   --radius: 0.625rem;
   /* Warm paper foundation */
@@ -155,33 +201,12 @@
   .section-landing {
     padding-block: clamp(4.5rem, 10vw, 10rem);
   }
-  .grid-lines {
-    background-image:
-      linear-gradient(
-        to right,
-        color-mix(in oklab, var(--foreground) 5%, transparent) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        color-mix(in oklab, var(--foreground) 5%, transparent) 1px,
-        transparent 1px
-      );
-    background-size: 3.5rem 3.5rem;
-  }
-  .grid-lines-soft {
-    background-image:
-      linear-gradient(
-        to right,
-        color-mix(in oklab, var(--foreground) 4%, transparent) 1px,
-        transparent 1px
-      ),
-      linear-gradient(
-        to bottom,
-        color-mix(in oklab, var(--foreground) 4%, transparent) 1px,
-        transparent 1px
-      );
-    background-size: 3.5rem 3.5rem;
+  .photo-tint {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--foreground) 8%, transparent),
+      transparent 45%
+    );
   }
   .shadow-browser {
     box-shadow:
@@ -194,9 +219,10 @@
       0 16px 40px -20px rgb(0 0 0 / 0.12);
   }
   .display {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
     font-optical-sizing: auto;
   }
   .panel {

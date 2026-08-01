@@ -3,7 +3,7 @@ import { PublicPage } from "@/components/public-page";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
-    meta: [{ title: "Privacy Policy — offstories" }],
+    meta: [{ title: "Privacy Policy, offstories" }],
   }),
   component: Privacy,
 });
@@ -24,8 +24,8 @@ function Privacy() {
             display it to your partner.
           </p>
           <p>
-            Data you enter into the app — your event details, checklist, budget, vendors, guests,
-            milestones, notes, and documents — is stored and belongs to your wedding workspace.
+            Data you enter into the app (your event details, checklist, budget, vendors, guests,
+            milestones, notes, and documents) is stored and belongs to your wedding workspace.
           </p>
         </section>
         <section>
@@ -62,8 +62,8 @@ function Privacy() {
         <section>
           <h2 className="serif text-lg text-foreground mb-2">Contact</h2>
           <p>
-            For any privacy questions or deletion requests, reach out via the email used to sign in
-            — we'll respond as soon as possible.
+            For any privacy questions or deletion requests, reach out via the email used to sign in,
+            and we'll respond as soon as possible.
           </p>
         </section>
         <p className="text-xs">Last updated: August 2026</p>
