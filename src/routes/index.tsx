@@ -12,6 +12,7 @@ import { useReveal } from "@/hooks/use-reveal";
 import { useParallax } from "@/hooks/use-parallax";
 import { useScrollProgress } from "@/hooks/use-scroll-progress";
 import { BrandLogo } from "@/components/brand-logo";
+import { TestimonialsCarousel } from "@/components/landing/testimonials-carousel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -453,23 +454,6 @@ function Workflow() {
 }
 
 function Testimonials() {
-  const quotes = [
-    {
-      q: "We stopped asking 'did you handle it?'. It is all in one place. The guest list alone saved us.",
-      who: "Andra & Kirana",
-      when: "Planning for October 2026",
-    },
-    {
-      q: "Budget committed versus what is actually paid was the thing we kept losing. Now it is one glance.",
-      who: "Rani & Dimas",
-      when: "Two months out",
-    },
-    {
-      q: "Our parents and the planner all work from the same list. Nobody is the messenger anymore.",
-      who: "Sinta & Bagas",
-      when: "Wedding season 2025",
-    },
-  ];
   return (
     <section className="border-b border-border">
       <div className="container-landing section-landing">
@@ -478,20 +462,8 @@ function Testimonials() {
             Told better with one list.
           </h2>
         </Reveal>
-        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-[6px] border border-border bg-border lg:grid-cols-3">
-          {quotes.map((t, i) => (
-            <Reveal key={t.who} variant="scale" delay={i * 100} className="bg-background">
-              <figure className="flex h-full flex-col justify-between p-8">
-                <blockquote className="text-base leading-relaxed text-foreground">
-                  “{t.q}”
-                </blockquote>
-                <figcaption className="mt-8">
-                  <div className="text-sm font-medium text-foreground">{t.who}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">{t.when}</div>
-                </figcaption>
-              </figure>
-            </Reveal>
-          ))}
+        <div className="mt-14">
+          <TestimonialsCarousel />
         </div>
       </div>
     </section>
