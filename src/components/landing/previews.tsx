@@ -52,7 +52,9 @@ const upcoming = budgetItems
 function Sidebar({ compact = false }: { compact?: boolean }) {
   return (
     <div
-      className={`hidden shrink-0 flex-col border-r border-border bg-sidebar sm:flex ${compact ? "w-32 p-2" : "w-44 p-3"}`}
+      className={`hidden shrink-0 flex-col border-r border-border bg-sidebar sm:flex ${
+        compact ? "w-28 p-2 lg:w-32" : "w-36 p-2 lg:w-44 lg:p-3"
+      }`}
     >
       <div className={`mb-2 ${compact ? "px-2 py-2" : "px-3 py-4"}`}>
         <div className="text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
@@ -146,7 +148,9 @@ export function DashboardPreview() {
                             : "bg-[color:var(--taupe)]"
                         }`}
                       />
-                      <span className="truncate text-[11px] text-foreground">{t.title}</span>
+                      <span className="min-w-0 flex-1 truncate text-[11px] text-foreground">
+                        {t.title}
+                      </span>
                       <span className="ml-auto shrink-0 rounded-full border border-border px-1.5 py-0.5 text-[8px] text-muted-foreground">
                         in {daysUntil(t.due)}d
                       </span>
@@ -243,7 +247,9 @@ export function ChecklistPreview() {
                 className="flex items-center gap-2.5 rounded-md border border-border bg-surface px-2.5 py-2"
               >
                 <span className="h-3 w-3 shrink-0 rounded-full border border-border bg-background" />
-                <span className="truncate text-[11px] text-foreground">{r.title}</span>
+                <span className="min-w-0 flex-1 truncate text-[11px] text-foreground">
+                  {r.title}
+                </span>
                 <span
                   className={`ml-auto shrink-0 rounded-full px-1.5 py-0.5 text-[8px] font-medium ${
                     r.priority === "high"
@@ -289,7 +295,9 @@ export function BudgetPreview() {
               return (
                 <div key={r.id} className="rounded-md border border-border bg-surface px-2.5 py-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-[11px] text-foreground">{r.category}</span>
+                    <span className="min-w-0 flex-1 truncate text-[11px] text-foreground">
+                      {r.category}
+                    </span>
                     <span className="shrink-0 text-[9px] text-muted-foreground">{r.vendor}</span>
                     <span className="shrink-0 text-[10px] font-medium tabular-nums text-foreground">
                       {formatIDR(r.amount)}
@@ -351,7 +359,9 @@ export function GuestsPreview() {
                 key={r.id}
                 className="flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-2"
               >
-                <span className="truncate text-[11px] text-foreground">{r.name}</span>
+                <span className="min-w-0 flex-1 truncate text-[11px] text-foreground">
+                  {r.name}
+                </span>
                 <span className="shrink-0 text-[9px] text-muted-foreground">
                   {r.side} · {r.pax}
                 </span>
@@ -399,7 +409,7 @@ export function TimelinePreview() {
                   m
                 </div>
                 <span
-                  className={`text-[11px] ${m.done ? "text-muted-foreground line-through" : "text-foreground"}`}
+                  className={`min-w-0 text-[11px] ${m.done ? "text-muted-foreground line-through" : "text-foreground"}`}
                 >
                   {m.title}
                 </span>

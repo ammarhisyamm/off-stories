@@ -125,19 +125,19 @@ function LandingFooter() {
 function Hero({ hasSession }: { hasSession: boolean }) {
   return (
     <section className="border-b border-border">
-      <div className="container-landing grid grid-cols-12 items-center gap-y-12 py-16 sm:py-20 lg:gap-16 lg:py-24">
-        <div className="col-span-12 lg:col-span-6">
+      <div className="container-landing py-16 text-center sm:py-20 lg:py-24">
+        <div className="mx-auto max-w-3xl">
           <p className="mb-6 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
             Wedding preparation for two
           </p>
-          <h1 className="display text-[2.75rem] text-foreground text-balance sm:text-6xl lg:text-[4.25rem]">
+          <h1 className="display mx-auto text-[2.5rem] text-foreground text-balance sm:text-5xl lg:text-6xl">
             Plan your wedding in one calm place.
           </h1>
-          <p className="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground">
+          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-muted-foreground">
             A shared workspace for you and your partner: checklist, budget, vendors, guests,
             timeline, and notes, together instead of scattered.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
               {hasSession ? "Open your dashboard" : "Get started"}
             </CTAButton>
@@ -149,7 +149,7 @@ function Hero({ hasSession }: { hasSession: boolean }) {
             </a>
           </div>
         </div>
-        <div className="col-span-12 lg:col-span-5 lg:col-start-8">
+        <div className="mx-auto mt-12 w-full max-w-4xl sm:mt-16">
           <ProductPreview>
             <DashboardPreview />
           </ProductPreview>
