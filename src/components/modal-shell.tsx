@@ -81,7 +81,7 @@ export function ModalShell({
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`bg-surface/95 backdrop-blur-xl border border-white/80 rounded-2xl shadow-browser ring-1 ring-black/5 w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto focus:outline-none ${
+        className={`bg-surface border border-border rounded-[28px] shadow-browser ring-1 ring-black/5 w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto focus:outline-none ${
           closing
             ? "animate-out fade-out zoom-out-95 duration-150 ease-in"
             : "animate-in fade-in zoom-in-95 duration-200"

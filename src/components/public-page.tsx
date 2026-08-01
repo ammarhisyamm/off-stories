@@ -4,7 +4,7 @@ import { BrandLogo } from "@/components/brand-logo";
 
 export function PublicHeader() {
   return (
-    <header className="border-b border-border bg-background/80 backdrop-blur">
+    <header className="border-b border-border bg-white/85 backdrop-blur-md">
       <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
         <Link to="/" className="text-foreground">
           <BrandLogo />

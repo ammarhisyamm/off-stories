@@ -170,7 +170,7 @@ export function AppLayout({
     <div className="app-shell min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside
-        className={`hidden md:flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar/80 backdrop-blur-xl transition-[width] duration-200 ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
+        className={`hidden md:flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
       >
         <div
           className={`border-b border-sidebar-border py-6 ${sidebarCollapsed ? "px-3" : "px-6"}`}
@@ -261,7 +261,7 @@ export function AppLayout({
 
       <main className="flex-1 min-w-0">
         {/* Mobile top bar */}
-        <div className="md:hidden border-b border-border bg-background/80 backdrop-blur sticky top-0 z-20">
+        <div className="md:hidden border-b border-border bg-white/85 backdrop-blur-md sticky top-0 z-20">
           <div className="px-4 py-3 flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
@@ -283,7 +283,7 @@ export function AppLayout({
           </div>
         </div>
 
-        <header className="border-b border-border bg-background/75 backdrop-blur-xl md:sticky md:top-0 z-10">
+        <header className="border-b border-border bg-white/85 backdrop-blur-md md:sticky md:top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5 sm:flex sm:flex-wrap sm:justify-between">
             <div className="min-w-0">
               {eyebrow && <div className="eyebrow mb-2 truncate">{eyebrow}</div>}
