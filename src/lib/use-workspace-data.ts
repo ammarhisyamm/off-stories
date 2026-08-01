@@ -17,6 +17,11 @@ let loadError: string | null = null;
 let boundLoad: (() => Promise<unknown>) | null = null;
 let boundSave: ((input: unknown) => Promise<unknown>) | null = null;
 
+const POLL_INTERVAL_MS = 20_000;
+let pollTimer: ReturnType<typeof setInterval> | null = null;
+let pollInFlight = false;
+let pendingSaves = 0;
+
 function notify() {
   listeners.forEach((l) => l());
 }
@@ -26,10 +31,42 @@ function publish(kind: DataKind, payload: unknown) {
   notify();
 }
 
+async function pollRefresh() {
+  if (pollInFlight || pendingSaves > 0 || !boundLoad) return;
+  if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+  pollInFlight = true;
+  try {
+    const res = await boundLoad();
+    cache = (res as { data: WorkspaceData }).data;
+    loaded = true;
+    loadError = null;
+    notify();
+  } catch {
+    // keep last known good state on transient failures
+  } finally {
+    pollInFlight = false;
+  }
+}
+
+function startPolling() {
+  if (pollTimer !== null) return;
+  pollTimer = setInterval(() => {
+    void pollRefresh();
+  }, POLL_INTERVAL_MS);
+}
+
+function stopPolling() {
+  if (pollTimer !== null) {
+    clearInterval(pollTimer);
+    pollTimer = null;
+  }
+}
+
 export function resetWorkspaceDataCache() {
   cache = emptyWorkspaceData();
   loaded = false;
   loadError = null;
+  stopPolling();
   notify();
 }
 
@@ -59,6 +96,7 @@ export function useWorkspaceData() {
           cache = (res as { data: WorkspaceData }).data;
           loaded = true;
           loadError = null;
+          startPolling();
           notify();
         })
         .catch((e) => {
@@ -72,6 +110,7 @@ export function useWorkspaceData() {
       };
     }
 
+    startPolling();
     return () => {
       listeners.delete(listener);
     };
@@ -80,7 +119,9 @@ export function useWorkspaceData() {
   const setKind = useCallback(
     (kind: DataKind, payload: unknown, opts?: { success?: string | null }) => {
       publish(kind, payload);
-      boundSave?.({ data: { kind, payload } })
+      if (!boundSave) return;
+      pendingSaves += 1;
+      boundSave({ data: { kind, payload } })
         .then(() => {
           if (opts?.success !== null) {
             showToast(opts?.success ?? "Saved");
@@ -90,6 +131,9 @@ export function useWorkspaceData() {
           loadError = e instanceof Error ? e.message : String(e);
           notify();
           showToast(loadError ?? "Couldn't save", "error");
+        })
+        .finally(() => {
+          pendingSaves = Math.max(0, pendingSaves - 1);
         });
     },
     [],
