@@ -528,18 +528,18 @@ function FAQ() {
   ];
   return (
     <section id="faq" className="scroll-mt-16 border-b border-border">
-      <div className="container-landing section-landing">
-        <div className="max-w-2xl">
-          <Reveal variant="left">
+      <div className="mx-auto w-full max-w-[900px] section-landing">
+        <Reveal>
+          <div className="text-center">
             <h2 className="display text-3xl text-foreground text-balance sm:text-4xl">
               Frequently asked questions.
             </h2>
-            <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+            <p className="mx-auto mt-6 max-w-[600px] text-base leading-relaxed text-muted-foreground">
               The short version of how offstories works — and what we do with what you put in it.
             </p>
-          </Reveal>
-        </div>
-        <div className="mt-14 max-w-3xl space-y-2">
+          </div>
+        </Reveal>
+        <div className="mt-6 space-y-2">
           {faqs.map((f, i) => {
             const isOpen = active === i;
             return (
