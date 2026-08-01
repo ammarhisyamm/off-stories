@@ -7,17 +7,17 @@ import { GoogleLogo } from "@phosphor-icons/react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Wedding Preparation — one calm place for everything" },
+      { title: "Wedding Preparation — wedding planning dashboard" },
       {
         name: "description",
         content:
-          "Plan your wedding without the chaos. Checklist, budget, vendors, guests, timeline, notes, and Google Calendar sync — shared with the people you invite.",
+          "Wedding Preparation is a wedding planning dashboard for couples and their helpers — checklist, budget, vendors, guests, timeline, notes, and Google Calendar sync in one shared workspace.",
       },
       { property: "og:title", content: "Wedding Preparation" },
       {
         property: "og:description",
         content:
-          "A quiet, modular dashboard for managing every part of your wedding preparation in one place.",
+          "A calm, modular dashboard for managing every part of your wedding preparation in one place.",
       },
     ],
   }),
@@ -60,13 +60,14 @@ function Landing() {
   return (
     <PublicPage>
       <section className="text-center py-10 sm:py-16">
-        <div className="eyebrow mb-4">Wedding Preparation</div>
+        <div className="eyebrow mb-4">Plan · Track · Share</div>
         <h1 className="serif text-4xl sm:text-5xl text-foreground text-balance leading-tight">
-          One calm place for everything
+          Wedding Preparation
         </h1>
-        <p className="text-muted-foreground mt-5 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-          Plan your wedding without the chaos. Checklist, budget, vendors, guests, and timeline in a
-          single quiet workspace — shared with whoever you invite.
+        <p className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+          Wedding Preparation is a wedding planning dashboard for couples and the people helping
+          them. Keep your checklist, budget, vendors, guest list, timeline, and notes in one calm
+          shared workspace, and sync your milestones to Google Calendar.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
