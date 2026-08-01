@@ -78,11 +78,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "off frames stories" },
+      { title: "offstories" },
       {
         name: "description",
         content:
-          "off frames stories — a quiet, modular dashboard for managing every part of your wedding preparation in one place.",
+          "offstories — a quiet, modular dashboard for managing every part of your wedding preparation in one place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

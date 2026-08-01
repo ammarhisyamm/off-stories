@@ -7,13 +7,13 @@ import { GoogleLogo } from "@phosphor-icons/react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "off frames stories — wedding planning dashboard" },
+      { title: "offstories — wedding planning dashboard" },
       {
         name: "description",
         content:
-          "off frames stories is a wedding planning dashboard for couples and their helpers — checklist, budget, vendors, guests, timeline, notes, and Google Calendar sync in one shared workspace.",
+          "offstories is a wedding planning dashboard for couples and their helpers — checklist, budget, vendors, guests, timeline, notes, and Google Calendar sync in one shared workspace.",
       },
-      { property: "og:title", content: "off frames stories" },
+      { property: "og:title", content: "offstories" },
       {
         property: "og:description",
         content:
@@ -77,12 +77,12 @@ function Landing() {
       <section className="text-center py-10 sm:py-16">
         <div className="eyebrow mb-4">Plan · Track · Share</div>
         <h1 className="serif text-4xl sm:text-5xl text-foreground text-balance leading-tight">
-          off frames stories
+          offstories
         </h1>
         <p className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-          off frames stories is a wedding planning dashboard for couples and the people helping
-          them. Keep your checklist, budget, vendors, guest list, timeline, and notes in one calm
-          shared workspace, and sync your milestones to Google Calendar.
+          offstories is a wedding planning dashboard for couples and the people helping them. Keep
+          your checklist, budget, vendors, guest list, timeline, and notes in one calm shared
+          workspace, and sync your milestones to Google Calendar.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link

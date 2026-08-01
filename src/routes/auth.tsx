@@ -86,9 +86,7 @@ function AuthPage() {
     // reset the button so the user can retry instead of staying stuck.
     timeoutRef.current = window.setTimeout(() => {
       setLoading(false);
-      setError(
-        "Sign-in is taking too long. Make sure the Google window opened, then try again.",
-      );
+      setError("Sign-in is taking too long. Make sure the Google window opened, then try again.");
     }, OAUTH_TIMEOUT_MS);
   }
 
@@ -98,7 +96,7 @@ function AuthPage() {
         <div className="mx-auto mb-6 grid h-12 w-12 place-items-center rounded-full bg-[color:var(--sage)]/15 text-[color:var(--sage)]">
           <Sparkle size={22} weight="duotone" />
         </div>
-        <div className="eyebrow mb-2">off frames stories</div>
+        <div className="eyebrow mb-2">offstories</div>
         <h1 className="serif text-3xl mb-3 text-foreground text-balance">Welcome back</h1>
         <p className="text-sm text-muted-foreground mb-8">
           Sign in to plan your wedding, invite collaborators, and sync your timeline to Google
