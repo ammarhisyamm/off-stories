@@ -3,7 +3,7 @@ import { PublicPage } from "@/components/public-page";
 
 export const Route = createFileRoute("/privacy")({
   head: () => ({
-    meta: [{ title: "Privacy Policy — Wedding Preparation" }],
+    meta: [{ title: "Privacy Policy — offstories" }],
   }),
   component: Privacy,
 });
@@ -29,12 +29,11 @@ function Privacy() {
           </p>
         </section>
         <section>
-          <h2 className="serif text-lg text-foreground mb-2">Google Calendar access</h2>
+          <h2 className="serif text-lg text-foreground mb-2">Email & password accounts</h2>
           <p>
-            When you choose to sync your timeline, we request access to your Google Calendar so we
-            can create and update all-day events for your milestones. Calendar access is used only
-            for this purpose and never for anything else. You can revoke calendar access at any time
-            from your Google Account settings, and reset the sync log from the app's Settings page.
+            If you create an account with your email and a password, we store your email address so
+            you can sign back in and receive account messages. Passwords are stored securely using
+            industry-standard hashing and are never shared.
           </p>
         </section>
         <section>
@@ -56,8 +55,8 @@ function Privacy() {
           <h2 className="serif text-lg text-foreground mb-2">Deleting your data</h2>
           <p>
             To delete your account and workspace data, contact us and we'll remove everything
-            associated with your account. You can also revoke Google sign-in and calendar access
-            directly from your Google Account at any time.
+            associated with your account. You can also revoke Google sign-in directly from your
+            Google Account at any time.
           </p>
         </section>
         <section>

@@ -4,25 +4,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { listInvites, createInvite, revokeInvite } from "@/lib/invites.functions";
-import {
-  getCalendarSyncStatus,
-  syncMilestonesToCalendar,
-  clearCalendarSync,
-} from "@/lib/calendar.functions";
-import { supabase } from "@/integrations/supabase/client";
-import { Copy, Check, GoogleLogo, ArrowsClockwise, LinkSimple } from "@phosphor-icons/react";
+import { Copy, Check, LinkSimple } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
     meta: [
       { title: "Settings — Wedding Preparation" },
-      { name: "description", content: "Event details, collaborators, and calendar sync." },
+      { name: "description", content: "Event details and collaborators." },
     ],
   }),
   component: Settings,
 });
 
-type Section = "Event" | "Collaborators" | "Calendar";
+type Section = "Event" | "Collaborators";
 
 function Settings() {
   const [section, setSection] = useState<Section>("Event");
@@ -35,7 +29,7 @@ function Settings() {
             role="tablist"
             aria-label="Settings sections"
           >
-            {(["Event", "Collaborators", "Calendar"] as Section[]).map((s) => (
+            {(["Event", "Collaborators"] as Section[]).map((s) => (
               <button
                 key={s}
                 role="tab"
@@ -55,7 +49,6 @@ function Settings() {
         <section key={section} className="animate-in fade-in duration-200 ease-out">
           {section === "Event" && <EventDetailsPanel />}
           {section === "Collaborators" && <CollaboratorsPanel />}
-          {section === "Calendar" && <CalendarPanel />}
         </section>
       </div>
     </AppLayout>
@@ -95,10 +88,28 @@ function EventDetailsPanel() {
       </div>
       <form onSubmit={handleSave}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label="Event name" name="name" type="text" defaultValue={eventData.name} placeholder="e.g. Andra & Kirana" />
-          <Field label="Event type" name="type" type="text" defaultValue={eventData.type} placeholder="e.g. Akad + Resepsi" />
+          <Field
+            label="Event name"
+            name="name"
+            type="text"
+            defaultValue={eventData.name}
+            placeholder="e.g. Andra & Kirana"
+          />
+          <Field
+            label="Event type"
+            name="type"
+            type="text"
+            defaultValue={eventData.type}
+            placeholder="e.g. Akad + Resepsi"
+          />
           <Field label="Date" name="date" type="date" defaultValue={eventData.date} />
-          <Field label="Location" name="location" type="text" defaultValue={eventData.location} placeholder="e.g. Bandung, ID" />
+          <Field
+            label="Location"
+            name="location"
+            type="text"
+            defaultValue={eventData.location}
+            placeholder="e.g. Bandung, ID"
+          />
           <Field
             label="Estimated guests"
             name="guestEstimate"
@@ -301,131 +312,6 @@ function CollaboratorsPanel() {
               ))}
             </ul>
           </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function CalendarPanel() {
-  const getStatus = useServerFn(getCalendarSyncStatus);
-  const sync = useServerFn(syncMilestonesToCalendar);
-  const clear = useServerFn(clearCalendarSync);
-  const { data } = useWorkspaceData();
-  const milestoneCount = (data.milestones as unknown[]).length;
-  const [synced, setSynced] = useState<
-    Array<{
-      milestone_key: string;
-      title: string | null;
-      synced_at: string;
-      event_date: string | null;
-    }>
-  >([]);
-  const [hasToken, setHasToken] = useState<boolean>(false);
-  const [busy, setBusy] = useState<null | "sync" | "clear">(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function refresh() {
-    const { data } = await supabase.auth.getSession();
-    setHasToken(Boolean(data.session?.provider_token));
-    const res = await getStatus();
-    setSynced(res.synced as typeof synced);
-  }
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function handleSync() {
-    setBusy("sync");
-    setMessage(null);
-    setError(null);
-    try {
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.provider_token;
-      if (!token) {
-        setError(
-          "No Google access token. Sign out and sign in again to grant calendar permission.",
-        );
-        return;
-      }
-      const res = await sync({ data: { providerToken: token } });
-      setMessage(
-        `Synced ${res.results.length} of ${res.total} milestones${
-          res.errors.length ? ` (${res.errors.length} failed)` : ""
-        }.`,
-      );
-      if (res.errors[0]) setError(res.errors[0].error);
-      await refresh();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function handleClear() {
-    setBusy("clear");
-    await clear();
-    setMessage("Local sync log cleared. Existing events remain in Google Calendar.");
-    await refresh();
-    setBusy(null);
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="panel p-7">
-        <div className="eyebrow mb-1">Google Calendar</div>
-        <h2 className="serif text-xl mb-2 text-balance">Sync your wedding timeline</h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          Push your timeline milestones into your primary Google Calendar as all-day events.
-          Re-syncing updates existing events instead of duplicating them.
-        </p>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <QuietButton variant="primary" onClick={handleSync} disabled={busy === "sync"}>
-            <GoogleLogo size={16} weight="bold" />
-            {busy === "sync" ? "Syncing…" : "Sync timeline to Google Calendar"}
-          </QuietButton>
-          {synced.length > 0 && (
-            <QuietButton onClick={handleClear} disabled={busy === "clear"}>
-              <ArrowsClockwise size={14} />
-              Reset sync log
-            </QuietButton>
-          )}
-          {!hasToken && (
-            <span className="text-xs text-muted-foreground">
-              No calendar token in session — sign out & in again to grant calendar permission.
-            </span>
-          )}
-        </div>
-
-        {message && <p className="mt-4 text-xs text-[color:var(--sage)]">{message}</p>}
-        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
-      </div>
-
-      <div className="panel p-7">
-        <h3 className="serif text-lg mb-4">Synced milestones</h3>
-        {synced.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing synced yet.</p>
-        ) : (
-          <ul className="divide-y divide-border text-sm">
-            {synced.map((s) => (
-              <li key={s.milestone_key} className="py-2 flex items-center gap-3">
-                <Check size={14} className="text-[color:var(--sage)]" />
-                <span className="flex-1 text-foreground truncate">{s.title}</span>
-                <span className="text-xs text-muted-foreground">
-                  {s.event_date &&
-                    new Date(s.event_date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                </span>
-              </li>
-            ))}
-          </ul>
         )}
       </div>
     </div>

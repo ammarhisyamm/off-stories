@@ -3,7 +3,7 @@ import { PublicPage } from "@/components/public-page";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
-    meta: [{ title: "Terms of Service — Wedding Preparation" }],
+    meta: [{ title: "Terms of Service — offstories" }],
   }),
   component: Terms,
 });
@@ -19,8 +19,8 @@ function Terms() {
         <section>
           <h2 className="serif text-lg text-foreground mb-2">The service</h2>
           <p>
-            Wedding Preparation is a personal planning tool that helps you organize your wedding
-            preparation. It is provided "as is" and "as available", without warranties of any kind.
+            offstories is a personal planning tool that helps you organize your wedding preparation.
+            It is provided "as is" and "as available", without warranties of any kind.
           </p>
         </section>
         <section>

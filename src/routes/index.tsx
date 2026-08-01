@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PublicPage } from "@/components/public-page";
 import { supabase } from "@/integrations/supabase/client";
-import { GoogleLogo } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -11,7 +10,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "offstories is a wedding planning dashboard for couples and their helpers — checklist, budget, vendors, guests, timeline, notes, and Google Calendar sync in one shared workspace.",
+          "offstories is a wedding planning dashboard for couples and their helpers — checklist, budget, vendors, guests, timeline, and notes in one shared workspace.",
       },
       { property: "og:title", content: "offstories" },
       {
@@ -45,10 +44,6 @@ const features = [
     title: "Invite collaborators",
     body: "Share one link so your partner, family, or planner can help — everyone sees the same data.",
   },
-  {
-    title: "Calendar sync",
-    body: "Push your milestones into your Google Calendar as all-day events, without duplicates.",
-  },
 ];
 
 const dataUses = [
@@ -57,8 +52,8 @@ const dataUses = [
     body: "We use Google sign-in only to identify you. We receive your name, email address, and profile picture, and we use them to create your account and show them to people you invite to your workspace.",
   },
   {
-    title: "Google Calendar sync",
-    body: "If you choose to connect your calendar, we request access so we can add your wedding milestones as all-day events and update them as you plan. We never read, share, or export events outside your own calendars.",
+    title: "Email & password",
+    body: "You can also create an account with your email and a password you choose. We store your email so you can sign back in and receive confirmation messages; your password is stored securely and never shared.",
   },
   {
     title: "Your wedding data",
@@ -82,15 +77,14 @@ function Landing() {
         <p className="text-muted-foreground mt-5 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
           offstories is a wedding planning dashboard for couples and the people helping them. Keep
           your checklist, budget, vendors, guest list, timeline, and notes in one calm shared
-          workspace, and sync your milestones to Google Calendar.
+          workspace.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             to={hasSession ? "/dashboard" : "/auth"}
             className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-5 py-3 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <GoogleLogo size={18} weight="bold" />
-            {hasSession ? "Open your dashboard" : "Continue with Google"}
+            {hasSession ? "Open your dashboard" : "Get started"}
           </Link>
         </div>
         <p className="text-xs text-muted-foreground mt-5">
