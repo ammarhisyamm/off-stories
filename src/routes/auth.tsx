@@ -24,6 +24,9 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const cooldownRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
 
   function clearOAuthTimer() {
@@ -32,6 +35,36 @@ function AuthPage() {
       timeoutRef.current = null;
     }
   }
+
+  function stopResendCooldown() {
+    if (cooldownRef.current) {
+      window.clearInterval(cooldownRef.current);
+      cooldownRef.current = null;
+    }
+    setResendCooldown(0);
+  }
+
+  function startResendCooldown(seconds = 60) {
+    stopResendCooldown();
+    setResendCooldown(seconds);
+    cooldownRef.current = window.setInterval(() => {
+      setResendCooldown((s) => {
+        if (s <= 1) {
+          if (cooldownRef.current) window.clearInterval(cooldownRef.current);
+          cooldownRef.current = null;
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  }
+
+  useEffect(() => {
+    return () => {
+      stopResendCooldown();
+      clearOAuthTimer();
+    };
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -96,7 +129,6 @@ function AuthPage() {
     e.preventDefault();
     setError(null);
     setNotice(null);
-
     if (!EMAIL_RE.test(email)) {
       setError("Enter a valid email address.");
       return;
@@ -116,9 +148,13 @@ function AuthPage() {
         });
         if (error) throw error;
         if (!data.session) {
+          // Supabase intentionally does not reveal whether the account already
+          // exists (anti-enumeration), so keep the message neutral.
           setNotice(
-            "Check your email for a confirmation link, then sign in. If you don't see it, check spam.",
+            "We've sent a confirmation link to your email if this is a new account. Check your inbox — and spam — then sign in.",
           );
+          setPendingEmail(email);
+          startResendCooldown(60);
         } else {
           navigate({ to: "/dashboard" });
         }
@@ -131,6 +167,28 @@ function AuthPage() {
       setError(message === "Invalid login credentials" ? "Incorrect email or password." : message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!pendingEmail || resendCooldown > 0) return;
+    setError(null);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+        options: { emailRedirectTo: window.location.origin + "/auth" },
+      });
+      if (error) throw error;
+      setNotice("Confirmation link sent again. Check your inbox (and spam) for the latest one.");
+      startResendCooldown(60);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      setError(
+        message.toLowerCase().includes("rate")
+          ? "You're sending too many emails. Please wait a bit and try again."
+          : message,
+      );
     }
   }
 
@@ -212,6 +270,8 @@ function AuthPage() {
                   setMode("signup");
                   setError(null);
                   setNotice(null);
+                  setPendingEmail(null);
+                  stopResendCooldown();
                 }}
                 className="underline underline-offset-2 hover:text-foreground"
               >
@@ -227,6 +287,8 @@ function AuthPage() {
                   setMode("signin");
                   setError(null);
                   setNotice(null);
+                  setPendingEmail(null);
+                  stopResendCooldown();
                 }}
                 className="underline underline-offset-2 hover:text-foreground"
               >
@@ -237,9 +299,21 @@ function AuthPage() {
         </p>
 
         {notice && (
-          <p className="mt-4 rounded-md border border-[color:var(--sage)]/30 bg-[color:var(--sage)]/10 px-3 py-2.5 text-xs text-[color:var(--sage)]">
-            {notice}
-          </p>
+          <div className="mt-4 rounded-md border border-[color:var(--sage)]/30 bg-[color:var(--sage)]/10 px-3 py-2.5 text-xs text-[color:var(--sage)]">
+            <p>{notice}</p>
+            {pendingEmail && (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendCooldown > 0}
+                className="mt-2 underline underline-offset-2 hover:text-foreground disabled:no-underline disabled:opacity-50"
+              >
+                {resendCooldown > 0
+                  ? `Resend confirmation link (${resendCooldown}s)`
+                  : "Resend confirmation link"}
+              </button>
+            )}
+          </div>
         )}
         {error && (
           <div
