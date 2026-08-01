@@ -360,12 +360,16 @@ function CollaboratorsPanel() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault();
+                }}
                 placeholder="e.g. partner@example.com"
                 required
+                autoComplete="off"
                 className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               />
             </label>
-            <QuietButton variant="primary" type="submit" disabled={creating}>
+            <QuietButton variant="primary" type="submit" disabled={creating || !email.trim()}>
               {creating ? "Sending…" : "Invite your partner"}
             </QuietButton>
           </form>
