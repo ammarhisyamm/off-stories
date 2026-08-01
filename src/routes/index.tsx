@@ -499,6 +499,7 @@ function Testimonials() {
 }
 
 function FAQ() {
+  const [active, setActive] = useState<number | null>(null);
   const faqs = [
     {
       q: "Is it free to start planning?",
@@ -538,15 +539,70 @@ function FAQ() {
             </p>
           </Reveal>
         </div>
-        <div className="mt-14 max-w-3xl space-y-3">
-          {faqs.map((f, i) => (
-            <Reveal key={f.q} delay={i * 60}>
-              <div className="panel p-6">
-                <h3 className="text-sm font-semibold text-foreground">{f.q}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.a}</p>
-              </div>
-            </Reveal>
-          ))}
+        <div className="mt-14 max-w-3xl space-y-2">
+          {faqs.map((f, i) => {
+            const isOpen = active === i;
+            return (
+              <Reveal key={f.q} delay={i * 50}>
+                <div
+                  className={`panel overflow-hidden transition-colors duration-200 ${
+                    isOpen ? "bg-surface ring-1 ring-sage/30" : "bg-surface"
+                  }`}
+                >
+                  <button
+                    onClick={() => setActive(isOpen ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-medium text-muted-foreground">
+                        {i + 1}
+                      </span>
+                      <span className="text-sm font-medium text-foreground">{f.q}</span>
+                    </span>
+                    <span
+                      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border transition-colors duration-200 ${
+                        isOpen ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {isOpen ? (
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        >
+                          <path d="M2 2l8 8M10 2l-8 8" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        >
+                          <path d="M6 2v8M2 6h8" />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-300 ease-out"
+                    style={{ maxHeight: isOpen ? "200px" : "0px", opacity: isOpen ? 1 : 0 }}
+                  >
+                    <p className="px-6 pb-5 pl-[46px] text-sm leading-relaxed text-muted-foreground">
+                      {f.a}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
