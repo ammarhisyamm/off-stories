@@ -198,56 +198,54 @@ function Storytelling() {
   );
 }
 
-function ShowcaseRow({
+function ShowcaseCard({
   id,
   title,
   body,
   bullets,
   preview,
-  reverse = false,
+  gridClass,
 }: {
   id: string;
   title: string;
   body: string;
   bullets: string[];
   preview: ReactNode;
-  reverse?: boolean;
+  gridClass: string;
 }) {
   return (
-    <div
+    <article
       id={id}
-      className="scroll-mt-16 grid grid-cols-12 items-center gap-y-10 py-16 sm:py-20 lg:gap-16"
+      className={`flex scroll-mt-16 flex-col overflow-hidden rounded-2xl border border-border bg-surface ${gridClass}`}
     >
-      <div className={`col-span-12 lg:col-span-5 ${reverse ? "lg:order-2 lg:col-start-8" : ""}`}>
-        <h3 className="display text-2xl text-foreground text-balance sm:text-3xl lg:text-[2.5rem]">
-          {title}
-        </h3>
-        <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">{body}</p>
-        <ul className="mt-8 space-y-3">
-          {bullets.map((b) => (
-            <li
-              key={b}
-              className="flex items-start gap-3 text-[15px] leading-relaxed text-muted-foreground"
-            >
-              <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
-              {b}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div
-        className={`col-span-12 lg:col-span-6 ${reverse ? "lg:order-1 lg:col-start-1" : "lg:col-start-7"}`}
-      >
-        <ProductPreview reveal>{preview}</ProductPreview>
-      </div>
-    </div>
+      <ProductPreview reveal>
+        <div className="flex flex-col">
+          <div className="bg-background">{preview}</div>
+          <div className="flex flex-col gap-4 p-6 sm:p-8">
+            <h3 className="display text-2xl text-foreground text-balance sm:text-3xl">{title}</h3>
+            <p className="text-base leading-relaxed text-muted-foreground">{body}</p>
+            <ul className="space-y-3">
+              {bullets.map((b) => (
+                <li
+                  key={b}
+                  className="flex items-start gap-3 text-[15px] leading-relaxed text-muted-foreground"
+                >
+                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </ProductPreview>
+    </article>
   );
 }
 
 function Showcase() {
   return (
     <section id="features" className="scroll-mt-16 border-b border-border">
-      <div className="container-landing pb-4 pt-20 sm:pt-24">
+      <div className="container-landing pt-20 sm:pt-24">
         <h2 className="display text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
           Everything, quietly in its place.
         </h2>
@@ -256,84 +254,56 @@ function Showcase() {
           together.
         </p>
       </div>
-      <div className="container-landing">
-        <ShowcaseRow
-          id="checklist"
-          title="The checklist"
-          body="Tasks grouped by category and priority, with a simple list-to-kanban view. Nothing slips because nothing is written anywhere else."
-          bullets={[
-            "Auto-grouped tasks for every part of the wedding",
-            "High, medium, and low priorities at a glance",
-            "Track what is done, due, and coming next week",
-          ]}
-          preview={<ChecklistPreview />}
-        />
-        <ShowcaseRow
-          id="budget"
-          title="The budget"
-          body="Know exactly what is committed, what is paid, and what headroom remains before a deposit slips through."
-          bullets={[
-            "Track committed, paid, and remaining in real time",
-            "Compare vendors side by side before you book",
-            "Watch every category against your total",
-          ]}
-          preview={<BudgetPreview />}
-          reverse
-        />
-      </div>
-
-      <div className="container-landing pb-16">
-        <div className="grid grid-cols-12 gap-y-12 lg:gap-8">
-          <div id="guests" className="col-span-12 scroll-mt-16 lg:col-span-7">
-            <ProductPreview reveal>
-              <GuestsPreview />
-            </ProductPreview>
-            <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">The guests</h3>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Invitation status and running RSVP totals for every group: family, friends,
-              colleagues. The final count is always honest.
-            </p>
-            <ul className="mt-6 space-y-3">
-              {[
-                "Group your list by side, circle, or table",
-                "Live RSVP totals as replies come in",
-                "Pax counts per group, no more guesswork",
-              ].map((b) => (
-                <li
-                  key={b}
-                  className="flex items-start gap-3 text-[15px] leading-relaxed text-muted-foreground"
-                >
-                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div id="timeline" className="col-span-12 scroll-mt-16 lg:col-span-5">
-            <ProductPreview reveal>
-              <TimelinePreview />
-            </ProductPreview>
-            <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">The timeline</h3>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Milestones month by month, from the first venue tour to the morning of the day itself,
-              plus notes that keep every decision in its place.
-            </p>
-            <ul className="mt-6 space-y-3">
-              {[
-                "Milestones mapped from engagement to day one",
-                "A decision log so nothing gets re-litigated",
-                "Notes tagged by family, vendor, or meeting",
-              ].map((b) => (
-                <li
-                  key={b}
-                  className="flex items-start gap-3 text-[15px] leading-relaxed text-muted-foreground"
-                >
-                  <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-          </div>
+      <div className="container-landing pb-20 pt-10 sm:pt-14 sm:pb-24">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-12">
+          <ShowcaseCard
+            id="checklist"
+            gridClass="lg:col-span-7"
+            title="The checklist"
+            body="Tasks grouped by category and priority, with a simple list-to-kanban view. Nothing slips because nothing is written anywhere else."
+            bullets={[
+              "Auto-grouped tasks for every part of the wedding",
+              "High, medium, and low priorities at a glance",
+              "Track what is done, due, and coming next week",
+            ]}
+            preview={<ChecklistPreview frameless />}
+          />
+          <ShowcaseCard
+            id="budget"
+            gridClass="lg:col-span-5"
+            title="The budget"
+            body="Know exactly what is committed, what is paid, and what headroom remains before a deposit slips through."
+            bullets={[
+              "Track committed, paid, and remaining in real time",
+              "Compare vendors side by side before you book",
+              "Watch every category against your total",
+            ]}
+            preview={<BudgetPreview frameless />}
+          />
+          <ShowcaseCard
+            id="guests"
+            gridClass="lg:col-span-5"
+            title="The guests"
+            body="Invitation status and running RSVP totals for every group: family, friends, colleagues. The final count is always honest."
+            bullets={[
+              "Group your list by side, circle, or table",
+              "Live RSVP totals as replies come in",
+              "Pax counts per group, no more guesswork",
+            ]}
+            preview={<GuestsPreview frameless />}
+          />
+          <ShowcaseCard
+            id="timeline"
+            gridClass="lg:col-span-7"
+            title="The timeline"
+            body="Milestones month by month, from the first venue tour to the morning of the day itself, plus notes that keep every decision in its place."
+            bullets={[
+              "Milestones mapped from engagement to day one",
+              "A decision log so nothing gets re-litigated",
+              "Notes tagged by family, vendor, or meeting",
+            ]}
+            preview={<TimelinePreview frameless />}
+          />
         </div>
       </div>
     </section>

@@ -225,10 +225,16 @@ function SummaryStat({
   );
 }
 
-export function ChecklistPreview() {
+export function ChecklistPreview({ frameless = false }: { frameless?: boolean }) {
   const rows = tasks.filter((t) => t.status !== "done").slice(0, 5);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div
+      className={
+        frameless
+          ? "overflow-hidden bg-background"
+          : "overflow-hidden rounded-2xl border border-border bg-background shadow-browser"
+      }
+    >
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -274,10 +280,16 @@ export function ChecklistPreview() {
   );
 }
 
-export function BudgetPreview() {
+export function BudgetPreview({ frameless = false }: { frameless?: boolean }) {
   const rows = budgetItems.slice(0, 5);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div
+      className={
+        frameless
+          ? "overflow-hidden bg-background"
+          : "overflow-hidden rounded-2xl border border-border bg-background shadow-browser"
+      }
+    >
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -327,7 +339,7 @@ export function BudgetPreview() {
   );
 }
 
-export function GuestsPreview() {
+export function GuestsPreview({ frameless = false }: { frameless?: boolean }) {
   const rows = guests.filter((g) => g.invited).slice(0, 5);
   const tone = (rsvp: string) =>
     rsvp === "yes"
@@ -346,7 +358,13 @@ export function GuestsPreview() {
           ? "Declined"
           : "Pending";
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div
+      className={
+        frameless
+          ? "overflow-hidden bg-background"
+          : "overflow-hidden rounded-2xl border border-border bg-background shadow-browser"
+      }
+    >
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -387,10 +405,16 @@ export function GuestsPreview() {
   );
 }
 
-export function TimelinePreview() {
+export function TimelinePreview({ frameless = false }: { frameless?: boolean }) {
   const rows = milestones.slice(0, 5);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div
+      className={
+        frameless
+          ? "overflow-hidden bg-background"
+          : "overflow-hidden rounded-2xl border border-border bg-background shadow-browser"
+      }
+    >
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
