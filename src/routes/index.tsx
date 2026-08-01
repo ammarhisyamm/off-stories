@@ -1,6 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  BudgetPreview,
+  ChecklistPreview,
+  DashboardPreview,
+  GuestsPreview,
+  TimelinePreview,
+} from "@/components/landing/previews";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,25 +52,8 @@ function CTAButton({
   );
 }
 
-function Photo({
-  src,
-  alt,
-  className = "",
-  eager = false,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  eager?: boolean;
-}) {
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading={eager ? "eager" : "lazy"}
-      className={`h-full w-full object-cover ${className}`}
-    />
-  );
+function ProductPreview({ children }: { children: ReactNode }) {
+  return <div className="[perspective:1200px]">{children}</div>;
 }
 
 function LandingHeader({ hasSession }: { hasSession: boolean }) {
@@ -160,16 +150,9 @@ function Hero({ hasSession }: { hasSession: boolean }) {
           </div>
         </div>
         <div className="col-span-12 lg:col-span-5 lg:col-start-8">
-          <figure className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-2 shadow-soft">
-            <Photo
-              src="https://picsum.photos/seed/offstories-couple-wedding/800/1000"
-              alt="A couple planning their wedding at a table together"
-              eager
-            />
-            <figcaption className="sr-only">
-              A couple planning their wedding at a table together
-            </figcaption>
-          </figure>
+          <ProductPreview>
+            <DashboardPreview />
+          </ProductPreview>
         </div>
       </div>
     </section>
@@ -203,14 +186,14 @@ function ShowcaseRow({
   title,
   body,
   bullets,
-  img,
+  preview,
   reverse = false,
 }: {
   id: string;
   title: string;
   body: string;
   bullets: string[];
-  img: { src: string; alt: string };
+  preview: ReactNode;
   reverse?: boolean;
 }) {
   return (
@@ -238,9 +221,7 @@ function ShowcaseRow({
       <div
         className={`col-span-12 lg:col-span-6 ${reverse ? "lg:order-1 lg:col-start-1" : "lg:col-start-7"}`}
       >
-        <figure className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-surface-2 shadow-soft">
-          <Photo src={img.src} alt={img.alt} />
-        </figure>
+        <ProductPreview>{preview}</ProductPreview>
       </div>
     </div>
   );
@@ -268,10 +249,7 @@ function Showcase() {
             "High, medium, and low priorities at a glance",
             "Track what is done, due, and coming next week",
           ]}
-          img={{
-            src: "https://picsum.photos/seed/offstories-checklist/1200/750",
-            alt: "A tidy planning list on a wooden desk",
-          }}
+          preview={<ChecklistPreview />}
         />
         <ShowcaseRow
           id="budget"
@@ -282,33 +260,17 @@ function Showcase() {
             "Compare vendors side by side before you book",
             "Watch every category against your total",
           ]}
-          img={{
-            src: "https://picsum.photos/seed/offstories-budget/1200/750",
-            alt: "A notebook with budget figures laid out on a table",
-          }}
+          preview={<BudgetPreview />}
           reverse
         />
-      </div>
-
-      <div className="container-landing py-16 sm:py-20">
-        <figure className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-surface-2 shadow-soft sm:aspect-[21/9]">
-          <Photo
-            src="https://picsum.photos/seed/offstories-reception/1920/1080"
-            alt="A reception table set for the wedding day"
-          />
-          <figcaption className="sr-only">A reception table set for the wedding day</figcaption>
-        </figure>
       </div>
 
       <div className="container-landing pb-16">
         <div className="grid grid-cols-12 gap-y-12 lg:gap-8">
           <div id="guests" className="col-span-12 scroll-mt-16 lg:col-span-7">
-            <figure className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-2 shadow-soft">
-              <Photo
-                src="https://picsum.photos/seed/offstories-guests/1400/1050"
-                alt="Place cards and a guest book at a reception table"
-              />
-            </figure>
+            <ProductPreview>
+              <GuestsPreview />
+            </ProductPreview>
             <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">The guests</h3>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
               Invitation status and running RSVP totals for every group: family, friends,
@@ -331,12 +293,9 @@ function Showcase() {
             </ul>
           </div>
           <div id="timeline" className="col-span-12 scroll-mt-16 lg:col-span-5">
-            <figure className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-surface-2 shadow-soft">
-              <Photo
-                src="https://picsum.photos/seed/offstories-timeline/1000/1250"
-                alt="A calendar with milestone dates marked in pencil"
-              />
-            </figure>
+            <ProductPreview>
+              <TimelinePreview />
+            </ProductPreview>
             <h3 className="display mt-6 text-2xl text-foreground sm:text-3xl">The timeline</h3>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
               Milestones month by month, from the first venue tour to the morning of the day itself,
