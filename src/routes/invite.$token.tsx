@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { acceptInvite, getInvite } from "@/lib/invites.functions";
+import { acceptInvite, getInvite, leaveWorkspace } from "@/lib/invites.functions";
 import { resetWorkspaceDataCache } from "@/lib/use-workspace-data";
 import { useServerFn } from "@tanstack/react-start";
-import { GoogleLogo, Envelope, WarningCircle } from "@phosphor-icons/react";
+import { GoogleLogo, Envelope, WarningCircle, SignOut } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/invite/$token")({
   head: () => ({
@@ -24,6 +24,7 @@ function InvitePage() {
   const navigate = useNavigate();
   const accept = useServerFn(acceptInvite);
   const get = useServerFn(getInvite);
+  const leave = useServerFn(leaveWorkspace);
   const [status, setStatus] = useState<"idle" | "signing" | "accepting" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -35,6 +36,14 @@ function InvitePage() {
   const [workspaceName, setWorkspaceName] = useState<string | null>(null);
   const [pendingSignupEmail, setPendingSignupEmail] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
+  const [sessionName, setSessionName] = useState<string | null>(null);
+  const [sessionAvatar, setSessionAvatar] = useState<string | null>(null);
+  const [isMember, setIsMember] = useState<boolean | null>(null);
+  const [memberRole, setMemberRole] = useState<string | null>(null);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(null);
+  const [inviteLoaded, setInviteLoaded] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const timeoutRef = useRef<number | null>(null);
 
   function clearOAuthTimer() {
@@ -44,10 +53,26 @@ function InvitePage() {
     }
   }
 
+  function applySession(
+    session: {
+      user: { email?: string | null; user_metadata?: Record<string, unknown> } | null;
+    } | null,
+  ) {
+    const u = session?.user;
+    const meta = (u?.user_metadata ?? {}) as {
+      full_name?: string | null;
+      name?: string | null;
+      avatar_url?: string | null;
+    };
+    setSessionEmail(u?.email ?? null);
+    setSessionName(meta.full_name || meta.name || u?.email?.split("@")[0] || null);
+    setSessionAvatar(meta.avatar_url ?? null);
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSignedIn(!!data.session);
-      setSessionEmail(data.session?.user.email ?? null);
+      applySession(data.session);
     });
   }, []);
 
@@ -60,9 +85,14 @@ function InvitePage() {
         if (cancelled) return;
         setInviteEmail((inv as { email?: string | null }).email ?? null);
         setWorkspaceName(inv.workspaceName);
+        setIsMember((inv as { isMember?: boolean }).isMember ?? false);
+        setMemberRole((inv as { memberRole?: string | null }).memberRole ?? null);
+        setWorkspaceId((inv as { workspace_id?: string | null }).workspace_id ?? null);
+        setInviteLoaded(true);
       })
       .catch((e) => {
         if (cancelled) return;
+        setInviteLoaded(true);
         setError(e instanceof Error ? e.message : String(e));
       });
     return () => {
@@ -79,7 +109,7 @@ function InvitePage() {
   }, []);
 
   // When sign-in completes, this fires on the opener tab and lets the
-  // accept flow below run automatically.
+  // accept flow below run automatically. Signing out returns to the form.
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
@@ -87,7 +117,21 @@ function InvitePage() {
         setStatus("idle");
         setError(null);
         setSignedIn(true);
-        setSessionEmail(session.user.email ?? null);
+        applySession(session);
+      } else if (event === "SIGNED_OUT") {
+        clearOAuthTimer();
+        setStatus("idle");
+        setError(null);
+        setNotice(null);
+        setSignedIn(false);
+        setSessionEmail(null);
+        setSessionName(null);
+        setSessionAvatar(null);
+        setIsMember(null);
+        setMemberRole(null);
+        setWorkspaceId(null);
+        setInviteLoaded(false);
+        setConfirmLeave(false);
       }
     });
     return () => {
@@ -107,6 +151,35 @@ function InvitePage() {
     } catch (e) {
       setStatus("error");
       setError(e instanceof Error ? e.message : "Failed to accept invite");
+    }
+  }
+
+  async function handleSignOut() {
+    setError(null);
+    setNotice(null);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // the SIGNED_OUT event resets the page state regardless
+    }
+  }
+
+  async function handleLeave() {
+    if (!workspaceId) return;
+    setLeaving(true);
+    setError(null);
+    try {
+      await leave({ data: { workspaceId } });
+      resetWorkspaceDataCache();
+      setIsMember(false);
+      setMemberRole(null);
+      setConfirmLeave(false);
+      setNotice("You've left this workspace. Redirecting to your own dashboard…");
+      setTimeout(() => navigate({ to: "/dashboard" }), 1200);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLeaving(false);
     }
   }
 
@@ -337,6 +410,33 @@ function InvitePage() {
 
         {signedIn === true && status !== "done" && (
           <div className="space-y-3">
+            {/* Which account is signed in right now */}
+            <div className="flex items-center gap-3 rounded-md border border-border bg-surface-2/50 p-3 text-left">
+              {sessionAvatar ? (
+                <img src={sessionAvatar} alt="" className="h-9 w-9 shrink-0 rounded-full" />
+              ) : (
+                <div className="h-9 w-9 shrink-0 rounded-full bg-[color:var(--sage)]/20 grid place-items-center text-sm text-[color:var(--sage)] font-semibold">
+                  {sessionName?.[0]?.toUpperCase() ?? "?"}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs text-muted-foreground">Signed in as</div>
+                <div className="truncate text-sm font-medium text-foreground">
+                  {sessionName ?? sessionEmail}
+                </div>
+                <div className="truncate text-xs text-muted-foreground">{sessionEmail}</div>
+              </div>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={status === "accepting" || leaving}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition duration-150 hover:bg-surface-2 hover:text-foreground active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <SignOut size={13} />
+                Switch
+              </button>
+            </div>
+
             {inviteEmail && (
               <div
                 className={`flex items-start gap-2 rounded-md border px-3 py-2.5 text-left text-xs ${
@@ -348,18 +448,64 @@ function InvitePage() {
                 <WarningCircle size={15} className="mt-0.5 shrink-0" weight="fill" />
                 <span>
                   {emailMismatch
-                    ? `This invitation is for ${inviteEmail}. Sign in with that account to join.`
-                    : `Welcome! You're signed in as ${sessionEmail ?? "your account"}.`}
+                    ? `This invitation is for ${inviteEmail}, but you're signed in as ${sessionEmail ?? "this account"}. Use Switch above to sign in with the invited email.`
+                    : `This invitation was sent to ${inviteEmail}. You're signed in as ${sessionEmail ?? "your account"}.`}
                 </span>
               </div>
             )}
-            <button
-              onClick={handleAccept}
-              disabled={status === "accepting" || emailMismatch}
-              className="w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {status === "accepting" ? "Joining…" : "Accept invitation"}
-            </button>
+
+            {isMember ? (
+              memberRole === "owner" ? (
+                <p className="text-sm text-muted-foreground">
+                  You're the owner of this workspace, so there's nothing to join.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    You're already part of this workspace.
+                  </p>
+                  {confirmLeave ? (
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmLeave(false)}
+                        disabled={leaving}
+                        className="flex-1 rounded-md border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 active:scale-[0.99] disabled:opacity-60"
+                      >
+                        Keep me in
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleLeave}
+                        disabled={leaving}
+                        className="flex-1 rounded-md bg-destructive px-4 py-3 text-sm font-medium text-destructive-foreground transition duration-150 hover:bg-destructive/90 active:scale-[0.99] disabled:opacity-60"
+                      >
+                        {leaving ? "Leaving…" : "Leave workspace"}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmLeave(true)}
+                      disabled={leaving}
+                      className="w-full rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm font-medium text-destructive transition duration-150 hover:bg-destructive/10 active:scale-[0.99]"
+                    >
+                      Leave this workspace
+                    </button>
+                  )}
+                </div>
+              )
+            ) : inviteLoaded ? (
+              <button
+                onClick={handleAccept}
+                disabled={status === "accepting" || emailMismatch}
+                className="w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {status === "accepting" ? "Joining…" : "Accept invitation"}
+              </button>
+            ) : (
+              <p className="text-sm text-muted-foreground">Checking your invitation…</p>
+            )}
           </div>
         )}
 

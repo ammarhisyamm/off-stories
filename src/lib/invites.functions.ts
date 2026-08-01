@@ -116,7 +116,7 @@ export const getInvite = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ token: z.string().uuid() }).parse(d))
   .handler(async ({ data: input, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
     const { data: inv, error } = await supabase
       .from("workspace_invites")
       .select("id, email, role, expires_at, accepted_at, revoked_at, workspace_id")
@@ -129,7 +129,42 @@ export const getInvite = createServerFn({ method: "GET" })
       .select("name")
       .eq("id", inv.workspace_id)
       .maybeSingle();
-    return { ...inv, workspaceName: ws?.name ?? "their wedding" };
+    const { data: membership } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", inv.workspace_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    return {
+      ...inv,
+      workspaceName: ws?.name ?? "their wedding",
+      isMember: Boolean(membership),
+      memberRole: membership?.role ?? null,
+    };
+  });
+
+// The signed-in user (an invited editor, never the owner) drops their own
+// membership and points their active workspace back to their own account.
+export const leaveWorkspace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ workspaceId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("id")
+      .eq("id", data.workspaceId)
+      .eq("owner_id", userId)
+      .maybeSingle();
+    if (ws) throw new Error("You own this workspace, so you can't leave it.");
+    const { error } = await supabase
+      .from("workspace_members")
+      .delete()
+      .eq("workspace_id", data.workspaceId)
+      .eq("user_id", userId);
+    if (error) throw new Error(error.message);
+    await supabase.from("profiles").update({ active_workspace_id: null }).eq("id", userId);
+    return { ok: true };
   });
 
 export const acceptInvite = createServerFn({ method: "POST" })
@@ -168,26 +203,68 @@ export const listMembers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data: ws } = await supabase
+    const { data: owned } = await supabase
       .from("workspaces")
       .select("id")
       .eq("owner_id", userId)
       .limit(1)
       .maybeSingle();
-    if (!ws) return { members: [] };
+    let workspaceId = owned?.id ?? null;
+    if (!workspaceId) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("active_workspace_id")
+        .eq("id", userId)
+        .maybeSingle();
+      workspaceId = profile?.active_workspace_id ?? null;
+    }
+    if (!workspaceId) {
+      return {
+        members: [],
+        role: null as string | null,
+        workspaceId: null as string | null,
+        workspaceName: null as string | null,
+        myId: userId,
+      };
+    }
     const { data, error } = await supabase
       .from("workspace_members")
       .select(
         "user_id, role, joined_at, profiles:profiles!workspace_members_user_id_fkey(display_name, email, avatar_url)",
       )
-      .eq("workspace_id", ws.id);
+      .eq("workspace_id", workspaceId);
+    type MemberRow = {
+      user_id: string;
+      role: string;
+      joined_at: string;
+      profiles?: {
+        display_name: string | null;
+        email: string | null;
+        avatar_url: string | null;
+      } | null;
+    };
+    let members: MemberRow[] = (data ?? []) as unknown as MemberRow[];
     if (error) {
       // fallback: join manually
       const { data: simple } = await supabase
         .from("workspace_members")
         .select("user_id, role, joined_at")
-        .eq("workspace_id", ws.id);
-      return { members: simple ?? [] };
+        .eq("workspace_id", workspaceId);
+      members = (simple ?? []) as unknown as MemberRow[];
     }
-    return { members: data ?? [] };
+    const my = (members as Array<{ user_id: string; role: string }>).find(
+      (m) => m.user_id === userId,
+    );
+    const { data: wsInfo } = await supabase
+      .from("workspaces")
+      .select("name")
+      .eq("id", workspaceId)
+      .maybeSingle();
+    return {
+      members,
+      role: my?.role ?? null,
+      workspaceId,
+      workspaceName: wsInfo?.name ?? null,
+      myId: userId,
+    };
   });
