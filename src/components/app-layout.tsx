@@ -14,7 +14,9 @@ import {
   List as ListIcon,
   SignOut,
   X,
+  SidebarSimple,
 } from "@phosphor-icons/react";
+import { BrandLogo } from "@/components/brand-logo";
 import { daysUntil } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
@@ -49,9 +51,17 @@ function useCurrentUser() {
   return user;
 }
 
-function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavList({
+  pathname,
+  onNavigate,
+  collapsed = false,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  collapsed?: boolean;
+}) {
   return (
-    <nav className="flex-1 px-3 py-4 space-y-0.5">
+    <nav className="flex-1 px-3 py-5 space-y-1">
       {nav.map(({ to, label, Icon }) => {
         const active = pathname.startsWith(to);
         return (
@@ -60,15 +70,15 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
             to={to}
             onClick={onNavigate}
             className={[
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-[transform,background-color,color] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              `flex items-center gap-3 rounded-xl py-2.5 text-sm transition-[transform,background-color,color] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${collapsed ? "justify-center px-2" : "px-3"}`,
               active
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
             ].join(" ")}
           >
             <Icon size={18} weight={active ? "duotone" : "regular"} />
-            <span className="flex-1">{label}</span>
-            {active && <span className="h-1 w-1 rounded-full bg-sage" />}
+            {!collapsed && <span className="flex-1">{label}</span>}
+            {!collapsed && active && <span className="h-1 w-1 rounded-full bg-sage" />}
           </Link>
         );
       })}
@@ -76,7 +86,13 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
   );
 }
 
-function UserFooter({ compact = false }: { compact?: boolean }) {
+function UserFooter({
+  compact = false,
+  collapsed = false,
+}: {
+  compact?: boolean;
+  collapsed?: boolean;
+}) {
   const user = useCurrentUser();
   const navigate = useNavigate();
   async function signOut() {
@@ -84,8 +100,10 @@ function UserFooter({ compact = false }: { compact?: boolean }) {
     navigate({ to: "/auth", replace: true });
   }
   return (
-    <div className={`border-t border-border ${compact ? "px-4 py-4" : "px-6 py-5"}`}>
-      <div className="flex items-center gap-3 mb-3">
+    <div
+      className={`border-t border-sidebar-border ${collapsed ? "px-3 py-4" : compact ? "px-4 py-4" : "px-6 py-5"}`}
+    >
+      <div className={`flex items-center gap-3 mb-3 ${collapsed ? "justify-center" : ""}`}>
         {user?.avatar ? (
           <img src={user.avatar} alt="" className="h-8 w-8 rounded-full" />
         ) : (
@@ -93,17 +111,20 @@ function UserFooter({ compact = false }: { compact?: boolean }) {
             {user?.name?.[0]?.toUpperCase() ?? "?"}
           </div>
         )}
-        <div className="min-w-0 flex-1">
-          <div className="text-sm text-foreground truncate">{user?.name ?? "Loading…"}</div>
-          <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
-        </div>
+        {!collapsed && (
+          <div className="min-w-0 flex-1">
+            <div className="text-sm text-foreground truncate">{user?.name ?? "Loading…"}</div>
+            <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
+          </div>
+        )}
       </div>
       <button
         onClick={signOut}
-        className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-muted-foreground transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]"
+        aria-label="Sign out"
+        className={`${collapsed ? "w-10 px-0" : "w-full px-3"} inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface py-2.5 text-sm text-muted-foreground shadow-[0_1px_2px_rgb(17_24_39_/_0.04)] transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]`}
       >
         <SignOut size={14} />
-        Sign out
+        {!collapsed && "Sign out"}
       </button>
     </div>
   );
@@ -126,6 +147,19 @@ export function AppLayout({
   const hasEvent = Boolean(event.date && event.name);
   const days = daysUntil(event.date);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    setSidebarCollapsed(window.localStorage.getItem("offstories-sidebar-collapsed") === "true");
+  }, []);
+
+  function toggleSidebar() {
+    setSidebarCollapsed((collapsed) => {
+      const next = !collapsed;
+      window.localStorage.setItem("offstories-sidebar-collapsed", String(next));
+      return next;
+    });
+  }
 
   // Close drawer when route changes
   useEffect(() => {
@@ -133,22 +167,58 @@ export function AppLayout({
   }, [pathname]);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="app-shell min-h-screen bg-background flex">
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-        <div className="px-6 py-7 border-b border-border">
-          <div className="eyebrow mb-2">Workspace</div>
-          <div className="serif text-lg leading-tight text-foreground">
-            {event.name || "Your wedding"}
+      <aside
+        className={`hidden md:flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar/80 backdrop-blur-xl transition-[width] duration-200 ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
+      >
+        <div
+          className={`border-b border-sidebar-border py-6 ${sidebarCollapsed ? "px-3" : "px-6"}`}
+        >
+          <div
+            className={`flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between"}`}
+          >
+            <BrandLogo
+              compact={sidebarCollapsed}
+              className={sidebarCollapsed ? "" : "scale-[0.78] origin-left"}
+            />
+            {!sidebarCollapsed && (
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                aria-label="Collapse sidebar"
+                className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <SidebarSimple size={18} />
+              </button>
+            )}
           </div>
-          <div className="mt-3 text-xs text-muted-foreground">
-            {hasEvent
-              ? `${days} days until ${event.type.toLowerCase()}`
-              : "Set up your event in Settings"}
-          </div>
+          {sidebarCollapsed && (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              aria-label="Expand sidebar"
+              className="mx-auto mt-4 block rounded-lg p-2 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <SidebarSimple size={18} />
+            </button>
+          )}
+          {!sidebarCollapsed && (
+            <>
+              <div className="eyebrow mb-2 mt-7">Workspace</div>
+              <div className="serif text-lg leading-tight text-foreground">
+                {event.name || "Your wedding"}
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                {hasEvent
+                  ? `${days} days until ${event.type.toLowerCase()}`
+                  : "Set up your event in Settings"}
+              </div>
+            </>
+          )}
         </div>
-        <NavList pathname={pathname} />
-        <UserFooter />
+        <NavList pathname={pathname} collapsed={sidebarCollapsed} />
+        <UserFooter compact={sidebarCollapsed} collapsed={sidebarCollapsed} />
       </aside>
 
       {/* Mobile drawer — slides in/out on the same path */}
@@ -161,12 +231,13 @@ export function AppLayout({
           id="mobile-nav"
           inert={!mobileOpen}
           aria-hidden={!mobileOpen}
-          className={`absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-border flex flex-col transition-transform duration-200 ease-out ${
+          className={`absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-200 ease-out ${
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div className="px-5 py-5 border-b border-border flex items-start justify-between gap-3">
             <div className="min-w-0">
+              <BrandLogo className="mb-5 scale-[0.78] origin-left" />
               <div className="eyebrow mb-1">Workspace</div>
               <div className="serif text-base leading-tight text-foreground truncate">
                 {event.name || "Your wedding"}
@@ -212,18 +283,18 @@ export function AppLayout({
           </div>
         </div>
 
-        <header className="border-b border-border bg-background/80 backdrop-blur md:sticky md:top-0 z-10">
-          <div className="max-w-6xl mx-auto px-4 md:px-10 py-5 md:py-6 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:flex-wrap sm:justify-between">
+        <header className="border-b border-border bg-background/75 backdrop-blur-xl md:sticky md:top-0 z-10">
+          <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5 sm:flex sm:flex-wrap sm:justify-between">
             <div className="min-w-0">
               {eyebrow && <div className="eyebrow mb-2 truncate">{eyebrow}</div>}
-              <h1 className="serif text-2xl md:text-4xl text-foreground truncate sm:whitespace-normal">
+              <h1 className="display text-2xl md:text-4xl text-foreground truncate sm:whitespace-normal">
                 {title}
               </h1>
             </div>
             {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
           </div>
         </header>
-        <div className="max-w-6xl mx-auto px-4 md:px-10 py-8 md:py-10">
+        <div className="max-w-7xl mx-auto px-4 md:px-10 py-8 md:py-12">
           <div key={pathname} className="animate-in fade-in duration-150 ease-out">
             {children}
           </div>
@@ -264,7 +335,7 @@ export function QuietButton({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
   const base =
-    "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]";
+    "inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium shadow-[0_1px_2px_rgb(17_24_39_/_0.04)] transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]";
   const styles =
     variant === "primary"
       ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85"

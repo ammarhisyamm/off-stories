@@ -33,9 +33,9 @@ export function ModalShell({
     const dialog = dialogRef.current;
 
     const focusable = () =>
-      Array.from(
-        dialog?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
-      ).filter((el) => el.offsetParent !== null);
+      Array.from(dialog?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).filter(
+        (el) => el.offsetParent !== null,
+      );
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -73,20 +73,22 @@ export function ModalShell({
       aria-modal="true"
       aria-label={title}
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/70 backdrop-blur-md ${
-        closing ? "animate-out fade-out duration-150 ease-in" : "animate-in fade-in duration-200 ease-out"
+        closing
+          ? "animate-out fade-out duration-150 ease-in"
+          : "animate-in fade-in duration-200 ease-out"
       }`}
     >
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`bg-surface border border-border rounded-xl shadow-2xl ring-1 ring-black/5 w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto focus:outline-none ${
+        className={`bg-surface/95 backdrop-blur-xl border border-white/80 rounded-2xl shadow-browser ring-1 ring-black/5 w-full max-w-lg p-6 max-h-[85vh] overflow-y-auto focus:outline-none ${
           closing
             ? "animate-out fade-out zoom-out-95 duration-150 ease-in"
             : "animate-in fade-in zoom-in-95 duration-200"
         }`}
       >
         <div className="flex items-center justify-between mb-5">
-          <h2 className="serif text-xl">{title}</h2>
+          <h2 className="display text-xl">{title}</h2>
           <button
             onClick={close}
             aria-label="Close"
@@ -185,17 +187,13 @@ export function ViewModal({
   );
 }
 
-export function Detail({
-  label,
-  value,
-}: {
-  label: string;
-  value: ReactNode;
-}) {
+export function Detail({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
       <div className="eyebrow">{label}</div>
-      <div className="text-sm text-foreground mt-1 leading-relaxed whitespace-pre-wrap">{value}</div>
+      <div className="text-sm text-foreground mt-1 leading-relaxed whitespace-pre-wrap">
+        {value}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { GoogleLogo, Sparkle, WarningCircle } from "@phosphor-icons/react";
+import { GoogleLogo, WarningCircle } from "@phosphor-icons/react";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -196,10 +197,7 @@ function AuthPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="w-full max-w-md panel p-8 sm:p-10">
         <div className="text-center mb-8">
-          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-[color:var(--sage)]/15 text-[color:var(--sage)]">
-            <Sparkle size={22} weight="duotone" />
-          </div>
-          <div className="eyebrow mb-2">offstories</div>
+          <BrandLogo className="mx-auto mb-6 justify-center scale-[0.9]" />
           <h1 className="serif text-3xl text-foreground text-balance">
             {mode === "signin" ? "Welcome back" : "Create your workspace"}
           </h1>

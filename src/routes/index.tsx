@@ -11,6 +11,7 @@ import {
 import { useReveal } from "@/hooks/use-reveal";
 import { useParallax } from "@/hooks/use-parallax";
 import { useScrollProgress } from "@/hooks/use-scroll-progress";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -127,11 +128,8 @@ function LandingHeader({ hasSession }: { hasSession: boolean }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="container-landing flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2.5 text-foreground">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-sage/15">
-            <span className="h-2 w-2 rounded-full bg-sage" />
-          </span>
-          <span className="serif text-base">offstories</span>
+        <Link to="/" className="text-foreground">
+          <BrandLogo />
         </Link>
         <nav className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
           <a
@@ -168,10 +166,7 @@ function LandingFooter() {
     <footer className="border-t border-border">
       <div className="container-landing flex flex-col items-start justify-between gap-6 py-12 md:flex-row md:items-center">
         <div className="flex items-center gap-2.5">
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-sage/15">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-          </span>
-          <span className="serif text-sm text-foreground">offstories</span>
+          <BrandLogo className="scale-[0.78] origin-left" />
         </div>
         <p className="text-xs text-muted-foreground">
           A quiet place for planning your wedding, one calm shared workspace.
@@ -193,9 +188,9 @@ function Hero({ hasSession }: { hasSession: boolean }) {
   return (
     <section className="relative overflow-hidden border-b border-border">
       <ParallaxBackdrop speed={0.12}>
-        <div className="absolute -top-40 left-1/2 h-[36rem] w-[44rem] -translate-x-1/2 rounded-full bg-sage/10 blur-3xl" />
-        <div className="absolute -right-40 top-1/3 h-96 w-96 rounded-full bg-rose/5 blur-3xl" />
-        <div className="absolute -left-40 bottom-0 h-80 w-80 rounded-full bg-[color:var(--taupe)]/5 blur-3xl" />
+        <div className="absolute -top-40 left-1/2 h-[36rem] w-[44rem] -translate-x-1/2 rounded-full bg-slate-200/45 blur-3xl" />
+        <div className="absolute -right-40 top-1/3 h-96 w-96 rounded-full bg-slate-100/70 blur-3xl" />
+        <div className="absolute -left-40 bottom-0 h-80 w-80 rounded-full bg-white/80 blur-3xl" />
       </ParallaxBackdrop>
       <div className="container-landing relative py-16 text-center sm:py-20 lg:py-24">
         <div className="mx-auto max-w-3xl">
@@ -562,8 +557,8 @@ function FinalCTA({ hasSession }: { hasSession: boolean }) {
   return (
     <section className="relative overflow-hidden">
       <ParallaxBackdrop speed={0.18}>
-        <div className="absolute -bottom-48 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-sage/10 blur-3xl" />
-        <div className="absolute -left-32 top-0 h-72 w-72 rounded-full bg-[color:var(--taupe)]/5 blur-3xl" />
+        <div className="absolute -bottom-48 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-slate-200/45 blur-3xl" />
+        <div className="absolute -left-32 top-0 h-72 w-72 rounded-full bg-white/80 blur-3xl" />
       </ParallaxBackdrop>
       <div className="container-landing relative section-landing">
         <div className="mx-auto max-w-3xl text-center">

@@ -128,7 +128,7 @@ function Dashboard() {
       ) : (
         <>
           {/* Top summary */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <section className="dashboard-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             <SummaryCard
               label="Planning progress"
               value={`${progress}%`}
@@ -168,7 +168,7 @@ function Dashboard() {
           </section>
 
           {/* Priority area */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
             <div className="panel p-6 lg:col-span-2">
               <div className="flex items-baseline justify-between mb-5">
                 <div>
@@ -388,9 +388,9 @@ function SummaryCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="panel p-5">
+    <div className="panel dashboard-metric p-5">
       <div className="eyebrow">{label}</div>
-      <div className="serif text-2xl mt-2 text-foreground tabular-nums">{value}</div>
+      <div className="display text-2xl mt-3 text-foreground tabular-nums">{value}</div>
       <div className="text-xs text-muted-foreground mt-1">{sub}</div>
       {children}
     </div>

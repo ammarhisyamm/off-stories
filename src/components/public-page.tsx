@@ -1,15 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { BrandLogo } from "@/components/brand-logo";
 
 export function PublicHeader() {
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur">
       <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2 text-foreground">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-[color:var(--sage)]/15 text-[color:var(--sage)]">
-            <span className="h-2 w-2 rounded-full bg-[color:var(--sage)]" />
-          </span>
-          <span className="serif text-base">offstories</span>
+        <Link to="/" className="text-foreground">
+          <BrandLogo />
         </Link>
         <nav className="flex items-center gap-4 text-sm text-muted-foreground">
           <Link
