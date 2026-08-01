@@ -1,6 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { sendPartnerInviteEmail } from "@/lib/email";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function appOrigin(): string {
+  const req = getRequest();
+  const host = req?.headers?.get("host");
+  const forwarded = req?.headers?.get("x-forwarded-host");
+  if (host) return host.startsWith("http") ? host : `https://${host}`;
+  if (forwarded) return forwarded.startsWith("http") ? forwarded : `https://${forwarded}`;
+  return "https://offstories.fun";
+}
 
 export const listInvites = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -15,44 +28,75 @@ export const listInvites = createServerFn({ method: "GET" })
     if (!ws) return { invites: [], workspaceId: null as string | null };
     const { data, error } = await supabase
       .from("workspace_invites")
-      .select("id, token, role, created_at, expires_at, accepted_at, revoked_at")
+      .select("id, token, email, role, created_at, expires_at, accepted_at, revoked_at")
       .eq("workspace_id", ws.id)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return { invites: data ?? [], workspaceId: ws.id };
   });
 
-export const createInvite = createServerFn({ method: "POST" })
+export const invitePartner = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z
-      .object({
-        role: z.enum(["editor", "viewer"]),
-        expiresInDays: z.number().int().min(1).max(60).default(14),
-      })
-      .parse(d),
-  )
+  .inputValidator((d) => z.object({ email: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const email = data.email.trim().toLowerCase();
+    if (!EMAIL_RE.test(email)) throw new Error("Enter a valid email address.");
+
     const { data: ws } = await supabase
       .from("workspaces")
-      .select("id")
+      .select("id, name")
       .eq("owner_id", userId)
       .limit(1)
       .maybeSingle();
     if (!ws) throw new Error("No workspace found");
-    const expires = new Date(Date.now() + data.expiresInDays * 86400_000).toISOString();
+
+    // Reject if a partner already joined.
+    const { data: partners } = await supabase
+      .from("workspace_members")
+      .select("user_id")
+      .eq("workspace_id", ws.id)
+      .neq("user_id", userId);
+    if ((partners ?? []).length > 0) {
+      throw new Error("Your partner already joined this workspace.");
+    }
+
+    // Reject if there's still an active invite.
+    const { data: active } = await supabase
+      .from("workspace_invites")
+      .select("id, email")
+      .eq("workspace_id", ws.id)
+      .is("accepted_at", null)
+      .is("revoked_at", null);
+    if ((active ?? []).length > 0) {
+      const existing = active?.[0];
+      throw new Error(
+        existing?.email
+          ? `An invitation is still pending for ${existing.email}. Cancel it first.`
+          : "An invitation is still pending. Cancel it first.",
+      );
+    }
+
+    const expires = new Date(Date.now() + 14 * 86400_000).toISOString();
     const { data: invite, error } = await supabase
       .from("workspace_invites")
       .insert({
         workspace_id: ws.id,
-        role: data.role,
+        email,
+        role: "editor",
         created_by: userId,
         expires_at: expires,
       })
-      .select("id, token, role, expires_at, created_at")
+      .select("id, token, email, role, expires_at, created_at")
       .single();
     if (error) throw new Error(error.message);
+
+    await sendPartnerInviteEmail({
+      to: email,
+      workspaceName: ws.name,
+      inviteUrl: `${appOrigin()}/invite/${invite.token}`,
+    });
+
     return invite;
   });
 
@@ -68,6 +112,26 @@ export const revokeInvite = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const getInvite = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ token: z.string().uuid() }).parse(d))
+  .handler(async ({ data: input, context }) => {
+    const { supabase } = context;
+    const { data: inv, error } = await supabase
+      .from("workspace_invites")
+      .select("id, email, role, expires_at, accepted_at, revoked_at, workspace_id")
+      .eq("token", input.token)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!inv) throw new Error("Invite not found");
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("name")
+      .eq("id", inv.workspace_id)
+      .maybeSingle();
+    return { ...inv, workspaceName: ws?.name ?? "their wedding" };
+  });
+
 export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ token: z.string().uuid() }).parse(d))
@@ -78,6 +142,26 @@ export const acceptInvite = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     return { ok: true, workspaceId: workspaceId as string };
+  });
+
+export const removePartner = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("id")
+      .eq("owner_id", userId)
+      .limit(1)
+      .maybeSingle();
+    if (!ws) throw new Error("No workspace found");
+    const { error } = await supabase.rpc("remove_workspace_partner", {
+      p_workspace: ws.id,
+      p_partner: data.userId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const listMembers = createServerFn({ method: "GET" })

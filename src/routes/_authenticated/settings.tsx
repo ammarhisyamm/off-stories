@@ -3,8 +3,15 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { listInvites, createInvite, revokeInvite } from "@/lib/invites.functions";
-import { Copy, Check, LinkSimple } from "@phosphor-icons/react";
+import {
+  listInvites,
+  invitePartner,
+  revokeInvite,
+  listMembers,
+  removePartner,
+} from "@/lib/invites.functions";
+import { showToast } from "@/components/toast";
+import { Check, WarningCircle } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -165,6 +172,7 @@ function Field({
 type Invite = {
   id: string;
   token: string;
+  email: string | null;
   role: string;
   created_at: string;
   expires_at: string | null;
@@ -172,22 +180,37 @@ type Invite = {
   revoked_at: string | null;
 };
 
+type Member = {
+  user_id: string;
+  role: string;
+  joined_at: string;
+  profiles?: {
+    display_name: string | null;
+    email: string | null;
+    avatar_url: string | null;
+  } | null;
+};
+
 function CollaboratorsPanel() {
   const list = useServerFn(listInvites);
-  const create = useServerFn(createInvite);
+  const create = useServerFn(invitePartner);
   const revoke = useServerFn(revokeInvite);
+  const members = useServerFn(listMembers);
+  const remove = useServerFn(removePartner);
   const [invites, setInvites] = useState<Invite[]>([]);
+  const [memberList, setMemberList] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<"editor" | "viewer">("editor");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState<Member | null>(null);
 
   async function refresh() {
     setLoading(true);
     try {
-      const res = await list();
-      setInvites(res.invites as Invite[]);
+      const [inv, mem] = await Promise.all([list(), members()]);
+      setInvites(inv.invites as Invite[]);
+      setMemberList((mem.members ?? []) as Member[]);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -199,11 +222,14 @@ function CollaboratorsPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function handleCreate() {
+  async function handleInvite(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setCreating(true);
     setError(null);
     try {
-      await create({ data: { role, expiresInDays: 14 } });
+      await create({ data: { email } });
+      setEmail("");
+      showToast("Invitation sent to your partner");
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -214,95 +240,128 @@ function CollaboratorsPanel() {
 
   async function handleRevoke(id: string) {
     await revoke({ data: { id } });
+    showToast("Invitation cancelled");
     refresh();
   }
 
-  function inviteUrl(token: string) {
-    return `${window.location.origin}/invite/${token}`;
-  }
-
-  async function copy(token: string, id: string) {
-    await navigator.clipboard.writeText(inviteUrl(token));
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 1500);
+  async function handleRemove(member: Member) {
+    await remove({ data: { userId: member.user_id } });
+    setConfirmRemove(null);
+    showToast("Partner removed");
+    refresh();
   }
 
   const active = invites.filter((i) => !i.revoked_at && !i.accepted_at);
-  const used = invites.filter((i) => i.accepted_at || i.revoked_at);
+  const partner = memberList.find((m) => m.role !== "owner");
 
   return (
     <div className="space-y-6">
       <div className="panel p-7">
         <div className="eyebrow mb-1">Collaborators</div>
-        <h2 className="serif text-xl mb-2">Share access</h2>
+        <h2 className="serif text-xl mb-2">Your partner</h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Generate a shareable invite link. Anyone with the link can join your workspace with the
-          role you choose.
+          Invite your partner by email so you can plan together. They'll join as an editor — only
+          one partner per workspace.
         </p>
 
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="block">
-            <span className="block text-sm font-medium mb-1.5">Role</span>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as "editor" | "viewer")}
-              className="rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm"
-            >
-              <option value="editor">Editor — can edit anything</option>
-              <option value="viewer">Viewer — read only</option>
-            </select>
-          </label>
-          <QuietButton variant="primary" onClick={handleCreate} disabled={creating}>
-            <LinkSimple size={16} />
-            {creating ? "Creating…" : "Create invite link"}
-          </QuietButton>
-        </div>
-        {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
+        {partner ? (
+          <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-2/50 p-4">
+            {partner.profiles?.avatar_url ? (
+              <img src={partner.profiles.avatar_url} alt="" className="h-10 w-10 rounded-full" />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-[color:var(--sage)]/20 grid place-items-center text-sm text-[color:var(--sage)] font-semibold">
+                {(partner.profiles?.display_name ??
+                  partner.profiles?.email ??
+                  "P")?.[0]?.toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium text-foreground truncate">
+                {partner.profiles?.display_name ?? partner.profiles?.email ?? "Your partner"}
+              </div>
+              <div className="text-xs text-muted-foreground truncate">
+                {partner.profiles?.email} · joined{" "}
+                {new Date(partner.joined_at).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                })}
+              </div>
+            </div>
+            <Pill tone="sage">Editor</Pill>
+            {confirmRemove?.user_id === partner.user_id ? (
+              <div className="flex items-center gap-2">
+                <QuietButton onClick={() => setConfirmRemove(null)}>Cancel</QuietButton>
+                <QuietButton variant="primary" onClick={() => handleRemove(partner)}>
+                  Remove
+                </QuietButton>
+              </div>
+            ) : (
+              <QuietButton onClick={() => setConfirmRemove(partner)}>Remove</QuietButton>
+            )}
+          </div>
+        ) : active.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface-2/50 p-4">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-[color:var(--taupe)]/15 text-[color:var(--taupe)]">
+              <WarningCircle size={20} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium text-foreground">
+                Invitation sent to {active[0].email}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Waiting for them to accept by signing in with that email.
+              </div>
+            </div>
+            <QuietButton onClick={() => handleRevoke(active[0].id)}>Cancel</QuietButton>
+          </div>
+        ) : (
+          <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3">
+            <label className="block min-w-0 flex-1">
+              <span className="block text-sm font-medium mb-1.5">Partner's email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. partner@example.com"
+                required
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              />
+            </label>
+            <QuietButton variant="primary" type="submit" disabled={creating}>
+              {creating ? "Sending…" : "Invite your partner"}
+            </QuietButton>
+          </form>
+        )}
+        {error && (
+          <div className="mt-3 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-xs text-destructive">
+            <WarningCircle size={15} className="mt-0.5 shrink-0" weight="fill" />
+            <span>{error}</span>
+          </div>
+        )}
       </div>
 
-      <div className="panel p-7">
-        <h3 className="serif text-lg mb-4">Active invites</h3>
-        {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
-        {!loading && active.length === 0 && (
-          <p className="text-sm text-muted-foreground">No active invites yet.</p>
-        )}
-        <ul className="divide-y divide-border">
-          {active.map((inv) => (
-            <li key={inv.id} className="py-3 flex items-center gap-3 flex-wrap">
-              <Pill tone="sage">{inv.role}</Pill>
-              <code className="text-xs text-muted-foreground bg-surface-2 px-2 py-1 rounded truncate max-w-[260px]">
-                {inviteUrl(inv.token)}
-              </code>
-              <span className="text-xs text-muted-foreground">
-                expires{" "}
-                {inv.expires_at
-                  ? new Date(inv.expires_at).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                    })
-                  : "never"}
-              </span>
-              <div className="ml-auto flex gap-2">
-                <QuietButton onClick={() => copy(inv.token, inv.id)}>
-                  {copiedId === inv.id ? <Check size={14} /> : <Copy size={14} />}
-                  {copiedId === inv.id ? "Copied" : "Copy"}
-                </QuietButton>
-                <QuietButton onClick={() => handleRevoke(inv.id)}>Revoke</QuietButton>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {!partner && active.length === 0 && (
+        <div className="panel p-7">
+          <h3 className="serif text-lg mb-2">How it works</h3>
+          <p className="text-sm text-muted-foreground">
+            You'll get a shareable link for your partner's email. They create an account with that
+            same email, confirm it, and open the link — then you're planning together.
+          </p>
+        </div>
+      )}
 
-        {used.length > 0 && (
-          <>
-            <h3 className="serif text-lg mt-8 mb-3">History</h3>
-            <ul className="divide-y divide-border text-sm text-muted-foreground">
-              {used.map((inv) => (
+      {invites.filter((i) => i.accepted_at || i.revoked_at).length > 0 && (
+        <div className="panel p-7">
+          <h3 className="serif text-lg mb-3">History</h3>
+          <ul className="divide-y divide-border text-sm text-muted-foreground">
+            {invites
+              .filter((i) => i.accepted_at || i.revoked_at)
+              .map((inv) => (
                 <li key={inv.id} className="py-2 flex items-center gap-3">
                   <Pill tone={inv.accepted_at ? "sage" : "warn"}>
                     {inv.accepted_at ? "Accepted" : "Revoked"}
                   </Pill>
-                  <span>{inv.role}</span>
+                  <span>{inv.email}</span>
                   <span className="ml-auto text-xs">
                     {new Date(
                       inv.accepted_at ?? inv.revoked_at ?? inv.created_at,
@@ -310,10 +369,31 @@ function CollaboratorsPanel() {
                   </span>
                 </li>
               ))}
-            </ul>
-          </>
-        )}
-      </div>
+          </ul>
+        </div>
+      )}
+
+      {partner && confirmRemove && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-md">
+          <div className="w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-2xl">
+            <h3 className="serif text-xl mb-2">Remove partner?</h3>
+            <p className="text-sm text-muted-foreground">
+              {confirmRemove.profiles?.email ?? "Your partner"} will lose access to this workspace.
+              They can still sign in with their own account.
+            </p>
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <QuietButton onClick={() => setConfirmRemove(null)}>Cancel</QuietButton>
+              <button
+                type="button"
+                onClick={() => handleRemove(confirmRemove)}
+                className="inline-flex items-center gap-2 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition duration-150 hover:bg-destructive/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Check size={15} /> Remove partner
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

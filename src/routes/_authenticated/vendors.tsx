@@ -31,14 +31,20 @@ function Vendors() {
 
   function handleSave(vendor: Vendor) {
     const exists = vendors.some((v) => v.id === vendor.id);
-    const next = exists ? vendors.map((v) => (v.id === vendor.id ? vendor : v)) : [vendor, ...vendors];
+    const next = exists
+      ? vendors.map((v) => (v.id === vendor.id ? vendor : v))
+      : [vendor, ...vendors];
     setKind("vendors", next);
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleDelete(id: string) {
-    setKind("vendors", vendors.filter((v) => v.id !== id));
+    setKind(
+      "vendors",
+      vendors.filter((v) => v.id !== id),
+      { success: "Vendor deleted" },
+    );
     setIsModalOpen(false);
     setEditing(null);
   }

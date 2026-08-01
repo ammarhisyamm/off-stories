@@ -30,8 +30,8 @@ function Checklist() {
   const categories = ["All", ...Array.from(new Set(tasks.map((t) => t.category)))];
   const filtered = filter === "All" ? tasks : tasks.filter((t) => t.category === filter);
 
-  function persist(next: Task[]) {
-    setKind("tasks", next);
+  function persist(next: Task[], opts?: { success?: string | null }) {
+    setKind("tasks", next, opts);
   }
 
   function handleSave(task: Task) {
@@ -42,18 +42,18 @@ function Checklist() {
   }
 
   function handleDelete(id: string) {
-    persist(tasks.filter((t) => t.id !== id));
+    persist(
+      tasks.filter((t) => t.id !== id),
+      { success: "Task deleted" },
+    );
     setIsModalOpen(false);
     setEditing(null);
   }
 
   function handleToggle(id: string) {
     persist(
-      tasks.map((t) =>
-        t.id === id
-          ? { ...t, status: t.status === "done" ? "todo" : "done" }
-          : t,
-      ),
+      tasks.map((t) => (t.id === id ? { ...t, status: t.status === "done" ? "todo" : "done" } : t)),
+      { success: null },
     );
   }
 

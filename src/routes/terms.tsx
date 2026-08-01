@@ -26,9 +26,10 @@ function Terms() {
         <section>
           <h2 className="serif text-lg text-foreground mb-2">Your data</h2>
           <p>
-            You are responsible for the content you add. Only people you invite can see your
-            workspace, so share invite links with people you trust. Invite links can be revoked at
-            any time from the Settings page.
+            You are responsible for the content you add. Only you and the partner you invite by
+            email can see your workspace. Invitations are tied to a specific email address, and you
+            can cancel a pending invitation or remove your partner from the Settings page at any
+            time.
           </p>
         </section>
         <section>

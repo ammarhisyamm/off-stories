@@ -27,8 +27,8 @@ function Documents() {
   const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const saveDocs = (newDocs: DocRef[]) => {
-    setKind("documents", newDocs);
+  const saveDocs = (newDocs: DocRef[], opts?: { success?: string | null }) => {
+    setKind("documents", newDocs, opts);
   };
 
   const handleOpenNew = () => {
@@ -70,7 +70,10 @@ function Documents() {
   };
 
   const handleDelete = (id: string) => {
-    saveDocs(docs.filter((d) => d.id !== id));
+    saveDocs(
+      docs.filter((d) => d.id !== id),
+      { success: "Document deleted" },
+    );
     setIsModalOpen(false);
   };
 
@@ -205,78 +208,78 @@ function Documents() {
                 />
               ) : (
                 <>
-              <label className="block">
-                <span className="block text-sm font-medium mb-1.5">Title</span>
-                <input
-                  name="title"
-                  required
-                  defaultValue={editingDoc?.title}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  placeholder="e.g. Venue Contract v2"
-                />
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="block">
-                  <span className="block text-sm font-medium mb-1.5">Type</span>
-                  <select
-                    name="kind"
-                    required
-                    defaultValue={editingDoc?.kind || ""}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  >
-                    <option value="" disabled>
-                      Select type
-                    </option>
-                    <option value="Contract">Contract</option>
-                    <option value="Invoice">Invoice</option>
-                    <option value="Moodboard">Moodboard</option>
-                    <option value="Reference">Reference</option>
-                    <option value="Rundown">Rundown</option>
-                    <option value="Floor plan">Floor plan</option>
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="block text-sm font-medium mb-1.5">Vendor (optional)</span>
-                  <input
-                    name="vendor"
-                    defaultValue={editingDoc?.vendor}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                    placeholder="e.g. Padma Hall"
-                  />
-                </label>
-              </div>
-              <label className="block">
-                <span className="block text-sm font-medium mb-1.5">URL</span>
-                <input
-                  name="url"
-                  type="url"
-                  required
-                  defaultValue={editingDoc?.url}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  placeholder="https://..."
-                />
-              </label>
-              <div className="flex items-center justify-between pt-2">
-                {editingDoc ? (
-                  <button
-                    type="button"
-                    onClick={() => setConfirming(true)}
-                    className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
-                  >
-                    <Trash size={16} /> Delete
-                  </button>
-                ) : (
-                  <div></div>
-                )}
-                <div className="flex gap-2">
-                  <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </QuietButton>
-                  <QuietButton variant="primary" type="submit">
-                    Save Link
-                  </QuietButton>
-                </div>
-              </div>
+                  <label className="block">
+                    <span className="block text-sm font-medium mb-1.5">Title</span>
+                    <input
+                      name="title"
+                      required
+                      defaultValue={editingDoc?.title}
+                      className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      placeholder="e.g. Venue Contract v2"
+                    />
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="block text-sm font-medium mb-1.5">Type</span>
+                      <select
+                        name="kind"
+                        required
+                        defaultValue={editingDoc?.kind || ""}
+                        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      >
+                        <option value="" disabled>
+                          Select type
+                        </option>
+                        <option value="Contract">Contract</option>
+                        <option value="Invoice">Invoice</option>
+                        <option value="Moodboard">Moodboard</option>
+                        <option value="Reference">Reference</option>
+                        <option value="Rundown">Rundown</option>
+                        <option value="Floor plan">Floor plan</option>
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="block text-sm font-medium mb-1.5">Vendor (optional)</span>
+                      <input
+                        name="vendor"
+                        defaultValue={editingDoc?.vendor}
+                        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                        placeholder="e.g. Padma Hall"
+                      />
+                    </label>
+                  </div>
+                  <label className="block">
+                    <span className="block text-sm font-medium mb-1.5">URL</span>
+                    <input
+                      name="url"
+                      type="url"
+                      required
+                      defaultValue={editingDoc?.url}
+                      className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      placeholder="https://..."
+                    />
+                  </label>
+                  <div className="flex items-center justify-between pt-2">
+                    {editingDoc ? (
+                      <button
+                        type="button"
+                        onClick={() => setConfirming(true)}
+                        className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
+                      >
+                        <Trash size={16} /> Delete
+                      </button>
+                    ) : (
+                      <div></div>
+                    )}
+                    <div className="flex gap-2">
+                      <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
+                        Cancel
+                      </QuietButton>
+                      <QuietButton variant="primary" type="submit">
+                        Save Link
+                      </QuietButton>
+                    </div>
+                  </div>
                 </>
               )}
             </form>

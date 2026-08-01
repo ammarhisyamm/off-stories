@@ -74,6 +74,7 @@ export type Database = {
           accepted_by: string | null;
           created_at: string;
           created_by: string;
+          email: string | null;
           expires_at: string | null;
           id: string;
           revoked_at: string | null;
@@ -86,6 +87,7 @@ export type Database = {
           accepted_by?: string | null;
           created_at?: string;
           created_by: string;
+          email?: string | null;
           expires_at?: string | null;
           id?: string;
           revoked_at?: string | null;
@@ -98,6 +100,7 @@ export type Database = {
           accepted_by?: string | null;
           created_at?: string;
           created_by?: string;
+          email?: string | null;
           expires_at?: string | null;
           id?: string;
           revoked_at?: string | null;
@@ -210,6 +213,10 @@ export type Database = {
       is_workspace_owner: {
         Args: { _user: string; _workspace: string };
         Returns: boolean;
+      };
+      remove_workspace_partner: {
+        Args: { p_workspace: string; p_partner: string };
+        Returns: undefined;
       };
     };
     Enums: {

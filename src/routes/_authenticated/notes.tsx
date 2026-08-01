@@ -28,8 +28,8 @@ function Notes() {
   const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const saveNotes = (newNotes: Note[]) => {
-    setKind("notes", newNotes);
+  const saveNotes = (newNotes: Note[], opts?: { success?: string | null }) => {
+    setKind("notes", newNotes, opts);
   };
 
   const handleOpenNew = () => {
@@ -70,7 +70,10 @@ function Notes() {
   };
 
   const handleDelete = (id: string) => {
-    saveNotes(notes.filter((n) => n.id !== id));
+    saveNotes(
+      notes.filter((n) => n.id !== id),
+      { success: "Note deleted" },
+    );
     setIsModalOpen(false);
   };
 
@@ -183,77 +186,77 @@ function Notes() {
                 />
               ) : (
                 <>
-              <label className="block">
-                <span className="block text-sm font-medium mb-1.5">Title</span>
-                <input
-                  name="title"
-                  required
-                  defaultValue={editingNote?.title}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  placeholder="e.g. Venue Meeting Notes"
-                />
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="block">
-                  <span className="block text-sm font-medium mb-1.5">Tag</span>
-                  <select
-                    name="tag"
-                    required
-                    defaultValue={editingNote?.tag || ""}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  >
-                    <option value="" disabled>
-                      Select tag
-                    </option>
-                    <option value="Decision">Decision</option>
-                    <option value="Family">Family</option>
-                    <option value="Vendor">Vendor</option>
-                    <option value="Meeting">Meeting</option>
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="block text-sm font-medium mb-1.5">Date</span>
-                  <input
-                    type="date"
-                    name="date"
-                    required
-                    defaultValue={editingNote?.date}
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  />
-                </label>
-              </div>
-              <label className="block">
-                <span className="block text-sm font-medium mb-1.5">Body</span>
-                <textarea
-                  name="body"
-                  required
-                  rows={5}
-                  defaultValue={editingNote?.body}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary resize-none"
-                  placeholder="Write your note here..."
-                ></textarea>
-              </label>
-              <div className="flex items-center justify-between pt-2">
-                {editingNote ? (
-                  <button
-                    type="button"
-                    onClick={() => setConfirming(true)}
-                    className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
-                  >
-                    <Trash size={16} /> Delete
-                  </button>
-                ) : (
-                  <div></div>
-                )}
-                <div className="flex gap-2">
-                  <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
-                    Cancel
-                  </QuietButton>
-                  <QuietButton variant="primary" type="submit">
-                    Save Note
-                  </QuietButton>
-                </div>
-              </div>
+                  <label className="block">
+                    <span className="block text-sm font-medium mb-1.5">Title</span>
+                    <input
+                      name="title"
+                      required
+                      defaultValue={editingNote?.title}
+                      className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      placeholder="e.g. Venue Meeting Notes"
+                    />
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="block text-sm font-medium mb-1.5">Tag</span>
+                      <select
+                        name="tag"
+                        required
+                        defaultValue={editingNote?.tag || ""}
+                        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      >
+                        <option value="" disabled>
+                          Select tag
+                        </option>
+                        <option value="Decision">Decision</option>
+                        <option value="Family">Family</option>
+                        <option value="Vendor">Vendor</option>
+                        <option value="Meeting">Meeting</option>
+                      </select>
+                    </label>
+                    <label className="block">
+                      <span className="block text-sm font-medium mb-1.5">Date</span>
+                      <input
+                        type="date"
+                        name="date"
+                        required
+                        defaultValue={editingNote?.date}
+                        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      />
+                    </label>
+                  </div>
+                  <label className="block">
+                    <span className="block text-sm font-medium mb-1.5">Body</span>
+                    <textarea
+                      name="body"
+                      required
+                      rows={5}
+                      defaultValue={editingNote?.body}
+                      className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary resize-none"
+                      placeholder="Write your note here..."
+                    ></textarea>
+                  </label>
+                  <div className="flex items-center justify-between pt-2">
+                    {editingNote ? (
+                      <button
+                        type="button"
+                        onClick={() => setConfirming(true)}
+                        className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
+                      >
+                        <Trash size={16} /> Delete
+                      </button>
+                    ) : (
+                      <div></div>
+                    )}
+                    <div className="flex gap-2">
+                      <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
+                        Cancel
+                      </QuietButton>
+                      <QuietButton variant="primary" type="submit">
+                        Save Note
+                      </QuietButton>
+                    </div>
+                  </div>
                 </>
               )}
             </form>

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "offstories is a wedding planning dashboard for couples and their helpers — checklist, budget, vendors, guests, timeline, and notes in one shared workspace.",
+          "offstories is a wedding planning dashboard for couples — checklist, budget, vendors, guests, timeline, and notes in one shared workspace.",
       },
       { property: "og:title", content: "offstories" },
       {
@@ -161,8 +161,8 @@ function Hero({ hasSession }: { hasSession: boolean }) {
             Every wedding is a story. Plan it in one quiet place.
           </h1>
           <p className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            offstories is a calm, shared workspace for couples and their helpers — checklist,
-            budget, vendors, guests, timeline, and notes, together instead of scattered.
+            offstories is a calm, shared workspace for you and your partner — checklist, budget,
+            vendors, guests, timeline, and notes, together instead of scattered.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
@@ -209,8 +209,7 @@ function Storytelling() {
             </p>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
               offstories gathers it all into one workspace that breathes. Calm by default,
-              structured by design, and shared between the two of you and everyone you invite to
-              help.
+              structured by design, and shared between the two of you from the very first list.
             </p>
             <div className="mt-12 grid grid-cols-3 gap-6 border-t border-border pt-8">
               {[
@@ -335,62 +334,6 @@ function Showcase() {
   );
 }
 
-function Bento() {
-  const tiles = [
-    {
-      span: "lg:col-span-4",
-      title: "Vendors, compared.",
-      body: "Shortlist, quote, and compare every vendor side by side — then book with confidence.",
-    },
-    {
-      span: "lg:col-span-4",
-      title: "Documents, together.",
-      body: "Contracts, invoices, moodboards, and rundowns in one place, attached to the right decision.",
-    },
-    {
-      span: "lg:col-span-4",
-      title: "Notes, decided.",
-      body: "A decision log that ends the endless re-telling — what was chosen, why, and by whom.",
-    },
-    {
-      span: "lg:col-span-6",
-      title: "Invite your people.",
-      body: "Share one link so your partner, family, or planner can help. Everyone sees the same, current truth.",
-    },
-    {
-      span: "lg:col-span-6",
-      title: "Made to be lived in.",
-      body: "Warm, editorial, and calm — a space that feels like the two of you, not another corporate tool.",
-    },
-  ];
-  return (
-    <section className="border-b border-border">
-      <div className="container-landing section-landing">
-        <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow>More than a checklist</Eyebrow>
-          <h2 className="display text-3xl leading-tight text-foreground text-balance sm:text-4xl lg:text-5xl">
-            Built for two. Comfortable for many.
-          </h2>
-        </div>
-        <div className="mt-16 grid grid-cols-1 gap-5 md:grid-cols-6">
-          {tiles.map((t) => (
-            <div
-              key={t.title}
-              className={`panel group relative overflow-hidden p-8 transition-shadow duration-300 hover:shadow-soft ${t.span}`}
-            >
-              <div className="absolute right-6 top-6 h-8 w-8 rounded-full border border-border transition-colors duration-300 group-hover:border-sage/60" />
-              <h3 className="serif text-xl text-foreground">{t.title}</h3>
-              <p className="mt-3 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
-                {t.body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Workflow() {
   const steps = [
     {
@@ -400,13 +343,13 @@ function Workflow() {
     },
     {
       n: "02",
-      title: "Invite your people",
-      body: "Share one link with your partner, family, and planner. They join with their own account — no sharing logins.",
+      title: "Invite your partner",
+      body: "Send an email invitation to your partner. They join with their own account as an editor — no sharing logins.",
     },
     {
       n: "03",
       title: "Plan together",
-      body: "Tasks, budgets, and RSVPs update in one shared view, so everyone works from the same page.",
+      body: "Tasks, budgets, and RSVPs update in one shared view, so you both work from the same page.",
     },
   ];
   return (
@@ -491,7 +434,7 @@ function DataSection() {
   const dataUses = [
     {
       title: "Sign in with Google",
-      body: "We use Google sign-in only to identify you. We receive your name, email address, and profile picture, and we use them to create your account and show them to people you invite to your workspace.",
+      body: "We use Google sign-in only to identify you. We receive your name, email address, and profile picture, and we use them to create your account and show them to your partner.",
     },
     {
       title: "Email & password",
@@ -499,7 +442,7 @@ function DataSection() {
     },
     {
       title: "Your wedding data",
-      body: "Your checklist, budget, vendors, guest list, and notes are stored securely in your own workspace. We do not sell or share this data with anyone — only you and the people you invite can see it.",
+      body: "Your checklist, budget, vendors, guest list, and notes are stored securely in your own workspace. We do not sell or share this data with anyone — only you and your partner can see it.",
     },
   ];
   return (
@@ -549,8 +492,8 @@ function FinalCTA({ hasSession }: { hasSession: boolean }) {
             Your story deserves a quiet place to grow.
           </h2>
           <p className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Start your workspace in under a minute. Free to begin, calm to live in, ready for
-            everyone who matters.
+            Start your workspace in under a minute. Free to begin, calm to live in, ready for the
+            two of you.
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
@@ -587,7 +530,6 @@ function Landing() {
         <Hero hasSession={hasSession} />
         <Storytelling />
         <Showcase />
-        <Bento />
         <Workflow />
         <Testimonials />
         <DataSection />

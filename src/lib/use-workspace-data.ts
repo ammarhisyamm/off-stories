@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { showToast } from "@/components/toast";
 import {
   emptyWorkspaceData,
   loadWorkspaceData,
@@ -22,6 +23,13 @@ function notify() {
 
 function publish(kind: DataKind, payload: unknown) {
   cache = { ...cache, [kind]: payload as never };
+  notify();
+}
+
+export function resetWorkspaceDataCache() {
+  cache = emptyWorkspaceData();
+  loaded = false;
+  loadError = null;
   notify();
 }
 
@@ -69,13 +77,23 @@ export function useWorkspaceData() {
     };
   }, [loadFn, saveFn]);
 
-  const setKind = useCallback((kind: DataKind, payload: unknown) => {
-    publish(kind, payload);
-    boundSave?.({ kind, payload }).catch((e) => {
-      loadError = e instanceof Error ? e.message : String(e);
-      notify();
-    });
-  }, []);
+  const setKind = useCallback(
+    (kind: DataKind, payload: unknown, opts?: { success?: string | null }) => {
+      publish(kind, payload);
+      boundSave?.({ kind, payload })
+        .then(() => {
+          if (opts?.success !== null) {
+            showToast(opts?.success ?? "Saved");
+          }
+        })
+        .catch((e) => {
+          loadError = e instanceof Error ? e.message : String(e);
+          notify();
+          showToast(loadError ?? "Couldn't save", "error");
+        });
+    },
+    [],
+  );
 
   const refresh = useCallback(async () => {
     setState((s) => ({ ...s, loading: true }));

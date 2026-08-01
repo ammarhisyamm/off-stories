@@ -87,7 +87,11 @@ function Dashboard() {
   }
 
   function handleDeleteTask(id: string) {
-    setKind("tasks", tasks.filter((t) => t.id !== id));
+    setKind(
+      "tasks",
+      tasks.filter((t) => t.id !== id),
+      { success: "Task deleted" },
+    );
     setIsModalOpen(false);
     setEditing(null);
   }
@@ -107,7 +111,13 @@ function Dashboard() {
       actions={
         <>
           <QuietButton onClick={() => window.print()}>Export</QuietButton>
-          <QuietButton variant="primary" onClick={() => { setEditing(null); setIsModalOpen(true); }}>
+          <QuietButton
+            variant="primary"
+            onClick={() => {
+              setEditing(null);
+              setIsModalOpen(true);
+            }}
+          >
             Add task
           </QuietButton>
         </>
@@ -117,179 +127,188 @@ function Dashboard() {
         <LoadingNote />
       ) : (
         <>
-      {/* Top summary */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <SummaryCard
-          label="Planning progress"
-          value={`${progress}%`}
-          sub={`${done} of ${tasks.length} tasks done`}
-        >
-          <ProgressBar value={progress} />
-        </SummaryCard>
-        <SummaryCard
-          label="Budget health"
-          value={formatIDR(remaining)}
-          sub={`${formatIDR(spent)} paid · ${formatIDR(committed)} committed`}
-        >
-          <ProgressBar value={budgetPct} tone="taupe" />
-        </SummaryCard>
-        <SummaryCard
-          label="Vendors"
-          value={`${vendorsBooked} booked`}
-          sub={`${vendorsPending} in review`}
-        >
-          <div className="mt-3 flex gap-1.5">
-            {vendors.slice(0, 6).map((v) => (
-              <span
-                key={v.id}
-                className={`h-1.5 flex-1 rounded-full ${v.status === "booked" ? "bg-sage" : v.status === "shortlisted" ? "bg-[color:var(--taupe)]/70" : "bg-border"}`}
-                title={v.name}
-              />
-            ))}
-          </div>
-        </SummaryCard>
-        <SummaryCard
-          label="Guests confirmed"
-          value={`${confirmed}`}
-          sub={`${invitedPax} invited · target ${event.guestEstimate}`}
-        >
-          <ProgressBar value={confirmedPct} tone="sage" />
-        </SummaryCard>
-      </section>
-
-      {/* Priority area */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
-        <div className="panel p-6 lg:col-span-2">
-          <div className="flex items-baseline justify-between mb-5">
-            <div>
-              <div className="eyebrow">Needs attention</div>
-              <h2 className="serif text-xl mt-1 text-balance">This week</h2>
-            </div>
-            <Link to="/checklist" className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              View all →
-            </Link>
-          </div>
-          <ul className="divide-y divide-border">
-            {urgent.map((t) => {
-              const d = daysUntil(t.due);
-              return (
-                <li
-                  key={t.id}
-                  onClick={() => setViewing(t)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setViewing(t);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                >
+          {/* Top summary */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <SummaryCard
+              label="Planning progress"
+              value={`${progress}%`}
+              sub={`${done} of ${tasks.length} tasks done`}
+            >
+              <ProgressBar value={progress} />
+            </SummaryCard>
+            <SummaryCard
+              label="Budget health"
+              value={formatIDR(remaining)}
+              sub={`${formatIDR(spent)} paid · ${formatIDR(committed)} committed`}
+            >
+              <ProgressBar value={budgetPct} tone="taupe" />
+            </SummaryCard>
+            <SummaryCard
+              label="Vendors"
+              value={`${vendorsBooked} booked`}
+              sub={`${vendorsPending} in review`}
+            >
+              <div className="mt-3 flex gap-1.5">
+                {vendors.slice(0, 6).map((v) => (
                   <span
-                    className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
+                    key={v.id}
+                    className={`h-1.5 flex-1 rounded-full ${v.status === "booked" ? "bg-sage" : v.status === "shortlisted" ? "bg-[color:var(--taupe)]/70" : "bg-border"}`}
+                    title={v.name}
                   />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm text-foreground truncate">{t.title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {t.category} · {t.assignee ?? "Unassigned"}
-                    </div>
-                  </div>
-                  <Pill tone={d <= 7 ? "warn" : "neutral"}>in {d}d</Pill>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                ))}
+              </div>
+            </SummaryCard>
+            <SummaryCard
+              label="Guests confirmed"
+              value={`${confirmed}`}
+              sub={`${invitedPax} invited · target ${event.guestEstimate}`}
+            >
+              <ProgressBar value={confirmedPct} tone="sage" />
+            </SummaryCard>
+          </section>
 
-        <div className="panel p-6">
-          <div className="eyebrow">Payments due</div>
-          <h2 className="serif text-xl mt-1 mb-5 text-balance">Upcoming</h2>
-          <ul className="space-y-4">
-            {upcomingPayments.map((p) => (
-              <li key={p.id} className="flex items-start justify-between gap-3">
+          {/* Priority area */}
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+            <div className="panel p-6 lg:col-span-2">
+              <div className="flex items-baseline justify-between mb-5">
                 <div>
-                  <div className="text-sm text-foreground">{p.vendor ?? p.category}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{p.category}</div>
+                  <div className="eyebrow">Needs attention</div>
+                  <h2 className="serif text-xl mt-1 text-balance">This week</h2>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm tabular-nums text-foreground">
-                    {formatIDR(p.amount - p.paid)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    by{" "}
-                    {new Date(p.dueDate!).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* Lower detail */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="panel p-6 lg:col-span-2">
-          <div className="flex items-baseline justify-between mb-5">
-            <div>
-              <div className="eyebrow">Timeline</div>
-              <h2 className="serif text-xl mt-1 text-balance">Next milestones</h2>
+                <Link
+                  to="/checklist"
+                  className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  View all →
+                </Link>
+              </div>
+              <ul className="divide-y divide-border">
+                {urgent.map((t) => {
+                  const d = daysUntil(t.due);
+                  return (
+                    <li
+                      key={t.id}
+                      onClick={() => setViewing(t)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setViewing(t);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm text-foreground truncate">{t.title}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {t.category} · {t.assignee ?? "Unassigned"}
+                        </div>
+                      </div>
+                      <Pill tone={d <= 7 ? "warn" : "neutral"}>in {d}d</Pill>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
-            <Link to="/timeline" className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              Open timeline →
-            </Link>
-          </div>
-          <ol className="relative border-l border-border ml-2 space-y-5">
-            {nextMilestones.map((m) => (
-              <li key={m.id} className="pl-5 relative">
-                <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-sage" />
-                <div className="text-sm text-foreground">{m.title}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  {new Date(m.date).toLocaleDateString("en-GB", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}{" "}
-                  · {daysUntil(m.date)} days away
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
 
-        <div className="panel p-6">
-          <div className="flex items-baseline justify-between mb-5">
-            <div>
-              <div className="eyebrow">Decision log</div>
-              <h2 className="serif text-xl mt-1 text-balance">Recent notes</h2>
+            <div className="panel p-6">
+              <div className="eyebrow">Payments due</div>
+              <h2 className="serif text-xl mt-1 mb-5 text-balance">Upcoming</h2>
+              <ul className="space-y-4">
+                {upcomingPayments.map((p) => (
+                  <li key={p.id} className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm text-foreground">{p.vendor ?? p.category}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{p.category}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm tabular-nums text-foreground">
+                        {formatIDR(p.amount - p.paid)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        by{" "}
+                        {new Date(p.dueDate!).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <Link to="/notes" className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              All →
-            </Link>
-          </div>
-          <ul className="space-y-4">
-            {notes.slice(0, 3).map((n) => (
-              <li key={n.id}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Pill tone="sage">{n.tag}</Pill>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(n.date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
+          </section>
+
+          {/* Lower detail */}
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="panel p-6 lg:col-span-2">
+              <div className="flex items-baseline justify-between mb-5">
+                <div>
+                  <div className="eyebrow">Timeline</div>
+                  <h2 className="serif text-xl mt-1 text-balance">Next milestones</h2>
                 </div>
-                <div className="text-sm text-foreground">{n.title}</div>
-                <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.body}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+                <Link
+                  to="/timeline"
+                  className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Open timeline →
+                </Link>
+              </div>
+              <ol className="relative border-l border-border ml-2 space-y-5">
+                {nextMilestones.map((m) => (
+                  <li key={m.id} className="pl-5 relative">
+                    <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-sage" />
+                    <div className="text-sm text-foreground">{m.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {new Date(m.date).toLocaleDateString("en-GB", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}{" "}
+                      · {daysUntil(m.date)} days away
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <div className="panel p-6">
+              <div className="flex items-baseline justify-between mb-5">
+                <div>
+                  <div className="eyebrow">Decision log</div>
+                  <h2 className="serif text-xl mt-1 text-balance">Recent notes</h2>
+                </div>
+                <Link
+                  to="/notes"
+                  className="text-xs text-muted-foreground rounded-md px-2 py-1 -m-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  All →
+                </Link>
+              </div>
+              <ul className="space-y-4">
+                {notes.slice(0, 3).map((n) => (
+                  <li key={n.id}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Pill tone="sage">{n.tag}</Pill>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(n.date).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </span>
+                    </div>
+                    <div className="text-sm text-foreground">{n.title}</div>
+                    <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.body}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
         </>
       )}
       {viewing && (
@@ -357,7 +376,8 @@ function LoadingNote() {
   );
 }
 
-function SummaryCard({  label,
+function SummaryCard({
+  label,
   value,
   sub,
   children,

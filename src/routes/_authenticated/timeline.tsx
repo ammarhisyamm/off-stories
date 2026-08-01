@@ -39,7 +39,11 @@ function Timeline() {
   }
 
   function handleDelete(id: string) {
-    setKind("milestones", milestones.filter((m) => m.id !== id));
+    setKind(
+      "milestones",
+      milestones.filter((m) => m.id !== id),
+      { success: "Milestone deleted" },
+    );
     setIsModalOpen(false);
     setEditing(null);
   }

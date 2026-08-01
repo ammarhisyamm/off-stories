@@ -39,7 +39,11 @@ function Guests() {
   }
 
   function handleDelete(id: string) {
-    setKind("guests", guests.filter((g) => g.id !== id));
+    setKind(
+      "guests",
+      guests.filter((g) => g.id !== id),
+      { success: "Guest deleted" },
+    );
     setIsModalOpen(false);
     setEditing(null);
   }

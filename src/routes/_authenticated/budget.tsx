@@ -43,7 +43,11 @@ function Budget() {
   }
 
   function handleDelete(id: string) {
-    setKind("budget", items.filter((i) => i.id !== id));
+    setKind(
+      "budget",
+      items.filter((i) => i.id !== id),
+      { success: "Budget item deleted" },
+    );
     setIsModalOpen(false);
     setEditing(null);
   }
@@ -84,9 +88,7 @@ function Budget() {
             <div className="eyebrow">Allocation</div>
             <h2 className="serif text-xl mt-1">Spend distribution</h2>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {committedPct}% committed
-          </span>
+          <span className="text-xs text-muted-foreground">{committedPct}% committed</span>
         </div>
         <div className="h-2.5 w-full rounded-full bg-secondary overflow-hidden flex">
           <div className="bg-sage" style={{ width: `${paidPct}%` }} />

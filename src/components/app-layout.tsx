@@ -18,6 +18,7 @@ import {
 import { daysUntil } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
+import { ToastViewport } from "@/components/toast";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", Icon: House },
@@ -228,6 +229,8 @@ export function AppLayout({
           </div>
         </div>
       </main>
+
+      <ToastViewport />
     </div>
   );
 }

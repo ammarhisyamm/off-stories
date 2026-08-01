@@ -21,7 +21,7 @@ function Privacy() {
           <p>
             When you sign in with Google, we receive your name, email address, and profile picture
             from your Google account. We use this only to identify you within your workspace and
-            display it to your collaborators.
+            display it to your partner.
           </p>
           <p>
             Data you enter into the app — your event details, checklist, budget, vendors, guests,
@@ -46,9 +46,9 @@ function Privacy() {
         <section>
           <h2 className="serif text-lg text-foreground mb-2">Sharing</h2>
           <p>
-            Your workspace is only visible to people you explicitly invite via a shareable link.
-            Collaborators can view and edit the workspace data according to the role you assign
-            them.
+            Your workspace is only visible to you and the one partner you invite by email.
+            Invitations are tied to a specific email address, and your partner joins as an editor.
+            You can cancel a pending invitation or remove your partner at any time.
           </p>
         </section>
         <section>
