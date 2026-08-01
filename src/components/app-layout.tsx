@@ -1,21 +1,18 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { List as ListIcon, SignOut, X, SidebarSimple } from "@phosphor-icons/react";
 import {
-  House,
-  CalendarDots,
-  CheckSquare,
-  CurrencyDollar,
-  Storefront,
-  Users,
-  NoteBlank,
-  FolderOpen,
-  Gear,
-  List as ListIcon,
-  SignOut,
-  X,
-  SidebarSimple,
-} from "@phosphor-icons/react";
+  SidebarBudget,
+  SidebarCalendar,
+  SidebarChecklist,
+  SidebarDocuments,
+  SidebarGuests,
+  SidebarHouse,
+  SidebarNotes,
+  SidebarSettings,
+  SidebarVendors,
+} from "@/components/sidebar-icons";
 import { BrandLogo } from "@/components/brand-logo";
 import { daysUntil } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,15 +20,15 @@ import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { ToastViewport } from "@/components/toast";
 
 const nav = [
-  { to: "/dashboard", label: "Dashboard", Icon: House },
-  { to: "/timeline", label: "Timeline", Icon: CalendarDots },
-  { to: "/checklist", label: "Checklist", Icon: CheckSquare },
-  { to: "/budget", label: "Budget", Icon: CurrencyDollar },
-  { to: "/vendors", label: "Vendors", Icon: Storefront },
-  { to: "/guests", label: "Guests", Icon: Users },
-  { to: "/notes", label: "Notes", Icon: NoteBlank },
-  { to: "/documents", label: "Documents", Icon: FolderOpen },
-  { to: "/settings", label: "Settings", Icon: Gear },
+  { to: "/dashboard", label: "Dashboard", Icon: SidebarHouse },
+  { to: "/timeline", label: "Timeline", Icon: SidebarCalendar },
+  { to: "/checklist", label: "Checklist", Icon: SidebarChecklist },
+  { to: "/budget", label: "Budget", Icon: SidebarBudget },
+  { to: "/vendors", label: "Vendors", Icon: SidebarVendors },
+  { to: "/guests", label: "Guests", Icon: SidebarGuests },
+  { to: "/notes", label: "Notes", Icon: SidebarNotes },
+  { to: "/documents", label: "Documents", Icon: SidebarDocuments },
+  { to: "/settings", label: "Settings", Icon: SidebarSettings },
 ] as const;
 
 function useCurrentUser() {
@@ -60,6 +57,12 @@ function NavList({
   onNavigate?: () => void;
   collapsed?: boolean;
 }) {
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setEntered(true), 1500);
+    return () => window.clearTimeout(t);
+  }, []);
+  const iconClass = entered ? "h-[18px] w-[18px]" : "h-[18px] w-[18px] is-drawing";
   return (
     <nav className="flex-1 px-3 py-5 space-y-1">
       {nav.map(({ to, label, Icon }) => {
@@ -76,7 +79,7 @@ function NavList({
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
             ].join(" ")}
           >
-            <Icon size={18} weight={active ? "duotone" : "regular"} />
+            <Icon className={iconClass} />
             {!collapsed && <span className="flex-1">{label}</span>}
             {!collapsed && active && <span className="h-1 w-1 rounded-full bg-sage" />}
           </Link>

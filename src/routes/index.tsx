@@ -45,7 +45,7 @@ function CTAButton({
   return (
     <Link
       to={to}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
+      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
         primary
           ? "bg-primary text-primary-foreground shadow-soft hover:opacity-90"
           : "border border-border bg-surface text-foreground hover:bg-surface-2"
@@ -210,13 +210,13 @@ function Hero({ hasSession }: { hasSession: boolean }) {
             </CTAButton>
             <a
               href="#features"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-6 py-3.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+              className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             >
               See the workspace
             </a>
           </div>
         </div>
-        <div className="mx-auto mt-12 w-full max-w-4xl sm:mt-16">
+        <div className="mt-12 w-full max-w-4xl sm:mt-16">
           <ProductPreview className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:420ms]">
             <DashboardPreview />
           </ProductPreview>
@@ -273,7 +273,7 @@ function ShowcaseCard({
   return (
     <article
       id={id}
-      className="group flex scroll-mt-16 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-6 sm:p-8"
+      className="group flex scroll-mt-16 flex-col overflow-hidden rounded-[6px] border border-border bg-surface p-6 sm:p-8"
     >
       <ProductPreview reveal delay={index * 90} className="flex flex-1 flex-col">
         <p className="eyebrow text-xs">{tag}</p>
@@ -407,7 +407,7 @@ function Workflow() {
               {steps.map((s, i) => (
                 <div
                   key={s.title}
-                  className={`absolute inset-0 flex flex-col justify-center rounded-2xl border border-border bg-surface p-8 shadow-soft transition-all duration-500 ease-gentle ${
+                  className={`absolute inset-0 flex flex-col justify-center rounded-[6px] border border-border bg-surface p-8 shadow-soft transition-all duration-500 ease-gentle ${
                     i === active
                       ? "translate-y-0 scale-100 opacity-100"
                       : "pointer-events-none translate-y-8 scale-[0.97] opacity-0"
@@ -428,7 +428,7 @@ function Workflow() {
             <div className="space-y-4 lg:hidden">
               {steps.map((s, i) => (
                 <Reveal key={s.title} delay={i * 90}>
-                  <div className="flex items-start gap-4 rounded-2xl border border-border bg-surface p-6">
+                  <div className="flex items-start gap-4 rounded-[6px] border border-border bg-surface p-6">
                     <span className="serif text-3xl text-sage/40">
                       {String(i + 1).padStart(2, "0")}
                     </span>
@@ -478,7 +478,7 @@ function Testimonials() {
             Told better with one list.
           </h2>
         </Reveal>
-        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-[6px] border border-border bg-border lg:grid-cols-3">
           {quotes.map((t, i) => (
             <Reveal key={t.who} variant="scale" delay={i * 100} className="bg-background">
               <figure className="flex h-full flex-col justify-between p-8">

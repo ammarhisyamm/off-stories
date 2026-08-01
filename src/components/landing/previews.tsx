@@ -84,7 +84,7 @@ function Sidebar({ compact = false }: { compact?: boolean }) {
 
 export function DashboardPreview() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
       <div className="flex">
         <Sidebar />
         <div className="min-w-0 flex-1">
@@ -228,7 +228,7 @@ function SummaryStat({
 export function ChecklistPreview() {
   const rows = tasks.filter((t) => t.status !== "done").slice(0, 5);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -277,7 +277,7 @@ export function ChecklistPreview() {
 export function BudgetPreview() {
   const rows = budgetItems.slice(0, 5);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -346,7 +346,7 @@ export function GuestsPreview() {
           ? "Declined"
           : "Pending";
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -390,7 +390,7 @@ export function GuestsPreview() {
 export function TimelinePreview() {
   const rows = milestones.slice(0, 5);
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
@@ -432,7 +432,7 @@ export function TimelinePreview() {
 
 export function NotesPreview() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-browser">
+    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
       <div className="flex">
         <Sidebar compact />
         <div className="min-w-0 flex-1 p-4">
