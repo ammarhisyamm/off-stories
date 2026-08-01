@@ -14,14 +14,14 @@ function AuthCallback() {
     // Wait for Supabase to process the OAuth callback hash
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        navigate({ to: "/", replace: true });
+        navigate({ to: "/dashboard", replace: true });
       }
     });
 
     // Also check if we already have a session just in case the event fired before we mounted
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        navigate({ to: "/", replace: true });
+        navigate({ to: "/dashboard", replace: true });
       }
     });
 

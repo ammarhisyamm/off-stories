@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleLogo, Sparkle, WarningCircle } from "@phosphor-icons/react";
@@ -30,7 +30,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/" });
+      if (data.session) navigate({ to: "/dashboard" });
     });
   }, [navigate]);
 
@@ -48,7 +48,7 @@ function AuthPage() {
         clearOAuthTimer();
         setLoading(false);
         setError(null);
-        navigate({ to: "/" });
+        navigate({ to: "/dashboard" });
       }
     });
     return () => {
@@ -125,6 +125,15 @@ function AuthPage() {
           We request calendar access so you can sync milestones to Google Calendar later. You can
           revoke it any time.
         </p>
+        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-muted-foreground">
+          <Link to="/privacy" className="hover:text-foreground transition-colors">
+            Privacy
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to="/terms" className="hover:text-foreground transition-colors">
+            Terms
+          </Link>
+        </div>
       </div>
     </div>
   );

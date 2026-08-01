@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
@@ -20,9 +22,20 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
 import { Route as AuthenticatedGuestsRouteImport } from './routes/_authenticated/guests'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedChecklistRouteImport } from './routes/_authenticated/checklist'
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -32,10 +45,10 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
@@ -77,6 +90,11 @@ const AuthenticatedDocumentsRoute = AuthenticatedDocumentsRouteImport.update({
   path: '/documents',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedChecklistRoute = AuthenticatedChecklistRouteImport.update({
   id: '/checklist',
   path: '/checklist',
@@ -89,10 +107,13 @@ const AuthenticatedBudgetRoute = AuthenticatedBudgetRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/budget': typeof AuthenticatedBudgetRoute
   '/checklist': typeof AuthenticatedChecklistRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/guests': typeof AuthenticatedGuestsRoute
   '/notes': typeof AuthenticatedNotesRoute
@@ -103,9 +124,13 @@ export interface FileRoutesByFullPath {
   '/invite/$token': typeof InviteTokenRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/budget': typeof AuthenticatedBudgetRoute
   '/checklist': typeof AuthenticatedChecklistRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/guests': typeof AuthenticatedGuestsRoute
   '/notes': typeof AuthenticatedNotesRoute
@@ -114,14 +139,17 @@ export interface FileRoutesByTo {
   '/vendors': typeof AuthenticatedVendorsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/invite/$token': typeof InviteTokenRoute
-  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/budget': typeof AuthenticatedBudgetRoute
   '/_authenticated/checklist': typeof AuthenticatedChecklistRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/guests': typeof AuthenticatedGuestsRoute
   '/_authenticated/notes': typeof AuthenticatedNotesRoute
@@ -130,15 +158,17 @@ export interface FileRoutesById {
   '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
   '/auth_/callback': typeof AuthCallbackRoute
   '/invite/$token': typeof InviteTokenRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/privacy'
+    | '/terms'
     | '/budget'
     | '/checklist'
+    | '/dashboard'
     | '/documents'
     | '/guests'
     | '/notes'
@@ -149,9 +179,13 @@ export interface FileRouteTypes {
     | '/invite/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/auth'
+    | '/privacy'
+    | '/terms'
     | '/budget'
     | '/checklist'
+    | '/dashboard'
     | '/documents'
     | '/guests'
     | '/notes'
@@ -160,13 +194,16 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/auth/callback'
     | '/invite/$token'
-    | '/'
   id:
     | '__root__'
+    | '/'
     | '/_authenticated'
     | '/auth'
+    | '/privacy'
+    | '/terms'
     | '/_authenticated/budget'
     | '/_authenticated/checklist'
+    | '/_authenticated/dashboard'
     | '/_authenticated/documents'
     | '/_authenticated/guests'
     | '/_authenticated/notes'
@@ -175,18 +212,34 @@ export interface FileRouteTypes {
     | '/_authenticated/vendors'
     | '/auth_/callback'
     | '/invite/$token'
-    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   InviteTokenRoute: typeof InviteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -201,12 +254,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
+    '/': {
+      id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/invite/$token': {
       id: '/invite/$token'
@@ -264,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDocumentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/checklist': {
       id: '/_authenticated/checklist'
       path: '/checklist'
@@ -284,33 +344,36 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBudgetRoute: typeof AuthenticatedBudgetRoute
   AuthenticatedChecklistRoute: typeof AuthenticatedChecklistRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedGuestsRoute: typeof AuthenticatedGuestsRoute
   AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTimelineRoute: typeof AuthenticatedTimelineRoute
   AuthenticatedVendorsRoute: typeof AuthenticatedVendorsRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBudgetRoute: AuthenticatedBudgetRoute,
   AuthenticatedChecklistRoute: AuthenticatedChecklistRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedGuestsRoute: AuthenticatedGuestsRoute,
   AuthenticatedNotesRoute: AuthenticatedNotesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTimelineRoute: AuthenticatedTimelineRoute,
   AuthenticatedVendorsRoute: AuthenticatedVendorsRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   InviteTokenRoute: InviteTokenRoute,
 }

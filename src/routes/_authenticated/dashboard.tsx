@@ -15,7 +15,7 @@ import {
   type Note,
 } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/_authenticated/")({
+export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "Dashboard — Wedding Preparation" },

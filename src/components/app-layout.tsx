@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 
 const nav = [
-  { to: "/", label: "Dashboard", Icon: House },
+  { to: "/dashboard", label: "Dashboard", Icon: House },
   { to: "/timeline", label: "Timeline", Icon: CalendarDots },
   { to: "/checklist", label: "Checklist", Icon: CheckSquare },
   { to: "/budget", label: "Budget", Icon: CurrencyDollar },
@@ -52,7 +52,7 @@ function NavList({ pathname, onNavigate }: { pathname: string; onNavigate?: () =
   return (
     <nav className="flex-1 px-3 py-4 space-y-0.5">
       {nav.map(({ to, label, Icon }) => {
-        const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
+        const active = pathname.startsWith(to);
         return (
           <Link
             key={to}

@@ -69,7 +69,7 @@ function InvitePage() {
     try {
       await accept({ data: { token } });
       setStatus("done");
-      setTimeout(() => navigate({ to: "/" }), 1000);
+      setTimeout(() => navigate({ to: "/dashboard" }), 1000);
     } catch (e) {
       setStatus("error");
       setError(e instanceof Error ? e.message : "Failed to accept invite");
