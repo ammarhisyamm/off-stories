@@ -9,7 +9,7 @@ export function PublicHeader() {
           <span className="grid h-8 w-8 place-items-center rounded-full bg-[color:var(--sage)]/15 text-[color:var(--sage)]">
             <span className="h-2 w-2 rounded-full bg-[color:var(--sage)]" />
           </span>
-          <span className="serif text-base">Wedding Preparation</span>
+          <span className="serif text-base">off frames stories</span>
         </Link>
         <nav className="flex items-center gap-4 text-sm text-muted-foreground">
           <Link to="/privacy" className="rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -34,7 +34,7 @@ export function PublicFooter() {
   return (
     <footer className="border-t border-border mt-16">
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
-        <div>Wedding Preparation — one calm place for everything.</div>
+        <div>off frames stories — one calm place for planning your wedding.</div>
         <nav className="flex items-center gap-4">
           <Link to="/privacy" className="hover:text-foreground transition-colors">
             Privacy
