@@ -202,35 +202,56 @@ function CollaboratorsPanel() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [creating, setCreating] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<Member | null>(null);
 
-  async function refresh() {
-    setLoading(true);
-    try {
-      const [inv, mem] = await Promise.all([list(), members()]);
-      setInvites(inv.invites as Invite[]);
-      setMemberList((mem.members ?? []) as Member[]);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
+  async function fetchState() {
+    const [inv, mem] = await Promise.all([list(), members()]);
+    setInvites(inv.invites as Invite[]);
+    setMemberList((mem.members ?? []) as Member[]);
   }
+
   useEffect(() => {
-    refresh();
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        await fetchState();
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleInvite(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const target = email.trim();
+    if (!target) return;
     setCreating(true);
     setError(null);
     try {
-      await create({ data: { email } });
+      const created = await create({ data: { email: target } });
+      const optimistic: Invite = {
+        id: created.id,
+        token: created.token,
+        email: created.email ?? target,
+        role: created.role ?? "editor",
+        created_at: created.created_at ?? new Date().toISOString(),
+        expires_at: created.expires_at ?? null,
+        accepted_at: null,
+        revoked_at: null,
+      };
+      setInvites((prev) => [optimistic, ...prev]);
       setEmail("");
       showToast("Invitation sent to your partner");
-      await refresh();
+      fetchState().catch(() => {});
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -239,16 +260,33 @@ function CollaboratorsPanel() {
   }
 
   async function handleRevoke(id: string) {
-    await revoke({ data: { id } });
-    showToast("Invitation cancelled");
-    refresh();
+    setError(null);
+    try {
+      await revoke({ data: { id } });
+      setInvites((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, revoked_at: new Date().toISOString() } : i)),
+      );
+      showToast("Invitation cancelled");
+      fetchState().catch(() => {});
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   async function handleRemove(member: Member) {
-    await remove({ data: { userId: member.user_id } });
-    setConfirmRemove(null);
-    showToast("Partner removed");
-    refresh();
+    setRemoving(true);
+    setError(null);
+    try {
+      await remove({ data: { userId: member.user_id } });
+      setMemberList((prev) => prev.filter((m) => m.user_id !== member.user_id));
+      setConfirmRemove(null);
+      showToast("Partner removed");
+      fetchState().catch(() => {});
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setRemoving(false);
+    }
   }
 
   const active = invites.filter((i) => !i.revoked_at && !i.accepted_at);
@@ -386,9 +424,10 @@ function CollaboratorsPanel() {
               <button
                 type="button"
                 onClick={() => handleRemove(confirmRemove)}
-                className="inline-flex items-center gap-2 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition duration-150 hover:bg-destructive/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                disabled={removing}
+                className="inline-flex items-center gap-2 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition duration-150 hover:bg-destructive/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60 disabled:pointer-events-none"
               >
-                <Check size={15} /> Remove partner
+                <Check size={15} /> {removing ? "Removing…" : "Remove partner"}
               </button>
             </div>
           </div>
