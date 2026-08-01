@@ -337,7 +337,7 @@ function Showcase() {
         </Reveal>
       </div>
       <div className="container-landing pb-20 pt-10 sm:pt-14 sm:pb-24">
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:gap-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
           {cards.map((c, i) => (
             <ShowcaseCard key={c.id} {...c} index={i} />
           ))}
@@ -483,7 +483,7 @@ function Testimonials() {
             Told better with one list.
           </h2>
         </Reveal>
-        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-3">
           {quotes.map((t, i) => (
             <Reveal key={t.who} variant="scale" delay={i * 100} className="bg-background">
               <figure className="flex h-full flex-col justify-between p-8">

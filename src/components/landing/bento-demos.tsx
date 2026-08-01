@@ -1,19 +1,44 @@
 import { Check } from "@phosphor-icons/react";
 
+const checklistRows = [
+  { label: "Book the venue tour", priority: "high" },
+  { label: "Finalize the catering menu", priority: "medium" },
+  { label: "Send the save-the-dates", priority: "low" },
+];
+
+const priorityStyles: Record<string, string> = {
+  high: "bg-[color:var(--rose)]/15 text-[color:var(--rose)]",
+  medium: "bg-[color:var(--taupe)]/15 text-[color:var(--taupe)]",
+  low: "bg-secondary text-muted-foreground",
+};
+
 export function ChecklistDemo() {
   return (
-    <div className="w-full max-w-sm">
-      <div className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3.5 shadow-soft transition-[box-shadow] duration-300 ease-out group-hover:shadow-[0_1px_2px_rgb(0_0_0/0.05),0_24px_48px_-24px_rgb(0_0_0/0.18)]">
-        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full border-[1.5px] border-border text-background transition-colors duration-200 ease-out group-hover:border-sage group-hover:bg-sage">
-          <Check size={13} weight="bold" />
-        </span>
-        <span className="flex-1 truncate text-sm text-foreground transition-colors duration-200 ease-out group-hover:text-muted-foreground group-hover:line-through">
-          Book the venue tour
-        </span>
-        <span className="shrink-0 rounded-full bg-[color:var(--rose)]/15 px-2 py-0.5 text-[10px] font-medium text-[color:var(--rose)]">
-          high
-        </span>
-      </div>
+    <div className="w-full max-w-sm space-y-2">
+      {checklistRows.map((r, i) => (
+        <div
+          key={r.label}
+          className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-soft transition-[box-shadow] duration-300 ease-out group-hover:shadow-[0_1px_2px_rgb(0_0_0/0.05),0_24px_48px_-24px_rgb(0_0_0/0.18)]"
+        >
+          <span
+            className="grid h-6 w-6 shrink-0 place-items-center rounded-full border-[1.5px] border-border text-background transition-colors duration-200 ease-out group-hover:border-sage group-hover:bg-sage"
+            style={{ transitionDelay: `${i * 90}ms` }}
+          >
+            <Check size={13} weight="bold" />
+          </span>
+          <span
+            className="flex-1 truncate text-sm text-foreground transition-colors duration-200 ease-out group-hover:text-muted-foreground group-hover:line-through"
+            style={{ transitionDelay: `${i * 90}ms` }}
+          >
+            {r.label}
+          </span>
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${priorityStyles[r.priority]}`}
+          >
+            {r.priority}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -78,21 +103,23 @@ const timelineRows = [
 export function TimelineDemo() {
   return (
     <div className="w-full max-w-sm">
-      <div className="relative space-y-4 pl-6">
-        <div className="absolute bottom-1 left-0 top-1 w-px bg-border" />
-        <div className="absolute bottom-1 left-0 top-1 w-px origin-top scale-y-0 bg-sage transition-transform duration-500 ease-out group-hover:scale-y-100" />
-        {timelineRows.map((m, i) => (
-          <div key={m.label} className="relative flex items-center gap-3">
-            <span
-              className="absolute -left-[5px] h-2.5 w-2.5 rounded-full border border-border bg-background transition-colors duration-300 ease-out group-hover:border-sage group-hover:bg-sage"
-              style={{ transitionDelay: `${i * 90}ms` }}
-            />
-            <span className="min-w-0 truncate text-sm text-foreground">{m.label}</span>
-            <span className="ml-auto shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
-              {m.t}
-            </span>
-          </div>
-        ))}
+      <div className="relative">
+        <div className="absolute bottom-2 left-[5px] top-2 w-px bg-border" />
+        <div className="absolute bottom-2 left-[5px] top-2 w-px origin-top scale-y-0 bg-sage transition-transform duration-500 ease-out group-hover:scale-y-100" />
+        <div className="space-y-4">
+          {timelineRows.map((m, i) => (
+            <div key={m.label} className="relative flex items-center gap-4 pl-6">
+              <span
+                className="absolute left-0 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border border-border bg-background transition-colors duration-300 ease-out group-hover:border-sage group-hover:bg-sage"
+                style={{ transitionDelay: `${i * 90}ms` }}
+              />
+              <span className="min-w-0 truncate text-sm text-foreground">{m.label}</span>
+              <span className="ml-auto shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
+                {m.t}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
