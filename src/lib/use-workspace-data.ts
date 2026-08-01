@@ -80,7 +80,7 @@ export function useWorkspaceData() {
   const setKind = useCallback(
     (kind: DataKind, payload: unknown, opts?: { success?: string | null }) => {
       publish(kind, payload);
-      boundSave?.({ kind, payload })
+      boundSave?.({ data: { kind, payload } })
         .then(() => {
           if (opts?.success !== null) {
             showToast(opts?.success ?? "Saved");
