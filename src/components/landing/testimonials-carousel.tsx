@@ -232,7 +232,7 @@ export function TestimonialsCarousel() {
         onMouseLeave={startAutoplay}
       >
         <div
-          className={`-mx-3 select-none ${dragging ? "cursor-grabbing" : "cursor-grab"} ${
+          className={`flex -mx-3 select-none ${dragging ? "cursor-grabbing" : "cursor-grab"} ${
             dragging || noTransition ? "" : "transition-transform duration-700 ease-in-out"
           }`}
           style={{ transform: `translateX(${slide}%)` }}
