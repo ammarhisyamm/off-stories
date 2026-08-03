@@ -90,7 +90,6 @@ function ChoiceCard({
   description,
   features,
   icon,
-  action,
 }: {
   selected: boolean;
   onSelect: () => void;
@@ -99,7 +98,6 @@ function ChoiceCard({
   description: string;
   features: string[];
   icon: ReactNode;
-  action: string;
 }) {
   return (
     <button
@@ -132,15 +130,16 @@ function ChoiceCard({
           </li>
         ))}
       </ul>
-      <span
-        className={`mt-8 inline-flex h-11 items-center justify-center rounded-[14px] px-4 text-sm font-medium transition-colors ${
-          selected
-            ? "bg-primary text-primary-foreground"
-            : "border border-border bg-surface text-[#444444]"
-        }`}
-      >
-        {action}
-      </span>
+      <div className="mt-8 flex items-center justify-between border-t border-[#f1f1f1] pt-5 text-xs font-medium text-muted-foreground">
+        <span>{selected ? "Selected" : "Choose this setup"}</span>
+        <span
+          className={`grid h-5 w-5 place-items-center rounded-full border ${
+            selected ? "border-foreground bg-primary text-primary-foreground" : "border-[#d8d8d8]"
+          }`}
+        >
+          {selected && <Check size={12} weight="bold" />}
+        </span>
+      </div>
     </button>
   );
 }
@@ -386,53 +385,70 @@ export function DashboardOnboarding({
   return (
     <div className="mx-auto max-w-5xl py-4 sm:py-8">
       {stage === 1 && (
-        <>
-          <div className="mb-10 max-w-2xl">
-            <div className="eyebrow">Welcome to OffStories</div>
-            <h2 className="display mt-3 text-3xl text-foreground sm:text-4xl">
-              How would you like to start?
-            </h2>
-            <p className="mt-4 text-base leading-7 text-muted-foreground">
-              Choose the option that best fits your planning style.
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/20 p-3 backdrop-blur-[2px] sm:p-6">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="setup-dialog-title"
+            className="max-h-[calc(100dvh-24px)] w-full max-w-6xl overflow-y-auto rounded-[28px] border border-[#e8e8e8] bg-[#fafafa] p-5 shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] sm:max-h-[calc(100dvh-48px)] sm:p-8 lg:p-10"
+          >
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="eyebrow">Welcome to OffStories</div>
+              <h2
+                id="setup-dialog-title"
+                className="display mt-3 text-3xl text-foreground sm:text-4xl"
+              >
+                How would you like to start?
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+                Choose the option that best fits your planning style. You can customize everything
+                later.
+              </p>
+            </div>
+            <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-4 lg:grid-cols-2">
+              <ChoiceCard
+                selected={mode === "blank"}
+                onSelect={() => chooseMode("blank")}
+                title="Blank Canvas"
+                description="Start with a completely empty workspace and build your wedding plan from scratch."
+                features={[
+                  "Empty Timeline",
+                  "Empty Checklist",
+                  "Empty Budget",
+                  "Empty Vendor List",
+                ]}
+                icon={<FileText size={28} weight="regular" />}
+              />
+              <ChoiceCard
+                selected={mode === "smart"}
+                onSelect={() => chooseMode("smart")}
+                badge="✦ Recommended"
+                title="Smart Wedding Setup"
+                description="Answer a few simple questions and OffStories will prepare your planning workspace for you."
+                features={[
+                  "Personalized Timeline",
+                  "Wedding Checklist",
+                  "Budget Breakdown",
+                  "Planning Milestones",
+                ]}
+                icon={<MagicWand size={28} weight="regular" />}
+              />
+            </div>
+            <div className="mx-auto mt-8 flex max-w-5xl items-center justify-between gap-4 border-t border-[#e9e9e9] pt-5">
+              <p className="hidden text-xs text-muted-foreground sm:block">
+                Select a setup to continue.
+              </p>
+              <button
+                type="button"
+                onClick={continueFromStart}
+                disabled={!mode}
+                className="ml-auto rounded-[14px] bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:bg-black disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                Continue
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <ChoiceCard
-              selected={mode === "blank"}
-              onSelect={() => chooseMode("blank")}
-              title="Blank Canvas"
-              description="Start with a completely empty workspace and build your wedding plan from scratch."
-              features={["Empty Timeline", "Empty Checklist", "Empty Budget", "Empty Vendor List"]}
-              action="Start from Scratch"
-              icon={<FileText size={28} weight="regular" />}
-            />
-            <ChoiceCard
-              selected={mode === "smart"}
-              onSelect={() => chooseMode("smart")}
-              badge="✦ Recommended"
-              title="Smart Wedding Setup"
-              description="Answer a few simple questions and OffStories will prepare your planning workspace for you."
-              features={[
-                "Personalized Timeline",
-                "Wedding Checklist",
-                "Budget Breakdown",
-                "Planning Milestones",
-              ]}
-              action="Let's Get Started"
-              icon={<MagicWand size={28} weight="regular" />}
-            />
-          </div>
-          <div className="mt-8 flex justify-end">
-            <button
-              type="button"
-              onClick={continueFromStart}
-              disabled={!mode}
-              className="rounded-[14px] bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:bg-black disabled:cursor-not-allowed disabled:opacity-35"
-            >
-              Continue
-            </button>
-          </div>
-        </>
+        </div>
       )}
 
       {stage === 2 && (
