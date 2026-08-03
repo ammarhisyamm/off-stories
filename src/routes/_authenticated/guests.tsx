@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddGuestModal } from "@/components/add-guest-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import type { Guest } from "@/lib/mock-data";
+import type { Guest } from "@/lib/types";
+import { Users } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
@@ -75,56 +76,71 @@ function Guests() {
       </div>
 
       <div className="panel overflow-x-auto">
-        <table className="w-full text-sm min-w-[620px]">
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground bg-surface-2">
-              <th className="px-5 py-3 font-medium">Group</th>
-              <th className="px-5 py-3 font-medium">Side</th>
-              <th className="px-5 py-3 font-medium text-right">Pax</th>
-              <th className="px-5 py-3 font-medium">Invitation</th>
-              <th className="px-5 py-3 font-medium">RSVP</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {guests.map((g) => (
-              <tr
-                key={g.id}
-                onClick={() => openView(g)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    openView(g);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-              >
-                <td className="px-5 py-3 text-foreground">{g.name}</td>
-                <td className="px-5 py-3 text-muted-foreground">{g.side}</td>
-                <td className="px-5 py-3 text-right tabular-nums">{g.pax}</td>
-                <td className="px-5 py-3">
-                  <Pill tone={g.invited ? "sage" : "neutral"}>{g.invited ? "Sent" : "Draft"}</Pill>
-                </td>
-                <td className="px-5 py-3">
-                  <Pill
-                    tone={
-                      g.rsvp === "yes"
-                        ? "sage"
-                        : g.rsvp === "no"
-                          ? "warn"
-                          : g.rsvp === "maybe"
-                            ? "taupe"
-                            : "neutral"
-                    }
-                  >
-                    {g.rsvp}
-                  </Pill>
-                </td>
+        {guests.length === 0 ? (
+          <EmptyState
+            icon={<Users size={20} weight="duotone" />}
+            title="No guest groups yet"
+            description="Group guests by household or friend circle, mark who's invited, and track RSVPs as replies come in."
+            action={
+              <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                Add guest group
+              </QuietButton>
+            }
+          />
+        ) : (
+          <table className="w-full text-sm min-w-[620px]">
+            <thead>
+              <tr className="text-left text-xs text-muted-foreground bg-surface-2">
+                <th className="px-5 py-3 font-medium">Group</th>
+                <th className="px-5 py-3 font-medium">Side</th>
+                <th className="px-5 py-3 font-medium text-right">Pax</th>
+                <th className="px-5 py-3 font-medium">Invitation</th>
+                <th className="px-5 py-3 font-medium">RSVP</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {guests.map((g) => (
+                <tr
+                  key={g.id}
+                  onClick={() => openView(g)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openView(g);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                >
+                  <td className="px-5 py-3 text-foreground">{g.name}</td>
+                  <td className="px-5 py-3 text-muted-foreground">{g.side}</td>
+                  <td className="px-5 py-3 text-right tabular-nums">{g.pax}</td>
+                  <td className="px-5 py-3">
+                    <Pill tone={g.invited ? "sage" : "neutral"}>
+                      {g.invited ? "Sent" : "Draft"}
+                    </Pill>
+                  </td>
+                  <td className="px-5 py-3">
+                    <Pill
+                      tone={
+                        g.rsvp === "yes"
+                          ? "sage"
+                          : g.rsvp === "no"
+                            ? "warn"
+                            : g.rsvp === "maybe"
+                              ? "taupe"
+                              : "neutral"
+                      }
+                    >
+                      {g.rsvp}
+                    </Pill>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
       {viewing && (
         <ViewModal

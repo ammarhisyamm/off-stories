@@ -10,17 +10,8 @@ import {
   Storefront,
   Users,
 } from "@phosphor-icons/react";
-import {
-  budgetItems,
-  daysUntil,
-  event,
-  formatIDR,
-  guests,
-  milestones,
-  notes,
-  tasks,
-  vendors,
-} from "@/lib/mock-data";
+import { budgetItems, event, guests, milestones, notes, tasks, vendors } from "@/lib/mock-data";
+import { daysUntil, formatIDR } from "@/lib/types";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", Icon: House, active: true },

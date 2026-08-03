@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { supabase } from "@/integrations/supabase/client";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportClientError } from "@/lib/telemetry";
+import { useServerFn } from "@tanstack/react-start";
 
 function NotFoundComponent() {
   return (
@@ -85,9 +87,40 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "offstories, a quiet, modular dashboard for managing every part of your wedding preparation in one place.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:title", content: "OFFRAME STORIES" },
+      {
+        property: "og:description",
+        content: "offstories, one calm place for planning your wedding.",
+      },
+      { property: "og:image", content: "/og-image.png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:locale", content: "en_US" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "OFFRAME STORIES" },
+      {
+        name: "twitter:description",
+        content: "offstories, one calm place for planning your wedding.",
+      },
+      { name: "twitter:image", content: "/og-image.png" },
+      { name: "theme-color", content: "#fafafa" },
     ],
     links: [
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "192x192",
+        href: "/icons/icon-192.png",
+      },
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-touch-icon.png",
+      },
+      { rel: "manifest", href: "/manifest.json" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -120,6 +153,26 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const reportFn = useServerFn(reportClientError);
+
+  useEffect(() => {
+    const report = (source: string, error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      const stack = error instanceof Error ? error.stack : undefined;
+      void reportFn({
+        data: { source, message, stack, route: window.location.pathname },
+      }).catch(() => {});
+    };
+    const onError = (event: ErrorEvent) => report("window_error", event.error ?? event);
+    const onRejection = (event: PromiseRejectionEvent) =>
+      report("unhandled_rejection", event.reason);
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+    return () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    };
+  }, [reportFn]);
 
   useEffect(() => {
     try {

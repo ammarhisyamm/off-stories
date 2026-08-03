@@ -15,7 +15,7 @@ import {
   type Guest,
   type Milestone,
   type Note,
-} from "@/lib/mock-data";
+} from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({

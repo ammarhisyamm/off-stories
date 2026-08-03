@@ -3,15 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import type {
-  Task,
-  BudgetItem,
-  Vendor,
-  Guest,
-  Milestone,
-  Note,
-  DocRef,
-} from "@/lib/mock-data";
+import type { Task, BudgetItem, Vendor, Guest, Milestone, Note, DocRef } from "@/lib/types";
 
 export const KINDS = [
   "event",
@@ -100,9 +92,7 @@ export const loadWorkspaceData = createServerFn({ method: "GET" })
 
 export const saveWorkspaceData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z.object({ kind: z.enum(KINDS), payload: z.unknown() }).parse(d),
-  )
+  .inputValidator((d) => z.object({ kind: z.enum(KINDS), payload: z.unknown() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const workspaceId = await resolveWorkspace(supabase, userId);

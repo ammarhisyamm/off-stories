@@ -4,7 +4,7 @@ import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { daysUntil, type Task } from "@/lib/mock-data";
+import { daysUntil, type Task } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({

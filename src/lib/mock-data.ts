@@ -1,4 +1,4 @@
-// Mock data for the Wedding Preparation Dashboard
+import type { Task, BudgetItem, Vendor, Guest, Milestone, Note, DocRef } from "./types";
 
 export const event = {
   name: "Andra & Kirana",
@@ -8,31 +8,6 @@ export const event = {
   guestEstimate: 320,
   budget: 425000000,
 };
-
-export const daysUntil = (iso: string) => {
-  const diff = new Date(iso).getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / 86400000));
-};
-
-export const formatIDR = (n: number) =>
-  new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    maximumFractionDigits: 0,
-  }).format(n);
-
-export type TaskStatus = "todo" | "in_progress" | "done";
-export type Priority = "low" | "medium" | "high";
-
-export interface Task {
-  id: string;
-  title: string;
-  category: string;
-  due: string;
-  priority: Priority;
-  status: TaskStatus;
-  assignee?: string;
-}
 
 export const tasks: Task[] = [
   {
@@ -153,17 +128,6 @@ export const tasks: Task[] = [
   },
 ];
 
-export interface BudgetItem {
-  id: string;
-  category: string;
-  vendor?: string;
-  amount: number;
-  paid: number;
-  committed: number;
-  status: "paid" | "partial" | "due" | "planned";
-  dueDate?: string;
-}
-
 export const budgetItems: BudgetItem[] = [
   {
     id: "b1",
@@ -234,18 +198,6 @@ export const budgetItems: BudgetItem[] = [
   },
   { id: "b8", category: "Souvenir", amount: 15000000, paid: 0, committed: 0, status: "planned" },
 ];
-
-export interface Vendor {
-  id: string;
-  name: string;
-  category: string;
-  contact: string;
-  phone: string;
-  packageName: string;
-  quoted: number;
-  final?: number;
-  status: "researching" | "shortlisted" | "booked" | "cancelled";
-}
 
 export const vendors: Vendor[] = [
   {
@@ -324,15 +276,6 @@ export const vendors: Vendor[] = [
   },
 ];
 
-export interface Guest {
-  id: string;
-  name: string;
-  side: "Bride" | "Groom" | "Both";
-  pax: number;
-  invited: boolean;
-  rsvp: "pending" | "yes" | "no" | "maybe";
-}
-
 export const guests: Guest[] = [
   { id: "g1", name: "Keluarga Rahardjo", side: "Bride", pax: 8, invited: true, rsvp: "yes" },
   { id: "g2", name: "Keluarga Wijaya", side: "Groom", pax: 12, invited: true, rsvp: "yes" },
@@ -344,14 +287,6 @@ export const guests: Guest[] = [
   { id: "g8", name: "Sahabat SMA — Kirana", side: "Bride", pax: 10, invited: true, rsvp: "yes" },
 ];
 
-export interface Milestone {
-  id: string;
-  title: string;
-  date: string;
-  kind: "venue" | "vendor" | "fitting" | "legal" | "payment" | "review";
-  done?: boolean;
-}
-
 export const milestones: Milestone[] = [
   { id: "m1", title: "Tentukan venue akad", date: "2026-05-20", kind: "venue", done: true },
   { id: "m2", title: "DP catering", date: "2026-06-01", kind: "payment", done: true },
@@ -362,14 +297,6 @@ export const milestones: Milestone[] = [
   { id: "m7", title: "Rundown review", date: "2026-10-01", kind: "review" },
   { id: "m8", title: "Hari-H", date: "2026-10-17", kind: "review" },
 ];
-
-export interface Note {
-  id: string;
-  title: string;
-  body: string;
-  tag: string;
-  date: string;
-}
 
 export const notes: Note[] = [
   {
@@ -401,15 +328,6 @@ export const notes: Note[] = [
     date: "2026-06-05",
   },
 ];
-
-export interface DocRef {
-  id: string;
-  title: string;
-  kind: "Contract" | "Invoice" | "Moodboard" | "Reference" | "Rundown" | "Floor plan";
-  vendor?: string;
-  url: string;
-  addedAt: string;
-}
 
 export const documents: DocRef[] = [
   {

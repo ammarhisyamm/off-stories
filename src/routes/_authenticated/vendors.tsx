@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddVendorModal } from "@/components/add-vendor-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { formatIDR, type Vendor } from "@/lib/mock-data";
+import { formatIDR, type Vendor } from "@/lib/types";
+import { Storefront } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/vendors")({
   head: () => ({
@@ -73,58 +74,71 @@ function Vendors() {
           <div className="px-5 py-4 border-b border-border">
             <h2 className="serif text-lg">All vendors</h2>
           </div>
-          <ul className="divide-y divide-border">
-            {vendors.map((v) => (
-              <li
-                key={v.id}
-                onClick={() => openView(v)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    openView(v);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-              >
-                <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs font-medium text-muted-foreground">
-                  {v.name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .slice(0, 2)
-                    .join("")}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-foreground">{v.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {v.category} · {v.packageName}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm tabular-nums text-foreground">
-                    {formatIDR(v.final ?? v.quoted)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {v.final ? "final" : "quoted"}
-                  </div>
-                </div>
-                <Pill
-                  tone={
-                    v.status === "booked"
-                      ? "sage"
-                      : v.status === "shortlisted"
-                        ? "taupe"
-                        : v.status === "cancelled"
-                          ? "warn"
-                          : "neutral"
-                  }
+          {vendors.length === 0 ? (
+            <EmptyState
+              icon={<Storefront size={20} weight="duotone" />}
+              title="No vendors yet"
+              description="Add venues, caterers, photographers and the rest so you can compare quotes side by side."
+              action={
+                <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                  Add vendor
+                </QuietButton>
+              }
+            />
+          ) : (
+            <ul className="divide-y divide-border">
+              {vendors.map((v) => (
+                <li
+                  key={v.id}
+                  onClick={() => openView(v)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openView(v);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="px-5 py-4 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
-                  {v.status}
-                </Pill>
-              </li>
-            ))}
-          </ul>
+                  <div className="h-9 w-9 rounded-md bg-surface-2 border border-border flex items-center justify-center text-xs font-medium text-muted-foreground">
+                    {v.name
+                      .split(" ")
+                      .map((w) => w[0])
+                      .slice(0, 2)
+                      .join("")}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-foreground">{v.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {v.category} · {v.packageName}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm tabular-nums text-foreground">
+                      {formatIDR(v.final ?? v.quoted)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {v.final ? "final" : "quoted"}
+                    </div>
+                  </div>
+                  <Pill
+                    tone={
+                      v.status === "booked"
+                        ? "sage"
+                        : v.status === "shortlisted"
+                          ? "taupe"
+                          : v.status === "cancelled"
+                            ? "warn"
+                            : "neutral"
+                    }
+                  >
+                    {v.status}
+                  </Pill>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="lg:col-span-2 panel p-6">

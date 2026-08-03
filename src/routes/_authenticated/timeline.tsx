@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddMilestoneModal } from "@/components/add-milestone-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { daysUntil, type Milestone } from "@/lib/mock-data";
+import { daysUntil, type Milestone } from "@/lib/types";
+import { CalendarDots } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/timeline")({
   head: () => ({
@@ -83,49 +84,64 @@ function Timeline() {
         ))}
       </div>
 
-      <div className="space-y-10">
-        {Object.entries(byMonth).map(([month, list]) => (
-          <section key={month}>
-            <div className="flex items-baseline justify-between mb-4">
-              <h2 className="serif text-xl">{month}</h2>
-              <span className="text-xs text-muted-foreground">
-                {list.length} milestone{list.length > 1 ? "s" : ""}
-              </span>
-            </div>
-            <ol className="panel divide-y divide-border">
-              {list.map((m) => (
-                <li
-                  key={m.id}
-                  onClick={() => openView(m)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openView(m);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  className="px-5 py-4 flex items-center gap-5 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                >
-                  <div className="w-14 text-center">
-                    <div className="serif text-2xl text-foreground tabular-nums">
-                      {new Date(m.date).getDate()}
+      {milestones.length === 0 ? (
+        <EmptyState
+          icon={<CalendarDots size={20} weight="duotone" />}
+          title="No milestones yet"
+          description="Map the journey from venue booking to the big day — fitting, deposits, legal docs and final reviews."
+          action={
+            <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+              Add milestone
+            </QuietButton>
+          }
+        />
+      ) : (
+        <div className="space-y-10">
+          {Object.entries(byMonth).map(([month, list]) => (
+            <section key={month}>
+              <div className="flex items-baseline justify-between mb-4">
+                <h2 className="serif text-xl">{month}</h2>
+                <span className="text-xs text-muted-foreground">
+                  {list.length} milestone{list.length > 1 ? "s" : ""}
+                </span>
+              </div>
+              <ol className="panel divide-y divide-border">
+                {list.map((m) => (
+                  <li
+                    key={m.id}
+                    onClick={() => openView(m)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openView(m);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="px-5 py-4 flex items-center gap-5 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  >
+                    <div className="w-14 text-center">
+                      <div className="serif text-2xl text-foreground tabular-nums">
+                        {new Date(m.date).getDate()}
+                      </div>
+                      <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                        {new Date(m.date).toLocaleDateString("en-GB", { weekday: "short" })}
+                      </div>
                     </div>
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground">
-                      {new Date(m.date).toLocaleDateString("en-GB", { weekday: "short" })}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-foreground">{m.title}</div>
+                      <div className="text-xs text-muted-foreground capitalize mt-0.5">
+                        {m.kind}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm text-foreground">{m.title}</div>
-                    <div className="text-xs text-muted-foreground capitalize mt-0.5">{m.kind}</div>
-                  </div>
-                  {m.done ? <Pill tone="sage">Done</Pill> : <Pill>{daysUntil(m.date)}d</Pill>}
-                </li>
-              ))}
-            </ol>
-          </section>
-        ))}
-      </div>
+                    {m.done ? <Pill tone="sage">Done</Pill> : <Pill>{daysUntil(m.date)}d</Pill>}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </div>
+      )}
       {viewing && (
         <ViewModal
           title="Milestone details"

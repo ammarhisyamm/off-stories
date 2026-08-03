@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import type { Note } from "@/lib/mock-data";
+import type { Note } from "@/lib/types";
 import { useState } from "react";
-import { X, Trash } from "@phosphor-icons/react";
+import { X, Trash, NoteBlank } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/notes")({
   head: () => ({
@@ -88,38 +88,53 @@ function Notes() {
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {notes.map((n) => (
-          <article
-            key={n.id}
-            onClick={() => handleOpenView(n)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleOpenView(n);
+        {notes.length === 0 ? (
+          <div className="md:col-span-2">
+            <EmptyState
+              icon={<NoteBlank size={20} weight="duotone" />}
+              title="No notes yet"
+              description="Keep the small but important things here — a decision you made, a request from family, or notes from a vendor meeting."
+              action={
+                <QuietButton variant="primary" onClick={handleOpenNew}>
+                  New note
+                </QuietButton>
               }
-            }}
-            role="button"
-            tabIndex={0}
-            className="panel p-6 cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <Pill tone={n.tag === "Decision" ? "sage" : n.tag === "Family" ? "rose" : "taupe"}>
-                {n.tag}
-              </Pill>
-              <span className="text-xs text-muted-foreground">
-                {new Date(n.date).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </span>
-            </div>
-            <h3 className="serif text-lg text-foreground">{n.title}</h3>
-            <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-wrap">
-              {n.body}
-            </p>
-          </article>
-        ))}
+            />
+          </div>
+        ) : (
+          notes.map((n) => (
+            <article
+              key={n.id}
+              onClick={() => handleOpenView(n)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleOpenView(n);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              className="panel p-6 cursor-pointer hover:border-primary/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <Pill tone={n.tag === "Decision" ? "sage" : n.tag === "Family" ? "rose" : "taupe"}>
+                  {n.tag}
+                </Pill>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(n.date).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+              <h3 className="serif text-lg text-foreground">{n.title}</h3>
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-wrap">
+                {n.body}
+              </p>
+            </article>
+          ))
+        )}
       </div>
 
       {viewingNote && (

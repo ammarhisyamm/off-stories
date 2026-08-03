@@ -8,6 +8,7 @@ import {
   type DataKind,
   type WorkspaceData,
 } from "@/lib/data.functions";
+import { reportClientError } from "@/lib/telemetry";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -16,6 +17,7 @@ let loaded = false;
 let loadError: string | null = null;
 let boundLoad: (() => Promise<unknown>) | null = null;
 let boundSave: ((input: unknown) => Promise<unknown>) | null = null;
+let boundReport: ((input: unknown) => Promise<unknown>) | null = null;
 
 const POLL_INTERVAL_MS = 20_000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -24,6 +26,21 @@ let pendingSaves = 0;
 
 function notify() {
   listeners.forEach((l) => l());
+}
+
+function report(source: string, error: unknown, meta: Record<string, unknown> = {}) {
+  if (!boundReport) return;
+  const message = error instanceof Error ? error.message : String(error);
+  const stack = error instanceof Error ? error.stack : undefined;
+  void boundReport({
+    data: {
+      source,
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+      message,
+      stack,
+      meta,
+    },
+  }).catch(() => {});
 }
 
 function publish(kind: DataKind, payload: unknown) {
@@ -43,6 +60,7 @@ async function pollRefresh() {
     notify();
   } catch {
     // keep last known good state on transient failures
+    report("poll_refresh", new Error("Poll refresh failed"));
   } finally {
     pollInFlight = false;
   }
@@ -73,6 +91,7 @@ export function resetWorkspaceDataCache() {
 export function useWorkspaceData() {
   const loadFn = useServerFn(loadWorkspaceData);
   const saveFn = useServerFn(saveWorkspaceData);
+  const reportFn = useServerFn(reportClientError);
   const [state, setState] = useState<{ loading: boolean; error: string | null }>(() => ({
     loading: !loaded,
     error: loadError,
@@ -81,6 +100,7 @@ export function useWorkspaceData() {
   useEffect(() => {
     boundLoad = loadFn as () => Promise<unknown>;
     boundSave = saveFn as (input: unknown) => Promise<unknown>;
+    boundReport = reportFn as (input: unknown) => Promise<unknown>;
 
     const listener = () =>
       setState((s) =>
@@ -102,6 +122,7 @@ export function useWorkspaceData() {
         .catch((e) => {
           if (cancelled) return;
           loadError = e instanceof Error ? e.message : String(e);
+          report("initial_load", e, { phase: "mount" });
           notify();
         });
       return () => {
@@ -129,6 +150,7 @@ export function useWorkspaceData() {
         })
         .catch((e) => {
           loadError = e instanceof Error ? e.message : String(e);
+          report("save", e, { kind });
           notify();
           showToast(loadError ?? "Couldn't save", "error");
         })
@@ -149,6 +171,7 @@ export function useWorkspaceData() {
       loadError = null;
     } catch (e) {
       loadError = e instanceof Error ? e.message : String(e);
+      report("refresh", e);
     }
     notify();
   }, []);

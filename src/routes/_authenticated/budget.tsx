@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { formatIDR, type BudgetItem } from "@/lib/mock-data";
+import { formatIDR, type BudgetItem } from "@/lib/types";
+import { CurrencyDollar } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/budget")({
   head: () => ({
@@ -112,66 +113,79 @@ function Budget() {
           <h2 className="serif text-lg">Line items</h2>
           <span className="text-xs text-muted-foreground">{items.length} entries</span>
         </div>
-        <table className="w-full text-sm min-w-[680px]">
-          <thead>
-            <tr className="text-left text-xs text-muted-foreground bg-surface-2">
-              <th className="px-5 py-3 font-medium">Category</th>
-              <th className="px-5 py-3 font-medium">Vendor</th>
-              <th className="px-5 py-3 font-medium text-right">Amount</th>
-              <th className="px-5 py-3 font-medium text-right">Paid</th>
-              <th className="px-5 py-3 font-medium">Status</th>
-              <th className="px-5 py-3 font-medium">Due</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {items.map((b) => (
-              <tr
-                key={b.id}
-                onClick={() => openView(b)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    openView(b);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-              >
-                <td className="px-5 py-3 text-foreground">{b.category}</td>
-                <td className="px-5 py-3 text-muted-foreground">{b.vendor ?? "—"}</td>
-                <td className="px-5 py-3 text-right tabular-nums">{formatIDR(b.amount)}</td>
-                <td className="px-5 py-3 text-right tabular-nums text-muted-foreground">
-                  {formatIDR(b.paid)}
-                </td>
-                <td className="px-5 py-3">
-                  <Pill
-                    tone={
-                      b.status === "paid"
-                        ? "sage"
-                        : b.status === "partial"
-                          ? "taupe"
-                          : b.status === "due"
-                            ? "warn"
-                            : "neutral"
-                    }
-                  >
-                    {b.status}
-                  </Pill>
-                </td>
-                <td className="px-5 py-3 text-muted-foreground text-xs">
-                  {b.dueDate
-                    ? new Date(b.dueDate).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    : "—"}
-                </td>
+        {items.length === 0 ? (
+          <EmptyState
+            icon={<CurrencyDollar size={20} weight="duotone" />}
+            title="No expenses yet"
+            description="Start by adding your first line item — a venue deposit, catering quote, or whatever comes next."
+            action={
+              <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                Add expense
+              </QuietButton>
+            }
+          />
+        ) : (
+          <table className="w-full text-sm min-w-[680px]">
+            <thead>
+              <tr className="text-left text-xs text-muted-foreground bg-surface-2">
+                <th className="px-5 py-3 font-medium">Category</th>
+                <th className="px-5 py-3 font-medium">Vendor</th>
+                <th className="px-5 py-3 font-medium text-right">Amount</th>
+                <th className="px-5 py-3 font-medium text-right">Paid</th>
+                <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Due</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {items.map((b) => (
+                <tr
+                  key={b.id}
+                  onClick={() => openView(b)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openView(b);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="cursor-pointer hover:bg-surface-2/60 focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                >
+                  <td className="px-5 py-3 text-foreground">{b.category}</td>
+                  <td className="px-5 py-3 text-muted-foreground">{b.vendor ?? "—"}</td>
+                  <td className="px-5 py-3 text-right tabular-nums">{formatIDR(b.amount)}</td>
+                  <td className="px-5 py-3 text-right tabular-nums text-muted-foreground">
+                    {formatIDR(b.paid)}
+                  </td>
+                  <td className="px-5 py-3">
+                    <Pill
+                      tone={
+                        b.status === "paid"
+                          ? "sage"
+                          : b.status === "partial"
+                            ? "taupe"
+                            : b.status === "due"
+                              ? "warn"
+                              : "neutral"
+                      }
+                    >
+                      {b.status}
+                    </Pill>
+                  </td>
+                  <td className="px-5 py-3 text-muted-foreground text-xs">
+                    {b.dueDate
+                      ? new Date(b.dueDate).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
       {viewing && (
         <ViewModal

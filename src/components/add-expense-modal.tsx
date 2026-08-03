@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
-import type { BudgetItem } from "@/lib/mock-data";
+import type { BudgetItem } from "@/lib/types";
 
 const budgetCategories = [
   "Venue",

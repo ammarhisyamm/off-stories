@@ -14,7 +14,7 @@ import {
   SidebarVendors,
 } from "@/components/sidebar-icons";
 import { BrandLogo } from "@/components/brand-logo";
-import { daysUntil } from "@/lib/mock-data";
+import { daysUntil } from "@/lib/types";
 import { supabase } from "@/integrations/supabase/client";
 import { getBrowserStorage } from "@/lib/browser-storage";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
@@ -149,7 +149,9 @@ export function AppLayout({
 
   useEffect(() => {
     try {
-      setSidebarCollapsed(getBrowserStorage("local").getItem("offstories-sidebar-collapsed") === "true");
+      setSidebarCollapsed(
+        getBrowserStorage("local").getItem("offstories-sidebar-collapsed") === "true",
+      );
     } catch {
       setSidebarCollapsed(false);
     }
@@ -330,6 +332,35 @@ export function Pill({
     >
       {children}
     </span>
+  );
+}
+
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+}: {
+  icon?: ReactNode;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="panel flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
+      {icon && (
+        <div className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-muted-foreground">
+          {icon}
+        </div>
+      )}
+      <div>
+        <h3 className="text-sm font-medium text-foreground">{title}</h3>
+        {description && (
+          <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
+      {action && <div className="mt-1">{action}</div>}
+    </div>
   );
 }
 
