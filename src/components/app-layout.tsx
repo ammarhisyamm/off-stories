@@ -68,15 +68,23 @@ function NavList({
             to={to}
             onClick={onNavigate}
             className={[
-              `flex items-center gap-3 rounded-xl py-2.5 text-sm transition-[transform,background-color,color] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${collapsed ? "justify-center px-2" : "px-3"}`,
+              "sidebar-nav-link flex items-center gap-3 rounded-xl py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              collapsed ? "justify-center px-2" : "px-3",
               active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                ? "is-active bg-sidebar-accent font-medium text-sidebar-accent-foreground"
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
             ].join(" ")}
           >
+            {active && <span className="sidebar-active-bar" aria-hidden="true" />}
             <Icon className={active ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"} />
-            {!collapsed && <span className="flex-1">{label}</span>}
-            {!collapsed && active && <span className="h-1 w-1 rounded-full bg-sage" />}
+            <span
+              className={`sidebar-nav-label min-w-0 flex-1 truncate ${collapsed ? "w-0 -translate-x-2 overflow-hidden opacity-0" : "w-auto opacity-100"}`}
+            >
+              {label}
+            </span>
+            {!collapsed && active && (
+              <span className="sidebar-badge h-1.5 w-1.5 rounded-full bg-sage" aria-hidden="true" />
+            )}
           </Link>
         );
       })}
@@ -301,7 +309,10 @@ export function AppLayout({
           </div>
         </header>
         <div className="max-w-7xl mx-auto px-4 md:px-10 py-8 md:py-12">
-          <div key={pathname} className="animate-in fade-in duration-150 ease-out">
+          <div
+            key={pathname}
+            className="page-stagger animate-in fade-in slide-in-from-bottom-2 duration-200 ease-out"
+          >
             {children}
           </div>
         </div>
