@@ -144,6 +144,21 @@ function ChoiceCard({
   );
 }
 
+function OnboardingModal({ children, titleId }: { children: ReactNode; titleId: string }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/20 p-3 backdrop-blur-[2px] sm:p-6">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="max-h-[calc(100dvh-24px)] w-full max-w-6xl overflow-y-auto rounded-[28px] border border-[#e8e8e8] bg-[#fafafa] p-5 shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] sm:max-h-[calc(100dvh-48px)] sm:p-8 lg:p-10"
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function Progress({ current, total }: { current: number; total: number }) {
   return (
     <div className="mb-10 flex items-center gap-2" aria-label={`Step ${current} of ${total}`}>
@@ -452,10 +467,13 @@ export function DashboardOnboarding({
       )}
 
       {stage === 2 && (
-        <>
+        <OnboardingModal titleId="smart-setup-title">
           <div className="mb-10 max-w-2xl">
             <div className="eyebrow">Smart Wedding Setup</div>
-            <h2 className="display mt-3 text-3xl text-foreground sm:text-4xl">
+            <h2
+              id="smart-setup-title"
+              className="display mt-3 text-3xl text-foreground sm:text-4xl"
+            >
               Let’s make a thoughtful first plan.
             </h2>
             <p className="mt-4 text-base leading-7 text-muted-foreground">
@@ -622,16 +640,18 @@ export function DashboardOnboarding({
               </div>
             </QuestionShell>
           )}
-        </>
+        </OnboardingModal>
       )}
 
       {stage === 3 && (
-        <PlanReadyPreview
-          setup={setup}
-          estimatedBudget={estimatedBudget}
-          onBack={() => setStage(2)}
-          onFinish={finishSetup}
-        />
+        <OnboardingModal titleId="plan-ready-title">
+          <PlanReadyPreview
+            setup={setup}
+            estimatedBudget={estimatedBudget}
+            onBack={() => setStage(2)}
+            onFinish={finishSetup}
+          />
+        </OnboardingModal>
       )}
     </div>
   );
@@ -716,7 +736,7 @@ function PlanReadyPreview({
             <Sparkle size={16} weight="thin" className="absolute left-1 top-2 text-[#777777]" />
           </div>
           <div className="eyebrow mt-2">Your first plan</div>
-          <h2 className="display mt-3 text-3xl text-foreground sm:text-5xl">
+          <h2 id="plan-ready-title" className="display mt-3 text-3xl text-foreground sm:text-5xl">
             Your Wedding Plan is Ready
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
