@@ -1,8 +1,19 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
+  ArrowLeft,
+  ArrowRight,
+  Buildings,
+  CalendarBlank,
   CalendarCheck,
+  ChartDonut,
   Check,
+  CheckCircle,
+  Clock,
   FileText,
+  FlowerLotus,
+  FolderOpen,
+  Heart,
+  Lightbulb,
   MagicWand,
   MapPin,
   Notebook,
@@ -206,9 +217,15 @@ function setupBudget(guests: number, budgetChoice: BudgetChoice, budget: string)
   return Math.round((guests * 1_140_000) / 1_000_000) * 1_000_000;
 }
 
+function getPlanningDate() {
+  const date = new Date();
+  date.setMonth(date.getMonth() + 14);
+  return date.toISOString().slice(0, 10);
+}
+
 function smartData(setup: SetupState) {
   const budget = setupBudget(setup.guests, setup.budgetChoice, setup.budget);
-  const date = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
+  const date = getPlanningDate();
   const starterTasks: Task[] = [
     {
       id: "setup-venue",
@@ -593,108 +610,360 @@ export function DashboardOnboarding({
       )}
 
       {stage === 3 && (
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-10 max-w-2xl">
-            <div className="eyebrow">Your first plan</div>
-            <h2 className="display mt-3 text-3xl text-foreground sm:text-4xl">
-              A thoughtful start, ready when you are.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-muted-foreground">
-              Here’s what OffStories prepared from your answers.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="panel p-6">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <Wallet size={19} />
-                Estimated wedding budget
-              </div>
-              <div className="display mt-4 text-3xl">{formatIDR(estimatedBudget)}</div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {setup.budgetChoice === "yes"
-                  ? "Based on the budget you shared."
-                  : "A starting estimate based on your guest count."}
-              </p>
-            </div>
-            <div className="panel p-6">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <UsersThree size={19} />
-                Estimated guest count
-              </div>
-              <div className="display mt-4 text-3xl">
-                {setup.guests}{" "}
-                <span className="text-base font-medium text-muted-foreground">Guests</span>
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Planning in {setup.location} · {setup.weddingType}
-              </p>
-            </div>
-          </div>
-          <div className="panel mt-4 p-6 sm:p-8">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="eyebrow">Recommended allocation</div>
-                <h3 className="display mt-2 text-xl">A simple budget shape</h3>
-              </div>
-              <Wallet size={22} className="text-muted-foreground" />
-            </div>
-            <div className="mt-7 grid gap-4 sm:grid-cols-2">
-              {[
-                { label: "Venue", value: 30 },
-                { label: "Catering", value: 35 },
-                { label: "Decoration", value: 12 },
-                { label: "Photography & Videography", value: 8 },
-                { label: "Makeup & Attire", value: 5 },
-                { label: "Entertainment", value: 3 },
-                { label: "Invitation & Souvenirs", value: 3 },
-                { label: "Miscellaneous", value: 4 },
-              ].map((item) => (
-                <div key={item.label}>
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span>{item.label}</span>
-                    <span className="tabular-nums text-muted-foreground">{item.value}%</span>
-                  </div>
-                  <div className="mt-2 h-1.5 rounded-full bg-[#f1f1f1]">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${item.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <PreparedItem
-              icon={<CalendarCheck size={20} />}
-              label="Timeline with important milestones"
-            />
-            <PreparedItem icon={<FileText size={20} />} label="Wedding checklist" />
-            <PreparedItem icon={<Wallet size={20} />} label="Budget planner" />
-            <PreparedItem icon={<UserCircleGear size={20} />} label="Vendor categories" />
-            <PreparedItem icon={<UsersThree size={20} />} label="Guest list" />
-          </div>
-          <div className="mt-8 flex justify-end">
-            <button
-              type="button"
-              onClick={finishSetup}
-              className="rounded-[14px] bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-black"
-            >
-              Continue to Dashboard
-            </button>
-          </div>
-        </div>
+        <PlanReadyPreview
+          setup={setup}
+          estimatedBudget={estimatedBudget}
+          onBack={() => setStage(2)}
+          onFinish={finishSetup}
+        />
       )}
     </div>
   );
 }
 
-function PreparedItem({ icon, label }: { icon: ReactNode; label: string }) {
+function PlanReadyPreview({
+  setup,
+  estimatedBudget,
+  onBack,
+  onFinish,
+}: {
+  setup: SetupState;
+  estimatedBudget: number;
+  onBack: () => void;
+  onFinish: () => void;
+}) {
+  const planningDate = new Date(`${getPlanningDate()}T12:00:00`);
+  const formattedDate = planningDate.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const allocation = [
+    { label: "Venue", percent: 28, icon: Buildings },
+    { label: "Catering", percent: 33, icon: UsersThree },
+    { label: "Decoration", percent: 12, icon: FlowerLotus },
+    { label: "Photography & Videography", percent: 8, icon: Heart },
+    { label: "Makeup & Attire", percent: 5, icon: Sparkle },
+    { label: "Entertainment", percent: 4, icon: MagicWand },
+    { label: "Invitation & Souvenirs", percent: 4, icon: FileText },
+    { label: "Miscellaneous", percent: 6, icon: Notebook },
+  ];
+  const prepared = [
+    {
+      title: "Personalized Timeline",
+      description: "Wedding milestones generated automatically.",
+      icon: CalendarCheck,
+    },
+    {
+      title: "Wedding Checklist",
+      description: "Recommended planning tasks already prepared.",
+      icon: CheckCircle,
+    },
+    {
+      title: "Budget Planner",
+      description: "Budget categories have been organized.",
+      icon: ChartDonut,
+    },
+    {
+      title: "Vendor Management",
+      description: "Organize and compare your vendors.",
+      icon: UserCircleGear,
+    },
+    { title: "Guest List", description: "Start managing invitations and RSVP.", icon: UsersThree },
+    {
+      title: "Documents",
+      description: "Store contracts, invoices, and important files.",
+      icon: FolderOpen,
+    },
+  ];
+  const insights = [
+    `For weddings with around ${setup.guests} guests in ${setup.location || "your city"}, catering will likely be the largest expense.`,
+    "Booking your venue 9–12 months before your wedding date gives you more choices and better pricing.",
+    "Your planning timeline suggests starting vendor bookings within the next 30 days.",
+  ];
+
   return (
-    <div className="flex items-center gap-3 rounded-[16px] border border-border bg-surface px-4 py-3.5 text-sm text-[#444444]">
-      <span className="text-foreground">{icon}</span>
-      <span>{label}</span>
-      <Check size={15} weight="bold" className="ml-auto text-[#16a34a]" />
+    <div className="mx-auto max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
+      <header className="relative overflow-hidden rounded-[28px] border border-[#ececec] bg-white px-6 py-10 text-center shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_8px_30px_rgb(15_23_42_/_0.05)] sm:px-12 sm:py-14">
+        <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#f6f6f6]" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-44 w-44 rounded-full border border-[#f1f1f1]" />
+        <div className="relative mx-auto flex max-w-2xl flex-col items-center">
+          <div className="relative grid h-20 w-28 place-items-center text-foreground">
+            <div className="absolute bottom-2 h-12 w-24 rounded-t-[48px] border-x border-t border-[#d9d9d9]" />
+            <div className="absolute bottom-1 left-9 h-11 w-11 rounded-full border-[3px] border-foreground bg-white" />
+            <div className="absolute bottom-1 left-[3.65rem] h-11 w-11 rounded-full border-[3px] border-foreground bg-white" />
+            <FlowerLotus
+              size={22}
+              weight="thin"
+              className="absolute -top-1 right-2 text-[#777777]"
+            />
+            <Sparkle size={16} weight="thin" className="absolute left-1 top-2 text-[#777777]" />
+          </div>
+          <div className="eyebrow mt-2">Your first plan</div>
+          <h2 className="display mt-3 text-3xl text-foreground sm:text-5xl">
+            Your Wedding Plan is Ready
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
+            We&apos;ve prepared your personalized wedding workspace based on your preferences.
+            Everything below is only a starting point—you can customize every detail anytime.
+          </p>
+        </div>
+      </header>
+
+      <section className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="rounded-[24px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-7">
+          <SectionHeading
+            icon={<CalendarBlank size={20} />}
+            eyebrow="A quick look"
+            title="Wedding Overview"
+          />
+          <div className="mt-7 divide-y divide-[#f1f1f1]">
+            <OverviewItem
+              icon={<Notebook size={19} />}
+              label="Wedding Style"
+              value={setup.weddingType || "Wedding celebration"}
+            />
+            <OverviewItem
+              icon={<MapPin size={19} />}
+              label="Wedding Location"
+              value={setup.location || "To be decided"}
+            />
+            <OverviewItem
+              icon={<CalendarBlank size={19} />}
+              label="Wedding Date"
+              value={formattedDate}
+            />
+            <OverviewItem
+              icon={<UsersThree size={19} />}
+              label="Estimated Guests"
+              value={`${setup.guests} Guests`}
+            />
+            <OverviewItem
+              icon={<UserCircleGear size={19} />}
+              label="Wedding Organizer"
+              value={setup.organizer === "yes" ? "Yes" : "No"}
+            />
+            <OverviewItem icon={<Clock size={19} />} label="Planning Duration" value="14 Months" />
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-[24px] border border-[#ececec] bg-[#111111] p-6 text-white shadow-[0_1px_2px_rgb(15_23_42_/_0.08),0_10px_30px_rgb(15_23_42_/_0.12)] sm:p-8">
+          <div className="absolute -right-8 -top-10 h-52 w-52 rounded-full border border-white/10" />
+          <div className="absolute -right-2 top-6 h-40 w-40 rounded-full border border-white/10" />
+          <div className="relative flex h-full flex-col justify-between">
+            <div className="flex items-center justify-between gap-4 text-white/60">
+              <span className="eyebrow text-white/55">Estimated Total Budget</span>
+              <Wallet size={22} weight="thin" />
+            </div>
+            <div className="relative mt-14">
+              <div className="absolute -left-5 -top-10 h-32 w-32 rounded-full border border-white/10" />
+              <div className="display relative text-4xl tracking-[-0.04em] sm:text-5xl">
+                {formatIDR(estimatedBudget)}
+              </div>
+              <p className="relative mt-4 max-w-md text-sm leading-6 text-white/60">
+                This estimate is calculated based on your wedding location, guest count, wedding
+                style, and planning preferences.
+              </p>
+            </div>
+            <div className="relative mt-10 border-t border-white/15 pt-4 text-xs text-white/55">
+              {setup.budgetChoice === "yes"
+                ? "Based on the budget you shared."
+                : "A starting estimate you can refine anytime."}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-[24px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-8">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <SectionHeading
+            icon={<ChartDonut size={20} />}
+            eyebrow="A clear starting point"
+            title="Suggested Budget Allocation"
+          />
+          <span className="text-xs text-muted-foreground">Based on {setup.guests} guests</span>
+        </div>
+        <div className="mt-8 flex h-3 overflow-hidden rounded-full bg-[#f1f1f1]">
+          {allocation.map((item) => (
+            <span
+              key={item.label}
+              className="h-full border-r border-white bg-[#111111] last:border-0"
+              style={{ width: `${item.percent}%`, opacity: 0.45 + item.percent / 100 }}
+            />
+          ))}
+        </div>
+        <div className="mt-8 grid gap-x-8 gap-y-5 md:grid-cols-2">
+          {allocation.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className="flex items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f6f6f6] text-[#555555]">
+                  <Icon size={18} weight="regular" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="truncate text-[#333333]">{item.label}</span>
+                    <span className="shrink-0 tabular-nums text-muted-foreground">
+                      {item.percent}%
+                    </span>
+                  </div>
+                  <div className="mt-1 text-xs tabular-nums text-muted-foreground">
+                    {formatIDR(Math.round((estimatedBudget * item.percent) / 100))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mt-16">
+        <SectionHeading eyebrow="Prepared for you" title="Your Planning Workspace is Ready" />
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {prepared.map((item) => {
+            const Icon = item.icon;
+            return (
+              <PreparedCard
+                key={item.title}
+                icon={<Icon size={21} />}
+                title={item.title}
+                description={item.description}
+              />
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mt-16">
+        <SectionHeading
+          icon={<Lightbulb size={20} />}
+          eyebrow="A little guidance"
+          title="Planning Insights"
+        />
+        <div className="mt-6 grid gap-3 lg:grid-cols-3">
+          {insights.map((insight, index) => (
+            <InsightCard key={insight} number={`0${index + 1}`} text={insight} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-16 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <div>
+          <SectionHeading
+            icon={<ArrowRight size={20} />}
+            eyebrow="Your first moves"
+            title="Recommended Next Steps"
+          />
+          <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
+            A simple order of operations to help you build momentum without the overwhelm.
+          </p>
+        </div>
+        <div className="rounded-[24px] border border-[#ececec] bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-6">
+          {[
+            "Set your wedding date",
+            "Finalize your estimated budget",
+            "Book your venue",
+            "Create your guest list",
+            "Start adding vendors",
+          ].map((step, index) => (
+            <div
+              key={step}
+              className="flex items-center gap-4 border-b border-[#f1f1f1] py-4 last:border-0 last:pb-1 first:pt-1"
+            >
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#e5e5e5] text-xs font-medium text-muted-foreground">
+                {index + 1}
+              </span>
+              <span className="text-sm text-[#333333]">{step}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-12 flex flex-col-reverse items-stretch justify-between gap-3 border-t border-[#ececec] pt-6 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-[#e8e8e8] bg-white px-5 text-sm text-[#444444] transition duration-200 hover:bg-[#f6f6f6] active:scale-[0.98]"
+        >
+          <ArrowLeft size={17} /> Back
+        </button>
+        <button
+          type="button"
+          onClick={onFinish}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] bg-primary px-5 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-black active:scale-[0.98]"
+        >
+          Enter My Dashboard <ArrowRight size={17} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SectionHeading({
+  icon,
+  eyebrow,
+  title,
+}: {
+  icon?: ReactNode;
+  eyebrow?: string;
+  title: string;
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+        {icon}
+        <span>{eyebrow}</span>
+      </div>
+      <h3 className="display mt-2 text-2xl text-foreground">{title}</h3>
+    </div>
+  );
+}
+
+function OverviewItem({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f6f6f6] text-[#555555]">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className="mt-0.5 truncate text-sm text-[#222222]">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function PreparedCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[20px] border border-[#ececec] bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_4px_14px_rgb(15_23_42_/_0.04)] transition duration-200 hover:-translate-y-px hover:shadow-[0_8px_24px_rgb(15_23_42_/_0.07)]">
+      <div className="flex items-center justify-between">
+        <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f6f6f6] text-[#333333]">
+          {icon}
+        </span>
+        <Check size={17} weight="bold" className="text-[#16a34a]" />
+      </div>
+      <h4 className="mt-5 text-base font-semibold text-[#222222]">{title}</h4>
+      <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{description}</p>
+    </div>
+  );
+}
+
+function InsightCard({ number, text }: { number: string; text: string }) {
+  return (
+    <div className="rounded-[20px] border border-[#ececec] bg-[#fafafa] p-5">
+      <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+        <Lightbulb size={18} weight="thin" />
+        <span>{number}</span>
+      </div>
+      <p className="mt-7 text-sm leading-6 text-[#444444]">{text}</p>
     </div>
   );
 }
