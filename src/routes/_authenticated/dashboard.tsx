@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
@@ -46,8 +47,14 @@ function Dashboard() {
   const [editing, setEditing] = useState<Task | null>(null);
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+
+  useEffect(() => {
+    setOnboardingComplete(window.localStorage.getItem("offstories-onboarding-complete") === "true");
+  }, []);
 
   const hasEvent = Boolean(event.date && event.name);
+  const showOnboarding = !loading && !hasEvent && !onboardingComplete;
   const days = hasEvent ? daysUntil(event.date) : null;
   const done = tasks.filter((t) => t.status === "done").length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
@@ -102,29 +109,40 @@ function Dashboard() {
     <AppLayout
       eyebrow={eyebrowParts || undefined}
       title={
-        hasEvent
-          ? days !== null
-            ? `${days} days to ${event.name}`
-            : event.name
-          : "Set up your event"
+        showOnboarding
+          ? "Set up your wedding"
+          : hasEvent
+            ? days !== null
+              ? `${days} days to ${event.name}`
+              : event.name
+            : "Set up your event"
       }
       actions={
-        <>
-          <QuietButton onClick={() => window.print()}>Export</QuietButton>
-          <QuietButton
-            variant="primary"
-            onClick={() => {
-              setEditing(null);
-              setIsModalOpen(true);
-            }}
-          >
-            Add task
-          </QuietButton>
-        </>
+        showOnboarding ? undefined : (
+          <>
+            <QuietButton onClick={() => window.print()}>Export</QuietButton>
+            <QuietButton
+              variant="primary"
+              onClick={() => {
+                setEditing(null);
+                setIsModalOpen(true);
+              }}
+            >
+              Add task
+            </QuietButton>
+          </>
+        )
       }
     >
       {loading ? (
         <LoadingNote />
+      ) : showOnboarding ? (
+        <DashboardOnboarding
+          setKind={setKind}
+          onComplete={() => {
+            setOnboardingComplete(true);
+          }}
+        />
       ) : (
         <>
           {/* Top summary */}
