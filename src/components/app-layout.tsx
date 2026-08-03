@@ -16,6 +16,7 @@ import {
 import { BrandLogo } from "@/components/brand-logo";
 import { daysUntil } from "@/lib/mock-data";
 import { supabase } from "@/integrations/supabase/client";
+import { getBrowserStorage } from "@/lib/browser-storage";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { ToastViewport } from "@/components/toast";
 
@@ -148,7 +149,7 @@ export function AppLayout({
 
   useEffect(() => {
     try {
-      setSidebarCollapsed(window.localStorage.getItem("offstories-sidebar-collapsed") === "true");
+      setSidebarCollapsed(getBrowserStorage("local").getItem("offstories-sidebar-collapsed") === "true");
     } catch {
       setSidebarCollapsed(false);
     }
@@ -158,7 +159,7 @@ export function AppLayout({
     setSidebarCollapsed((collapsed) => {
       const next = !collapsed;
       try {
-        window.localStorage.setItem("offstories-sidebar-collapsed", String(next));
+        getBrowserStorage("local").setItem("offstories-sidebar-collapsed", String(next));
       } catch {}
       return next;
     });

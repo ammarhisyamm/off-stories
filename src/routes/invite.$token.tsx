@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getBrowserStorage } from "@/lib/browser-storage";
 import { acceptInvite, getInvite, leaveWorkspace } from "@/lib/invites.functions";
 import { resetWorkspaceDataCache } from "@/lib/use-workspace-data";
 import { useServerFn } from "@tanstack/react-start";
@@ -184,7 +185,7 @@ function InvitePage() {
   }
 
   function storePendingToken() {
-    sessionStorage.setItem("pending_invite_token", token);
+    getBrowserStorage("session").setItem("pending_invite_token", token);
   }
 
   async function handleGoogle() {
@@ -202,7 +203,7 @@ function InvitePage() {
       });
       if (error) throw error;
     } catch (e) {
-      sessionStorage.removeItem("pending_invite_token");
+      getBrowserStorage("session").removeItem("pending_invite_token");
       setStatus("error");
       setError(
         e instanceof Error && e.message !== "The operation was aborted."
@@ -213,7 +214,7 @@ function InvitePage() {
     }
     // Watchdog: reset the button if the popup is blocked, cancelled, or closed.
     timeoutRef.current = window.setTimeout(() => {
-      sessionStorage.removeItem("pending_invite_token");
+      getBrowserStorage("session").removeItem("pending_invite_token");
       setStatus("error");
       setError("Sign-in is taking too long. Make sure the Google window opened, then try again.");
     }, OAUTH_TIMEOUT_MS);
@@ -266,15 +267,15 @@ function InvitePage() {
         }
       }
     } catch (err) {
-      sessionStorage.removeItem("pending_invite_token");
+      getBrowserStorage("session").removeItem("pending_invite_token");
       setStatus("error");
       setError(err instanceof Error ? err.message : String(err));
     }
   }
 
   useEffect(() => {
-    if (signedIn && sessionStorage.getItem("pending_invite_token") === token) {
-      sessionStorage.removeItem("pending_invite_token");
+    if (signedIn && getBrowserStorage("session").getItem("pending_invite_token") === token) {
+      getBrowserStorage("session").removeItem("pending_invite_token");
       handleAccept();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

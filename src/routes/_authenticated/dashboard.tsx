@@ -5,6 +5,7 @@ import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
+import { getBrowserStorage } from "@/lib/browser-storage";
 import {
   daysUntil,
   formatIDR,
@@ -52,7 +53,7 @@ function Dashboard() {
   useEffect(() => {
     try {
       setOnboardingComplete(
-        window.localStorage.getItem("offstories-onboarding-complete") === "true",
+        getBrowserStorage("local").getItem("offstories-onboarding-complete") === "true",
       );
     } catch {
       setOnboardingComplete(false);

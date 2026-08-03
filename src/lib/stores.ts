@@ -11,20 +11,21 @@ import {
   type Vendor,
   type Note,
 } from "./mock-data";
+import { getBrowserStorage } from "./browser-storage";
 
 function createStore<T>(key: string, initial: T[]) {
   return {
     load: (): T[] => {
       if (typeof window === "undefined") return initial;
       try {
-        const saved = localStorage.getItem(key);
+        const saved = getBrowserStorage("local").getItem(key);
         if (saved) return JSON.parse(saved) as T[];
       } catch {
         // ignore corrupt storage
       }
       return initial;
     },
-    save: (items: T[]) => localStorage.setItem(key, JSON.stringify(items)),
+    save: (items: T[]) => getBrowserStorage("local").setItem(key, JSON.stringify(items)),
   };
 }
 
@@ -43,7 +44,7 @@ export const eventStore = {
   load: (): EventData => {
     if (typeof window === "undefined") return initialEvent;
     try {
-      const saved = localStorage.getItem("wedding_event");
+      const saved = getBrowserStorage("local").getItem("wedding_event");
       if (saved) return { ...initialEvent, ...(JSON.parse(saved) as Partial<EventData>) };
     } catch {
       // ignore corrupt storage
@@ -51,7 +52,7 @@ export const eventStore = {
     return initialEvent;
   },
   save: (data: EventData) => {
-    localStorage.setItem("wedding_event", JSON.stringify(data));
+    getBrowserStorage("local").setItem("wedding_event", JSON.stringify(data));
     listeners.forEach((l) => l());
   },
   subscribe: (listener: Listener) => {

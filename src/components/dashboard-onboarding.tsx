@@ -19,6 +19,7 @@ import {
   type Vendor,
 } from "@/lib/mock-data";
 import type { WorkspaceData } from "@/lib/data.functions";
+import { getBrowserStorage } from "@/lib/browser-storage";
 
 type SetupMode = "blank" | "smart";
 type BudgetChoice = "yes" | "no" | "";
@@ -33,7 +34,7 @@ type SetupState = {
 
 function markOnboardingComplete() {
   try {
-    window.localStorage.setItem("offstories-onboarding-complete", "true");
+    getBrowserStorage("local").setItem("offstories-onboarding-complete", "true");
   } catch {}
 }
 

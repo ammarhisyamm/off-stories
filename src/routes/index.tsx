@@ -630,7 +630,10 @@ function FinalCTA({ hasSession }: { hasSession: boolean }) {
 function Landing() {
   const [hasSession, setHasSession] = useState(false);
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setHasSession(Boolean(data.session)));
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => setHasSession(Boolean(data.session)))
+      .catch((error) => console.error("[Supabase] Session lookup unavailable", error));
   }, []);
 
   return (

@@ -1,11 +1,12 @@
 import { tasks as initialTasks, type Task } from "./mock-data";
+import { getBrowserStorage } from "./browser-storage";
 
 const STORAGE_KEY = "wedding_tasks";
 
 export function loadTasks(): Task[] {
   if (typeof window === "undefined") return initialTasks;
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = getBrowserStorage("local").getItem(STORAGE_KEY);
     if (saved) return JSON.parse(saved) as Task[];
   } catch {
     // ignore corrupt storage
@@ -14,7 +15,7 @@ export function loadTasks(): Task[] {
 }
 
 export function saveTasks(newTasks: Task[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(newTasks));
+  getBrowserStorage("local").setItem(STORAGE_KEY, JSON.stringify(newTasks));
 }
 
 export const taskCategories = [
