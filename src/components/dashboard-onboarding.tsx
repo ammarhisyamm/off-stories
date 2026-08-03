@@ -31,6 +31,12 @@ type SetupState = {
   organizer: "yes" | "no" | "";
 };
 
+function markOnboardingComplete() {
+  try {
+    window.localStorage.setItem("offstories-onboarding-complete", "true");
+  } catch {}
+}
+
 const locations = [
   "Jakarta",
   "Bogor",
@@ -336,7 +342,7 @@ export function DashboardOnboarding({
         },
         { success: null },
       );
-      window.localStorage.setItem("offstories-onboarding-complete", "true");
+      markOnboardingComplete();
       onComplete();
       return;
     }
@@ -355,7 +361,7 @@ export function DashboardOnboarding({
     setKind("budget", prepared.budget, { success: null });
     setKind("vendors", prepared.vendors, { success: null });
     setKind("milestones", prepared.milestones, { success: null });
-    window.localStorage.setItem("offstories-onboarding-complete", "true");
+    markOnboardingComplete();
     onComplete();
   }
 

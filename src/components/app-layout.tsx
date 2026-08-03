@@ -147,13 +147,19 @@ export function AppLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    setSidebarCollapsed(window.localStorage.getItem("offstories-sidebar-collapsed") === "true");
+    try {
+      setSidebarCollapsed(window.localStorage.getItem("offstories-sidebar-collapsed") === "true");
+    } catch {
+      setSidebarCollapsed(false);
+    }
   }, []);
 
   function toggleSidebar() {
     setSidebarCollapsed((collapsed) => {
       const next = !collapsed;
-      window.localStorage.setItem("offstories-sidebar-collapsed", String(next));
+      try {
+        window.localStorage.setItem("offstories-sidebar-collapsed", String(next));
+      } catch {}
       return next;
     });
   }

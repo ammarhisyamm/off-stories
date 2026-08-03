@@ -2,6 +2,32 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
+function getAuthStorage(): Storage {
+  const memory = new Map<string, string>();
+  const fallback: Storage = {
+    get length() {
+      return memory.size;
+    },
+    clear: () => memory.clear(),
+    getItem: (key) => memory.get(key) ?? null,
+    key: (index) => Array.from(memory.keys())[index] ?? null,
+    removeItem: (key) => memory.delete(key),
+    setItem: (key, value) => memory.set(key, value),
+  };
+
+  if (typeof window === "undefined") return fallback;
+
+  try {
+    const storage = window.localStorage;
+    const probe = "__offstories_storage_probe__";
+    storage.setItem(probe, "1");
+    storage.removeItem(probe);
+    return storage;
+  } catch {
+    return fallback;
+  }
+}
+
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
@@ -21,7 +47,7 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
-      storage: typeof window !== "undefined" ? localStorage : undefined,
+      storage: getAuthStorage(),
       persistSession: true,
       autoRefreshToken: true,
     },

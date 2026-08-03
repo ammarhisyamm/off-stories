@@ -50,7 +50,13 @@ function Dashboard() {
   const [onboardingComplete, setOnboardingComplete] = useState(false);
 
   useEffect(() => {
-    setOnboardingComplete(window.localStorage.getItem("offstories-onboarding-complete") === "true");
+    try {
+      setOnboardingComplete(
+        window.localStorage.getItem("offstories-onboarding-complete") === "true",
+      );
+    } catch {
+      setOnboardingComplete(false);
+    }
   }, []);
 
   const hasEvent = Boolean(event.date && event.name);
