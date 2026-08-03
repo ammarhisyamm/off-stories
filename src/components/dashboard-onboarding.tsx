@@ -717,32 +717,71 @@ function PlanReadyPreview({
     "Booking your venue 9–12 months before your wedding date gives you more choices and better pricing.",
     "Your planning timeline suggests starting vendor bookings within the next 30 days.",
   ];
+  const budgetFloor = Math.round((estimatedBudget * 0.9) / 1_000_000) * 1_000_000;
+  const budgetCeiling = Math.round((estimatedBudget * 1.2) / 1_000_000) * 1_000_000;
+  const workspaceStatus = [
+    { label: "Timeline Generated", icon: CalendarCheck },
+    { label: "Budget Estimated", icon: ChartDonut },
+    { label: "Checklist Created", icon: CheckCircle },
+    { label: "Vendor Suggestions Ready", icon: UserCircleGear },
+  ];
 
   return (
     <div className="mx-auto max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
-      <header className="relative overflow-hidden rounded-[28px] border border-[#ececec] bg-white px-6 py-10 text-center shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_8px_30px_rgb(15_23_42_/_0.05)] sm:px-12 sm:py-14">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#f6f6f6]" />
-        <div className="pointer-events-none absolute -bottom-20 -left-10 h-44 w-44 rounded-full border border-[#f1f1f1]" />
-        <div className="relative mx-auto flex max-w-2xl flex-col items-center">
-          <div className="relative grid h-20 w-28 place-items-center text-foreground">
-            <div className="absolute bottom-2 h-12 w-24 rounded-t-[48px] border-x border-t border-[#d9d9d9]" />
-            <div className="absolute bottom-1 left-9 h-11 w-11 rounded-full border-[3px] border-foreground bg-white" />
-            <div className="absolute bottom-1 left-[3.65rem] h-11 w-11 rounded-full border-[3px] border-foreground bg-white" />
-            <FlowerLotus
-              size={22}
-              weight="thin"
-              className="absolute -top-1 right-2 text-[#777777]"
-            />
-            <Sparkle size={16} weight="thin" className="absolute left-1 top-2 text-[#777777]" />
+      <header className="rounded-[28px] border border-[#eaeaea] bg-[#f6f6f6] px-6 py-7 shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_6px_20px_rgb(15_23_42_/_0.04)] sm:px-9 sm:py-9">
+        <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
+          <div>
+            <div className="eyebrow">Wedding Workspace</div>
+            <h2
+              id="plan-ready-title"
+              className="display mt-3 max-w-xl text-3xl text-foreground sm:text-4xl"
+            >
+              Everything is ready for your wedding.
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
+              We&apos;ve prepared your personalized planning workspace based on your wedding
+              details. Everything below is editable as your plans evolve.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {[
+                setup.weddingType || "Wedding celebration",
+                setup.location || "Location to be decided",
+                `${setup.guests} Guests`,
+                formattedDate,
+                "14 Month Planning",
+              ].map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-full border border-[#e2e2e2] bg-white px-3 py-1.5 text-xs text-[#555555]"
+                >
+                  {chip}
+                </span>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={onFinish}
+              className="mt-7 inline-flex h-10 items-center justify-center rounded-[14px] bg-primary px-4 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-black active:scale-[0.98]"
+            >
+              Continue Planning
+            </button>
           </div>
-          <div className="eyebrow mt-2">Your first plan</div>
-          <h2 id="plan-ready-title" className="display mt-3 text-3xl text-foreground sm:text-5xl">
-            Your Wedding Plan is Ready
-          </h2>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-            We&apos;ve prepared your personalized wedding workspace based on your preferences.
-            Everything below is only a starting point—you can customize every detail anytime.
-          </p>
+          <div className="border-t border-[#e3e3e3] pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <div className="text-xs font-medium text-[#777777]">Workspace status</div>
+            <div className="mt-4 space-y-3">
+              {workspaceStatus.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="flex items-center gap-3 text-sm text-[#444444]">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-[#333333]">
+                      <Icon size={15} weight="regular" />
+                    </span>
+                    {item.label}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </header>
 
@@ -783,30 +822,58 @@ function PlanReadyPreview({
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[24px] border border-[#ececec] bg-[#111111] p-6 text-white shadow-[0_1px_2px_rgb(15_23_42_/_0.08),0_10px_30px_rgb(15_23_42_/_0.12)] sm:p-8">
-          <div className="absolute -right-8 -top-10 h-52 w-52 rounded-full border border-white/10" />
-          <div className="absolute -right-2 top-6 h-40 w-40 rounded-full border border-white/10" />
-          <div className="relative flex h-full flex-col justify-between">
-            <div className="flex items-center justify-between gap-4 text-white/60">
-              <span className="eyebrow text-white/55">Estimated Total Budget</span>
-              <Wallet size={22} weight="thin" />
-            </div>
-            <div className="relative mt-14">
-              <div className="absolute -left-5 -top-10 h-32 w-32 rounded-full border border-white/10" />
-              <div className="display relative text-4xl tracking-[-0.04em] sm:text-5xl">
-                {formatIDR(estimatedBudget)}
+        <div className="rounded-[24px] border border-[#eaeaea] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-8">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-[#222222]">Estimated Budget</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                A working estimate for your planning workspace
               </div>
-              <p className="relative mt-4 max-w-md text-sm leading-6 text-white/60">
-                This estimate is calculated based on your wedding location, guest count, wedding
-                style, and planning preferences.
-              </p>
             </div>
-            <div className="relative mt-10 border-t border-white/15 pt-4 text-xs text-white/55">
-              {setup.budgetChoice === "yes"
-                ? "Based on the budget you shared."
-                : "A starting estimate you can refine anytime."}
+            <Wallet size={22} weight="regular" className="text-[#555555]" />
+          </div>
+          <div className="mt-8 display text-4xl tracking-[-0.04em] text-foreground sm:text-5xl">
+            {formatIDR(estimatedBudget)}
+          </div>
+          <div className="mt-7">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Estimated range</span>
+              <span className="tabular-nums">{formatIDR(budgetCeiling)}</span>
+            </div>
+            <div className="relative mt-4 h-1.5 rounded-full bg-[#eeeeee]">
+              <div className="absolute left-0 top-0 h-full w-full rounded-full bg-[#d8d8d8]" />
+              <span className="absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#111111] shadow-[0_1px_3px_rgb(0_0_0_/_0.18)]" />
+            </div>
+            <div className="mt-2 flex justify-between text-xs tabular-nums text-[#777777]">
+              <span>{formatIDR(budgetFloor)}</span>
+              <span>{formatIDR(budgetCeiling)}</span>
             </div>
           </div>
+          <p className="mt-6 text-sm leading-6 text-muted-foreground">
+            Based on your wedding location, guest count, wedding style, and planning duration.
+          </p>
+          <div className="mt-7 grid gap-4 border-t border-[#f1f1f1] pt-5 sm:grid-cols-2">
+            <BudgetInfoItem
+              icon={<MapPin size={17} />}
+              label="Location"
+              value={setup.location || "To be decided"}
+            />
+            <BudgetInfoItem
+              icon={<UsersThree size={17} />}
+              label="Guests"
+              value={`${setup.guests} Guests`}
+            />
+            <BudgetInfoItem
+              icon={<Notebook size={17} />}
+              label="Style"
+              value={setup.weddingType || "Wedding celebration"}
+            />
+            <BudgetInfoItem icon={<Clock size={17} />} label="Timeline" value="14 Months" />
+          </div>
+          <p className="mt-6 border-t border-[#f1f1f1] pt-4 text-xs leading-5 text-muted-foreground">
+            This estimate becomes more accurate as you add vendors, expenses, and update your
+            planning details.
+          </p>
         </div>
       </section>
 
@@ -964,6 +1031,18 @@ function OverviewItem({ icon, label, value }: { icon: ReactNode; label: string; 
       <div className="min-w-0 flex-1">
         <div className="text-xs text-muted-foreground">{label}</div>
         <div className="mt-0.5 truncate text-sm text-[#222222]">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function BudgetInfoItem({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2.5">
+      <span className="text-[#666666]">{icon}</span>
+      <div className="min-w-0">
+        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className="truncate text-sm text-[#333333]">{value}</div>
       </div>
     </div>
   );
