@@ -32,11 +32,7 @@ function Settings() {
   return (
     <AppLayout eyebrow="Workspace" title="Settings">
       <div className="mx-auto max-w-3xl">
-        <nav
-          className="panel p-1 flex gap-1 text-sm"
-          role="tablist"
-          aria-label="Settings sections"
-        >
+        <nav className="panel p-1 flex gap-1 text-sm" role="tablist" aria-label="Settings sections">
           {(["Event", "Collaborators"] as Section[]).map((s) => (
             <button
               key={s}
@@ -82,7 +78,6 @@ function EventDetailsPanel() {
       adat: eventData.adat,
       brideName: eventData.brideName,
       groomName: eventData.groomName,
-      officiantName: eventData.officiantName,
       guestEstimate: Number.isNaN(guestEstimate) ? eventData.guestEstimate : guestEstimate,
       budget: Number.isNaN(budget) ? eventData.budget : budget,
     };

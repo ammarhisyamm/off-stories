@@ -7,7 +7,6 @@ export type BudgetChoice = "yes" | "no" | "";
 export type SetupState = {
   partnerOneName: string;
   partnerTwoName: string;
-  officiantName: string;
   weddingDate: string;
   location: string;
   guests: number;
@@ -83,7 +82,6 @@ export const adatOptions = [
 export const blankSetup: SetupState = {
   partnerOneName: "",
   partnerTwoName: "",
-  officiantName: "",
   weddingDate: "",
   location: "",
   guests: 250,
@@ -190,7 +188,6 @@ export function smartData(setup: SetupState) {
       adat: setup.adat,
       brideName: setup.partnerOneName,
       groomName: setup.partnerTwoName,
-      officiantName: setup.officiantName,
       guestEstimate: setup.guests,
       budget,
     },

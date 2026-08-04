@@ -42,7 +42,6 @@ export type EventData = typeof emptyEvent & {
   adat?: string;
   brideName?: string;
   groomName?: string;
-  officiantName?: string;
 };
 
 export type WorkspaceData = {

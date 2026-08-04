@@ -174,6 +174,11 @@ function Dashboard() {
       ) : showOnboarding ? (
         <DashboardOnboarding
           setKind={setKind}
+          onClose={() => {
+            getBrowserStorage("session").removeItem("offstories-onboarding-preview");
+            setOnboardingPreview(false);
+            setOnboardingComplete(true);
+          }}
           onComplete={() => {
             getBrowserStorage("session").removeItem("offstories-onboarding-preview");
             setOnboardingPreview(false);

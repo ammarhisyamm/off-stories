@@ -194,13 +194,6 @@ export function PlanReadyPreview({
                 value={[setup.partnerOneName, setup.partnerTwoName].filter(Boolean).join(" & ")}
               />
             )}
-            {setup.officiantName && (
-              <OverviewItem
-                icon={<UserCircleGear size={19} />}
-                label="Penghulu"
-                value={setup.officiantName}
-              />
-            )}
             <OverviewItem
               icon={<UsersThree size={19} />}
               label="Estimated Guests"

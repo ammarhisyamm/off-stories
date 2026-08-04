@@ -22,6 +22,7 @@ import { PlanReadyPreview } from "./onboarding/plan-ready-preview";
 export function DashboardOnboarding({
   setKind,
   onComplete,
+  onClose,
 }: {
   setKind: (
     kind: "event" | "tasks" | "budget" | "vendors" | "milestones",
@@ -29,6 +30,7 @@ export function DashboardOnboarding({
     opts?: { success?: string | null },
   ) => void;
   onComplete: () => void;
+  onClose: () => void;
 }) {
   const [mode, setMode] = useState<SetupMode | null>(null);
   const [stage, setStage] = useState<1 | 2 | 3>(1);
@@ -61,7 +63,6 @@ export function DashboardOnboarding({
           location: "",
           brideName: setup.partnerOneName,
           groomName: setup.partnerTwoName,
-          officiantName: setup.officiantName,
           guestEstimate: 0,
           budget: 0,
         },
@@ -158,15 +159,6 @@ export function DashboardOnboarding({
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-medium">Nama penghulu</span>
-              <input
-                value={setup.officiantName}
-                onChange={(event) => onUpdate({ officiantName: event.target.value })}
-                placeholder="Contoh: Ustaz Ahmad"
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              />
-            </label>
-            <label className="block">
               <span className="mb-2 block text-sm font-medium">Tanggal akad / pernikahan</span>
               <input
                 type="date"
@@ -239,6 +231,7 @@ export function DashboardOnboarding({
               ? "smart-setup-title"
               : "plan-ready-title"
         }
+        onClose={onClose}
       >
         {currentPage}
       </OnboardingModal>

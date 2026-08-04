@@ -1,16 +1,34 @@
 import type { ReactNode } from "react";
-import { Check } from "@phosphor-icons/react";
+import { Check, X } from "@phosphor-icons/react";
 import { createPortal } from "react-dom";
 
-export function OnboardingModal({ children, titleId }: { children: ReactNode; titleId: string }) {
+export function OnboardingModal({
+  children,
+  titleId,
+  onClose,
+}: {
+  children: ReactNode;
+  titleId: string;
+  onClose?: () => void;
+}) {
   const modal = (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#fafafa] sm:flex sm:items-center sm:justify-center sm:bg-[#111111]/20 sm:p-4 sm:backdrop-blur-[2px]">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="onboarding-dialog min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-[#fafafa] p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-[#e8e8e8] sm:p-7 sm:shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] lg:p-10"
+        className="onboarding-dialog relative min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-[#fafafa] p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-[#e8e8e8] sm:p-7 sm:shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] lg:p-10"
       >
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close onboarding"
+            className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full border border-[#e6e6e6] bg-white text-muted-foreground shadow-[0_1px_2px_rgb(15_23_42_/_0.04)] transition-colors hover:bg-[#f6f6f6] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:right-6 sm:top-6"
+          >
+            <X size={17} />
+          </button>
+        )}
         {children}
       </div>
     </div>
