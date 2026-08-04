@@ -20,6 +20,14 @@ export interface BudgetItem {
   committed: number;
   status: "paid" | "partial" | "due" | "planned";
   dueDate?: string;
+  payments?: BudgetPayment[];
+}
+
+export interface BudgetPayment {
+  id: string;
+  amount: number;
+  date: string;
+  note?: string;
 }
 
 export interface Vendor {

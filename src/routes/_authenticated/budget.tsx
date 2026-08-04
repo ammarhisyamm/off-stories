@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
+import { AddPaymentModal } from "@/components/add-payment-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { formatIDR, type BudgetItem } from "@/lib/types";
+import { formatIDR, type BudgetItem, type BudgetPayment } from "@/lib/types";
 import { CurrencyDollar } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/budget")({
@@ -26,6 +27,7 @@ function Budget() {
   const wedding = data.event;
   const [editing, setEditing] = useState<BudgetItem | null>(null);
   const [viewing, setViewing] = useState<BudgetItem | null>(null);
+  const [paymentTarget, setPaymentTarget] = useState<BudgetItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const total = wedding.budget;
   const paid = items.reduce((s, b) => s + b.paid, 0);
@@ -60,6 +62,25 @@ function Budget() {
 
   function openView(item: BudgetItem) {
     setViewing(item);
+  }
+
+  function handleSavePayment(payment: BudgetPayment) {
+    if (!paymentTarget) return;
+    const previousPayments = paymentTarget.payments ?? [];
+    const payments = [...previousPayments, payment];
+    const legacyPaid = previousPayments.length === 0 ? paymentTarget.paid : 0;
+    const paid = legacyPaid + payments.reduce((sum, entry) => sum + entry.amount, 0);
+    const status: BudgetItem["status"] =
+      paid >= paymentTarget.amount
+        ? "paid"
+        : paid > 0
+          ? "partial"
+          : paymentTarget.status === "planned"
+            ? "planned"
+            : "due";
+    handleSave({ ...paymentTarget, paid, payments, status });
+    setPaymentTarget(null);
+    setViewing(null);
   }
 
   return (
@@ -231,7 +252,65 @@ function Budget() {
                 : "—"
             }
           />
+          <div className="border-t border-border pt-4 mt-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="eyebrow">Payment history</div>
+                <div className="text-sm text-foreground mt-1">
+                  {viewing.payments?.length ?? 0} recorded payments
+                </div>
+              </div>
+              {viewing.paid < viewing.amount && (
+                <QuietButton
+                  variant="primary"
+                  type="button"
+                  onClick={() => {
+                    setPaymentTarget(viewing);
+                    setViewing(null);
+                  }}
+                >
+                  Record payment
+                </QuietButton>
+              )}
+            </div>
+            {viewing.payments && viewing.payments.length > 0 ? (
+              <ul className="mt-4 space-y-3">
+                {viewing.payments
+                  .slice()
+                  .sort((a, b) => +new Date(b.date) - +new Date(a.date))
+                  .map((payment) => (
+                    <li
+                      key={payment.id}
+                      className="flex items-start justify-between gap-3 rounded-xl bg-secondary px-3 py-2.5"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-sm text-foreground">{formatIDR(payment.amount)}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(payment.date).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                          {payment.note ? ` · ${payment.note}` : ""}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">
+                No payment history yet. Record a payment when the first deposit is made.
+              </p>
+            )}
+          </div>
         </ViewModal>
+      )}
+      {paymentTarget && (
+        <AddPaymentModal
+          remaining={Math.max(0, paymentTarget.amount - paymentTarget.paid)}
+          onClose={() => setPaymentTarget(null)}
+          onSave={handleSavePayment}
+        />
       )}
       {isModalOpen && (
         <AddExpenseModal

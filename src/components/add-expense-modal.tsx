@@ -45,6 +45,7 @@ export function AddExpenseModal({
       committed: amount,
       status: (status || "planned") as BudgetItem["status"],
       dueDate: (form.get("dueDate") as string) || undefined,
+      payments: initial?.payments,
     });
   }
 
