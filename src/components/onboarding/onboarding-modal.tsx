@@ -4,12 +4,12 @@ import { createPortal } from "react-dom";
 
 export function OnboardingModal({ children, titleId }: { children: ReactNode; titleId: string }) {
   const modal = (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#111111]/20 p-2 backdrop-blur-[2px] sm:items-center sm:p-4">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#fafafa] sm:flex sm:items-center sm:justify-center sm:bg-[#111111]/20 sm:p-4 sm:backdrop-blur-[2px]">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="my-2 max-h-[calc(100dvh-16px)] w-full min-w-0 max-w-6xl overflow-x-hidden overflow-y-auto overscroll-contain rounded-[24px] border border-[#e8e8e8] bg-[#fafafa] p-4 shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] sm:my-4 sm:max-h-[calc(100dvh-32px)] sm:rounded-[28px] sm:p-7 lg:p-10"
+        className="min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-[#fafafa] p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-[#e8e8e8] sm:p-7 sm:shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] lg:p-10"
       >
         {children}
       </div>
