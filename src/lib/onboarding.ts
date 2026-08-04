@@ -10,6 +10,7 @@ export type SetupState = {
   budgetChoice: BudgetChoice;
   budget: string;
   weddingType: string;
+  adat: string;
   organizer: "yes" | "no" | "";
 };
 
@@ -36,11 +37,43 @@ export const locations = [
 ];
 
 export const weddingTypes = [
-  { label: "Traditional Wedding", icon: "notebook" },
-  { label: "Modern Wedding", icon: "sparkle" },
-  { label: "Intimate Wedding", icon: "users-three" },
-  { label: "Outdoor Wedding", icon: "map-pin" },
-  { label: "Destination Wedding", icon: "calendar-check" },
+  {
+    label: "Traditional Wedding",
+    icon: "notebook",
+    description: "A celebration shaped by family traditions, ceremony, and cultural details.",
+  },
+  {
+    label: "Modern Wedding",
+    icon: "sparkle",
+    description: "A contemporary celebration with a flexible, personal flow.",
+  },
+  {
+    label: "Intimate Wedding",
+    icon: "users-three",
+    description: "A smaller gathering focused on meaningful moments with close people.",
+  },
+  {
+    label: "Outdoor Wedding",
+    icon: "map-pin",
+    description: "A venue-led celebration with weather, logistics, and guest comfort in mind.",
+  },
+  {
+    label: "Destination Wedding",
+    icon: "calendar-check",
+    description: "A celebration away from home with travel and guest coordination included.",
+  },
+] as const;
+
+export const adatOptions = [
+  "No specific adat yet",
+  "Javanese",
+  "Sundanese",
+  "Batak",
+  "Minang",
+  "Balinese",
+  "Betawi",
+  "Chinese Indonesian",
+  "Other",
 ] as const;
 
 export const blankSetup: SetupState = {
@@ -49,6 +82,7 @@ export const blankSetup: SetupState = {
   budgetChoice: "",
   budget: "",
   weddingType: "",
+  adat: "No specific adat yet",
   organizer: "",
 };
 
@@ -143,6 +177,7 @@ export function smartData(setup: SetupState) {
       type: setup.weddingType,
       date,
       location: setup.location,
+      adat: setup.adat,
       guestEstimate: setup.guests,
       budget,
     },

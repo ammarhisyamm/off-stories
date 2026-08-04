@@ -9,7 +9,7 @@ export function OnboardingModal({ children, titleId }: { children: ReactNode; ti
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-[#fafafa] p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-[#e8e8e8] sm:p-7 sm:shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] lg:p-10"
+        className="onboarding-dialog min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-[#fafafa] p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-[#e8e8e8] sm:p-7 sm:shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] lg:p-10"
       >
         {children}
       </div>

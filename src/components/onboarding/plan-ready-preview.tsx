@@ -113,6 +113,7 @@ export function PlanReadyPreview({
             <div className="mt-6 flex flex-wrap gap-2">
               {[
                 setup.weddingType || "Wedding celebration",
+                ...(setup.adat && setup.adat !== "No specific adat yet" ? [setup.adat] : []),
                 setup.location || "Location to be decided",
                 `${setup.guests} Guests`,
                 formattedDate,
@@ -166,6 +167,13 @@ export function PlanReadyPreview({
               label="Wedding Style"
               value={setup.weddingType || "Wedding celebration"}
             />
+            {setup.adat && setup.adat !== "No specific adat yet" && (
+              <OverviewItem
+                icon={<FlowerLotus size={19} />}
+                label="Cultural Tradition"
+                value={setup.adat}
+              />
+            )}
             <OverviewItem
               icon={<MapPin size={19} />}
               label="Wedding Location"

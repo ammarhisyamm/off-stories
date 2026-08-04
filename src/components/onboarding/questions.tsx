@@ -1,5 +1,5 @@
 import { CalendarCheck, MapPin, Notebook, Sparkle, UsersThree } from "@phosphor-icons/react";
-import { locations, weddingTypes, type SetupState } from "@/lib/onboarding";
+import { adatOptions, locations, weddingTypes, type SetupState } from "@/lib/onboarding";
 import { QuestionShell } from "./onboarding-modal";
 
 const typeIcons = {
@@ -103,7 +103,7 @@ export function BudgetStep({
       <div className="mt-8 space-y-3">
         {[
           { value: "yes" as const, label: "Yes, I know my budget" },
-          { value: "no" as const, label: "I&apos;m not sure yet" },
+          { value: "no" as const, label: "I'm not sure yet" },
         ].map((option) => (
           <button
             key={option.value}
@@ -124,7 +124,7 @@ export function BudgetStep({
       </div>
       {setup.budgetChoice === "yes" && (
         <label className="mt-6 block">
-          <span className="mb-2 block text-sm font-medium">Your budget</span>
+          <span className="mb-2 block text-sm font-medium">Your estimated wedding budget</span>
           <div className="relative">
             <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-sm text-muted-foreground">
               Rp
@@ -157,22 +157,48 @@ export function WeddingTypeStep({
   return (
     <QuestionShell question={4} onBack={onBack} onNext={onNext} disabled={!setup.weddingType}>
       <h3 className="display text-2xl">What type of wedding are you planning?</h3>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">
+        Choose the closest starting point. You can combine styles and adjust the plan later.
+      </p>
       <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2">
-        {weddingTypes.map(({ label, icon }) => {
+        {weddingTypes.map(({ label, icon, description }) => {
           const Icon = typeIcons[icon];
           return (
             <button
               key={label}
               type="button"
               onClick={() => onUpdate({ weddingType: label })}
-              className={`flex items-center gap-3 rounded-[14px] border px-4 py-3.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.weddingType === label ? "border-foreground bg-[#f6f6f6]" : "border-border hover:bg-[#fafafa]"}`}
+              className={`flex items-start gap-3 rounded-[14px] border px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.weddingType === label ? "border-foreground bg-[#f6f6f6]" : "border-border hover:bg-[#fafafa]"}`}
             >
-              <Icon size={20} />
-              {label}
+              <Icon size={20} className="mt-0.5 shrink-0" />
+              <span className="min-w-0">
+                <span className="block text-sm font-medium text-foreground">{label}</span>
+                <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                  {description}
+                </span>
+              </span>
             </button>
           );
         })}
       </div>
+      <label className="mt-6 block">
+        <span className="mb-2 block text-sm font-medium">
+          Is there a cultural tradition to include?
+        </span>
+        <select
+          value={setup.adat}
+          onChange={(event) => onUpdate({ adat: event.target.value })}
+          className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+        >
+          {adatOptions.map((adat) => (
+            <option key={adat}>{adat}</option>
+          ))}
+        </select>
+        <span className="mt-2 block text-xs leading-5 text-muted-foreground">
+          This helps us prepare a more relevant checklist. It is completely optional and can be
+          changed later.
+        </span>
+      </label>
     </QuestionShell>
   );
 }

@@ -39,6 +39,7 @@ export const emptyEvent = {
 export type EventData = typeof emptyEvent & {
   savingsTarget?: number;
   savingsSaved?: number;
+  adat?: string;
 };
 
 export type WorkspaceData = {
