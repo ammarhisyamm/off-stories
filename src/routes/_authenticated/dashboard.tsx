@@ -74,6 +74,7 @@ function Dashboard() {
   const hasEvent = Boolean(event.date && event.name);
   const showOnboarding = !loading && ((!hasEvent && !onboardingComplete) || onboardingPreview);
   const days = hasEvent ? daysUntil(event.date) : null;
+  const eventDatePassed = hasEvent && new Date(`${event.date}T23:59:59`) < new Date();
   const done = tasks.filter((t) => t.status === "done").length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
   const totalBudget = event.budget;
@@ -81,6 +82,7 @@ function Dashboard() {
   const committed = budgetItems.reduce((s, b) => s + b.committed, 0);
   const remaining = totalBudget - committed;
   const budgetPct = totalBudget ? Math.round((committed / totalBudget) * 100) : 0;
+  const isOverBudget = totalBudget > 0 && committed > totalBudget;
   const vendorsBooked = vendors.filter((v) => v.status === "booked").length;
   const vendorsPending = vendors.filter(
     (v) => v.status !== "booked" && v.status !== "cancelled",
@@ -106,7 +108,11 @@ function Dashboard() {
     .sort((a, b) => +new Date(a.dueDate!) - +new Date(b.dueDate!))
     .slice(0, 3);
 
-  const nextMilestones = milestones.filter((m) => !m.done).slice(0, 4);
+  const nextMilestones = [...milestones]
+    .filter((m) => !m.done)
+    .sort((a, b) => +new Date(a.date) - +new Date(b.date))
+    .slice(0, 4);
+  const recentNotes = [...notes].sort((a, b) => +new Date(b.date) - +new Date(a.date)).slice(0, 3);
 
   function handleSaveTask(task: Task) {
     const exists = tasks.some((t) => t.id === task.id);
@@ -137,9 +143,11 @@ function Dashboard() {
           : showOnboarding
             ? "Set up your wedding"
             : hasEvent
-              ? days !== null
-                ? `${days} days to ${event.name}`
-                : event.name
+              ? eventDatePassed
+                ? `${event.name} · Wedding date passed`
+                : days !== null
+                  ? `${days} days to ${event.name}`
+                  : event.name
               : "Set up your event"
       }
       actions={
@@ -183,20 +191,27 @@ function Dashboard() {
               value={`${progress}%`}
               sub={`${done} of ${tasks.length} tasks done`}
               featured
+              href="/checklist"
             >
               <ProgressBar value={progress} />
             </SummaryCard>
             <SummaryCard
-              label="Budget health"
-              value={formatIDR(remaining)}
-              sub={`${formatIDR(spent)} paid · ${formatIDR(committed)} committed`}
+              label={isOverBudget ? "Over budget" : "Budget remaining"}
+              value={formatIDR(Math.abs(remaining))}
+              sub={
+                isOverBudget
+                  ? `${formatIDR(committed - totalBudget)} over committed budget`
+                  : `${formatIDR(spent)} paid · ${formatIDR(committed)} committed`
+              }
+              href="/budget"
             >
-              <ProgressBar value={budgetPct} tone="taupe" />
+              <ProgressBar value={budgetPct} tone={isOverBudget ? "rose" : "taupe"} />
             </SummaryCard>
             <SummaryCard
               label="Vendors"
               value={`${vendorsBooked} booked`}
               sub={`${vendorsPending} in review`}
+              href="/vendors"
             >
               <div className="mt-3 flex gap-1.5">
                 {vendors.slice(0, 6).map((v) => (
@@ -212,6 +227,7 @@ function Dashboard() {
               label="Guests confirmed"
               value={`${confirmed}`}
               sub={`${invitedPax} invited · target ${event.guestEstimate}`}
+              href="/guests"
             >
               <ProgressBar value={confirmedPct} tone="sage" />
             </SummaryCard>
@@ -273,7 +289,7 @@ function Dashboard() {
                         </button>
                         <Pill tone={overdue || d <= 7 ? "warn" : "neutral"}>
                           {overdue
-                            ? "Overdue"
+                            ? `Overdue by ${Math.max(1, Math.ceil((today.getTime() - new Date(`${t.due}T00:00:00`).getTime()) / 86400000))}d`
                             : d === 0
                               ? "Today"
                               : d === 1
@@ -384,7 +400,7 @@ function Dashboard() {
               </div>
               {notes.length > 0 ? (
                 <ul className="space-y-4">
-                  {notes.slice(0, 3).map((n) => (
+                  {recentNotes.map((n) => (
                     <li key={n.id}>
                       <div className="flex items-center gap-2 mb-1">
                         <Pill tone="sage">{n.tag}</Pill>
@@ -552,16 +568,18 @@ function SummaryCard({
   sub,
   children,
   featured = false,
+  href,
 }: {
   label: string;
   value: string;
   sub: string;
   children?: React.ReactNode;
   featured?: boolean;
+  href: "/checklist" | "/budget" | "/vendors" | "/guests";
 }) {
-  return (
+  const content = (
     <div
-      className={`panel dashboard-metric p-5 ${featured ? "border-[#d9d9d9] bg-[#f6f6f4] sm:p-6" : ""}`}
+      className={`panel dashboard-metric p-5 transition duration-150 hover:border-[#d9d9d9] ${featured ? "border-[#d9d9d9] bg-[#f6f6f4] sm:p-6" : ""}`}
     >
       <div className="eyebrow">{label}</div>
       <div
@@ -573,13 +591,41 @@ function SummaryCard({
       {children}
     </div>
   );
+  return (
+    <Link
+      to={href}
+      aria-label={`${label}: ${value}. Open ${label.toLowerCase()}`}
+      className="block rounded-[6px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]"
+    >
+      {content}
+    </Link>
+  );
 }
 
-function ProgressBar({ value, tone = "sage" }: { value: number; tone?: "sage" | "taupe" }) {
-  const color = tone === "sage" ? "bg-sage" : "bg-[color:var(--taupe)]";
+function ProgressBar({
+  value,
+  tone = "sage",
+}: {
+  value: number;
+  tone?: "sage" | "taupe" | "rose";
+}) {
+  const color =
+    tone === "sage"
+      ? "bg-sage"
+      : tone === "rose"
+        ? "bg-[color:var(--rose)]"
+        : "bg-[color:var(--taupe)]";
+  const normalizedValue = Math.min(100, Math.max(0, value));
   return (
-    <div className="mt-3 h-1.5 w-full rounded-full bg-secondary overflow-hidden">
-      <div className={`h-full ${color}`} style={{ width: `${Math.min(100, value)}%` }} />
+    <div
+      className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary"
+      role="progressbar"
+      aria-label="Progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={normalizedValue}
+    >
+      <div className={`h-full ${color}`} style={{ width: `${normalizedValue}%` }} />
     </div>
   );
 }
