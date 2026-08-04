@@ -320,11 +320,15 @@
   .sidebar-icon.is-drawing circle {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    animation: sidebar-icon-draw 0.6s var(--ease-gentle) both;
-    animation-delay: calc(var(--i, 0) * 55ms);
+    animation: sidebar-icon-draw 0.46s var(--ease-gentle) both;
+    animation-delay: calc(var(--i, 0) * 28ms);
   }
   @keyframes sidebar-icon-draw {
+    0% {
+      opacity: 0.45;
+    }
     to {
+      opacity: 1;
       stroke-dashoffset: 0;
     }
   }
@@ -332,16 +336,20 @@
     position: relative;
     transition:
       background-color 180ms ease-out,
+      border-color 180ms ease-out,
+      box-shadow 180ms ease-out,
       color 180ms ease-out;
   }
   .sidebar-nav-link .sidebar-icon {
-    transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition:
+      transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 180ms ease-out;
   }
   .sidebar-nav-link:hover .sidebar-icon {
-    transform: scale(1.05);
+    transform: translateY(-1px) scale(1.04);
   }
   .sidebar-nav-link:active .sidebar-icon {
-    transform: scale(0.96);
+    transform: translateY(0) scale(0.96);
   }
   .sidebar-nav-label {
     transition:
@@ -351,35 +359,6 @@
   }
   .sidebar-nav-link:hover .sidebar-nav-label {
     transform: translateX(2px);
-  }
-  .sidebar-active-bar {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 3px;
-    height: 55%;
-    border-radius: 0 3px 3px 0;
-    background: var(--color-sage);
-    transform: translateY(-50%) scaleY(0.4);
-    opacity: 0;
-    transition:
-      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 200ms ease-out;
-  }
-  .sidebar-nav-link.is-active .sidebar-active-bar {
-    transform: translateY(-50%) scaleY(1);
-    opacity: 1;
-  }
-  .sidebar-badge {
-    animation: sidebar-badge-pop 240ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  }
-  @keyframes sidebar-badge-pop {
-    0% {
-      transform: scale(0);
-    }
-    100% {
-      transform: scale(1);
-    }
   }
   .page-stagger > * {
     animation: page-stagger-in 200ms ease-out both;
