@@ -240,7 +240,7 @@ function Dashboard() {
 
           {/* Priority area */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-            <div className="panel p-6 lg:col-span-2">
+            <div className="panel editorial-panel p-6 lg:col-span-2">
               <div className="flex items-baseline justify-between mb-5">
                 <div>
                   <div className="eyebrow">Needs attention</div>
@@ -312,7 +312,7 @@ function Dashboard() {
               )}
             </div>
 
-            <div className="panel p-6">
+            <div className="panel editorial-panel p-6">
               <div className="eyebrow">Payments due</div>
               <h2 className="serif text-xl mt-1 mb-5 text-balance">Upcoming</h2>
               {upcomingPayments.length > 0 ? (
@@ -350,7 +350,7 @@ function Dashboard() {
 
           {/* Lower detail */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="panel p-6 lg:col-span-2">
+            <div className="panel editorial-panel p-6 lg:col-span-2">
               <div className="flex items-baseline justify-between mb-5">
                 <div>
                   <div className="eyebrow">Timeline</div>
@@ -390,7 +390,7 @@ function Dashboard() {
               )}
             </div>
 
-            <div className="panel p-6">
+            <div className="panel editorial-panel p-6">
               <div className="flex items-baseline justify-between mb-5">
                 <div>
                   <div className="eyebrow">Decision log</div>
@@ -584,11 +584,11 @@ function SummaryCard({
 }) {
   const content = (
     <div
-      className={`panel dashboard-metric p-5 transition duration-150 hover:border-[#d9d9d9] ${featured ? "border-[#d9d9d9] bg-[#f6f6f4] sm:p-6" : ""}`}
+      className={`panel editorial-panel dashboard-metric p-5 ${featured ? "bg-surface-2 sm:p-6" : ""}`}
     >
       <div className="eyebrow">{label}</div>
       <div
-        className={`display mt-3 text-foreground tabular-nums ${featured ? "text-3xl" : "text-2xl"}`}
+        className={`editorial-value mt-3 text-foreground tabular-nums ${featured ? "text-4xl" : "text-3xl"}`}
       >
         {value}
       </div>

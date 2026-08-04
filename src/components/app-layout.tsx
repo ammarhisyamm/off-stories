@@ -274,7 +274,7 @@ export function AppLayout({
 
       <main className="flex-1 min-w-0">
         {/* Mobile top bar */}
-        <div className="md:hidden border-b border-border bg-white/85 backdrop-blur-md sticky top-0 z-20">
+        <div className="md:hidden border-b border-border bg-background/90 backdrop-blur-md sticky top-0 z-20">
           <div className="px-4 py-3 flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
@@ -296,18 +296,18 @@ export function AppLayout({
           </div>
         </div>
 
-        <header className="border-b border-border bg-white/85 backdrop-blur-md md:sticky md:top-0 z-10">
+        <header className="border-b border-border bg-background/90 backdrop-blur-md md:sticky md:top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5 sm:flex sm:flex-wrap sm:justify-between">
             <div className="min-w-0">
               {eyebrow && <div className="eyebrow mb-2 truncate">{eyebrow}</div>}
-              <h1 className="display text-2xl md:text-4xl text-foreground truncate sm:whitespace-normal">
+              <h1 className="display text-3xl md:text-5xl text-foreground truncate sm:whitespace-normal">
                 {title}
               </h1>
             </div>
             {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
           </div>
         </header>
-        <div className="max-w-7xl mx-auto px-4 md:px-10 py-8 md:py-12">
+        <div className="editorial-page max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-14">
           <div
             key={pathname}
             className="page-stagger animate-in fade-in slide-in-from-bottom-2 duration-200 ease-out"
@@ -380,11 +380,11 @@ export function QuietButton({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
   const base =
-    "inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium shadow-[0_1px_2px_rgb(17_24_39_/_0.04)] transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]";
+    "inline-flex items-center gap-2 rounded-[14px] px-4 py-2.5 text-sm font-medium transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:-translate-y-px active:scale-[0.98]";
   const styles =
     variant === "primary"
-      ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/85"
-      : "border border-border bg-surface text-foreground hover:bg-surface-2 active:bg-surface-2";
+      ? "bg-primary text-primary-foreground shadow-[0_4px_14px_rgb(91_14_32_/_0.14)] hover:bg-primary/90 active:bg-primary/85"
+      : "border border-border bg-surface text-foreground hover:border-primary/30 hover:bg-surface-2 active:bg-surface-2";
   return (
     <button {...props} className={`${base} ${styles} ${props.className ?? ""}`}>
       {children}
