@@ -190,8 +190,20 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <NavigationProgress />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
+  );
+}
+
+function NavigationProgress() {
+  const isTransitioning = useRouterState({ select: (state) => state.isTransitioning });
+
+  return (
+    <div
+      aria-hidden="true"
+      className={`navigation-progress ${isTransitioning ? "is-visible" : ""}`}
+    />
   );
 }

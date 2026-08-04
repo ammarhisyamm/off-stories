@@ -67,6 +67,8 @@ function NavList({
           <Link
             key={to}
             to={to}
+            preload="intent"
+            preloadDelay={0}
             onClick={onNavigate}
             className={[
               "sidebar-nav-link flex items-center gap-3 rounded-[14px] border py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
