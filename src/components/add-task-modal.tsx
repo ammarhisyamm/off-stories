@@ -30,6 +30,7 @@ export function AddTaskModal({
       priority: (priority || "medium") as Priority,
       status: initial?.status ?? "todo",
       assignee: (form.get("assignee") as string)?.trim() || undefined,
+      link: (form.get("link") as string)?.trim() || undefined,
     });
   }
 
@@ -94,6 +95,16 @@ export function AddTaskModal({
               </select>
             </label>
           </div>
+          <label className="block">
+            <span className="block text-sm font-medium mb-1.5">Shopping link (optional)</span>
+            <input
+              name="link"
+              type="url"
+              defaultValue={initial?.link}
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              placeholder="https://shopee.co.id/..."
+            />
+          </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Due date</span>

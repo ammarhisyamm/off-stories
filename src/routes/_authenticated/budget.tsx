@@ -6,6 +6,7 @@ import { AddPaymentModal } from "@/components/add-payment-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { formatIDR, type BudgetItem, type BudgetPayment } from "@/lib/types";
+import type { EventData } from "@/lib/data.functions";
 import { CurrencyDollar } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/budget")({
@@ -103,6 +104,8 @@ function Budget() {
           tone={remaining < 0 ? "warn" : "neutral"}
         />
       </div>
+
+      <SavingsPanel event={wedding} onSave={(next) => setKind("event", next)} />
 
       <div className="panel p-6 mb-8">
         <div className="flex items-baseline justify-between mb-4">
@@ -356,5 +359,80 @@ function Legend({ color, label }: { color: string; label: string }) {
       <span className={`h-2 w-2 rounded-full ${color}`} />
       {label}
     </span>
+  );
+}
+
+function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: EventData) => void }) {
+  const [target, setTarget] = useState(event.savingsTarget ?? 0);
+  const [saved, setSaved] = useState(event.savingsSaved ?? 0);
+  const progress = target ? Math.min(100, Math.round((saved / target) * 100)) : 0;
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const nextTarget = Math.max(0, Number(form.get("savingsTarget")) || 0);
+    const nextSaved = Math.max(0, Number(form.get("savingsSaved")) || 0);
+    setTarget(nextTarget);
+    setSaved(nextSaved);
+    onSave({ ...event, savingsTarget: nextTarget, savingsSaved: nextSaved });
+  }
+
+  return (
+    <section className="panel mb-8 p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-xl">
+          <div className="eyebrow">Saving together</div>
+          <h2 className="serif mt-1 text-xl">Build a little headroom for the big day</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Set a savings target separately from your wedding budget and keep track of progress as
+            you go.
+          </p>
+          {target > 0 && (
+            <div className="mt-5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{formatIDR(saved)} saved</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                <div className="h-full rounded-full bg-sage" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
+          )}
+        </div>
+        <form onSubmit={handleSubmit} className="grid w-full gap-3 sm:grid-cols-2 lg:max-w-xl">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              Savings target (IDR)
+            </span>
+            <input
+              name="savingsTarget"
+              type="number"
+              min={0}
+              defaultValue={target || ""}
+              placeholder="e.g. 50000000"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              Saved so far (IDR)
+            </span>
+            <input
+              name="savingsSaved"
+              type="number"
+              min={0}
+              defaultValue={saved || ""}
+              placeholder="e.g. 10000000"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            />
+          </label>
+          <div className="sm:col-span-2 sm:flex sm:justify-end">
+            <QuietButton variant="primary" type="submit">
+              Save savings target
+            </QuietButton>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 }

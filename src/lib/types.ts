@@ -9,6 +9,17 @@ export interface Task {
   priority: Priority;
   status: TaskStatus;
   assignee?: string;
+  link?: string;
+}
+
+export interface RundownItem {
+  id: string;
+  time: string;
+  title: string;
+  location?: string;
+  pic?: string;
+  notes?: string;
+  status: "planned" | "done";
 }
 
 export interface BudgetItem {

@@ -3,7 +3,16 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import type { Task, BudgetItem, Vendor, Guest, Milestone, Note, DocRef } from "@/lib/types";
+import type {
+  Task,
+  BudgetItem,
+  Vendor,
+  Guest,
+  Milestone,
+  Note,
+  DocRef,
+  RundownItem,
+} from "@/lib/types";
 
 export const KINDS = [
   "event",
@@ -14,6 +23,7 @@ export const KINDS = [
   "milestones",
   "notes",
   "documents",
+  "rundown",
 ] as const;
 export type DataKind = (typeof KINDS)[number];
 
@@ -26,8 +36,13 @@ export const emptyEvent = {
   budget: 0,
 };
 
+export type EventData = typeof emptyEvent & {
+  savingsTarget?: number;
+  savingsSaved?: number;
+};
+
 export type WorkspaceData = {
-  event: typeof emptyEvent;
+  event: EventData;
   tasks: Task[];
   budget: BudgetItem[];
   vendors: Vendor[];
@@ -35,6 +50,7 @@ export type WorkspaceData = {
   milestones: Milestone[];
   notes: Note[];
   documents: DocRef[];
+  rundown: RundownItem[];
 };
 
 export function emptyWorkspaceData(): WorkspaceData {
@@ -47,6 +63,7 @@ export function emptyWorkspaceData(): WorkspaceData {
     milestones: [],
     notes: [],
     documents: [],
+    rundown: [],
   };
 }
 
