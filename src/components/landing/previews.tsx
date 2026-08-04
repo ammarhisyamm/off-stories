@@ -75,11 +75,11 @@ function Sidebar({ compact = false }: { compact?: boolean }) {
 
 export function DashboardPreview() {
   return (
-    <div className="overflow-hidden rounded-[6px] border border-border bg-background shadow-browser">
+    <div className="w-full overflow-hidden rounded-[6px] border border-border bg-background shadow-browser sm:rounded-[10px]">
       <div className="flex">
         <Sidebar />
         <div className="min-w-0 flex-1">
-          <div className="border-b border-border px-4 py-3">
+          <div className="border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="eyebrow mb-1 text-[10px]">
               {event.type} · {event.location}
             </div>
@@ -92,7 +92,7 @@ export function DashboardPreview() {
               </span>
             </div>
           </div>
-          <div className="space-y-3 p-4">
+          <div className="space-y-3 p-3 sm:p-4">
             <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
               <SummaryStat
                 label="Planning progress"

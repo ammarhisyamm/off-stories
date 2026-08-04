@@ -145,6 +145,12 @@ function LandingHeader({ hasSession }: { hasSession: boolean }) {
           >
             How it works
           </a>
+          <a
+            href="#faq"
+            className="rounded-lg px-3 py-1.5 transition-colors hover:bg-surface-2 hover:text-foreground"
+          >
+            FAQ
+          </a>
         </nav>
         <div className="flex items-center gap-2">
           <Link
@@ -154,7 +160,7 @@ function LandingHeader({ hasSession }: { hasSession: boolean }) {
             Sign in
           </Link>
           <CTAButton to={hasSession ? "/dashboard" : "/auth"}>
-            {hasSession ? "Open dashboard" : "Get started"}
+            {hasSession ? "Open dashboard" : "Start planning for free"}
           </CTAButton>
         </div>
       </div>
@@ -207,7 +213,7 @@ function Hero({ hasSession }: { hasSession: boolean }) {
           </p>
           <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:270ms] mt-9 flex flex-wrap items-center justify-start gap-3">
             <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
-              {hasSession ? "Open your dashboard" : "Get started"}
+              {hasSession ? "Open your dashboard" : "Start planning for free"}
             </CTAButton>
             <a
               href="#features"
@@ -216,6 +222,11 @@ function Hero({ hasSession }: { hasSession: boolean }) {
               See the workspace
             </a>
           </div>
+          {!hasSession && (
+            <p className="mt-4 text-xs text-muted-foreground">
+              Free to start · No credit card required
+            </p>
+          )}
         </div>
         <div className="mt-12 w-full max-w-4xl sm:mt-16">
           <ProductPreview className="animate-in fade-in-0 slide-in-from-bottom-2 duration-700 ease-out [animation-delay:420ms]">
@@ -327,8 +338,8 @@ function Showcase() {
         </Reveal>
         <Reveal delay={120}>
           <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Five modules that fit together like a well-run wedding: each simple alone, effortless
-            together.
+            Four core modules that fit together like a well-run wedding: each simple alone,
+            effortless together.
           </p>
         </Reveal>
       </div>
@@ -398,7 +409,7 @@ function Workflow() {
             </div>
             <div className="mt-10 hidden lg:block">
               <CTAButton to="/auth" primary>
-                Get started
+                Start planning for free
               </CTAButton>
             </div>
           </div>
@@ -442,7 +453,7 @@ function Workflow() {
               ))}
               <div className="pt-2">
                 <CTAButton to="/auth" primary>
-                  Get started
+                  Start planning for free
                 </CTAButton>
               </div>
             </div>
@@ -522,6 +533,10 @@ function FAQ() {
                   }`}
                 >
                   <button
+                    id={`faq-trigger-${i}`}
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-answer-${i}`}
                     onClick={() => setActive(isOpen ? null : i)}
                     className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
                   >
@@ -564,6 +579,10 @@ function FAQ() {
                     </span>
                   </button>
                   <div
+                    id={`faq-answer-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-trigger-${i}`}
+                    aria-hidden={!isOpen}
                     className="overflow-hidden transition-all duration-300 ease-out"
                     style={{ maxHeight: isOpen ? "200px" : "0px", opacity: isOpen ? 1 : 0 }}
                   >
@@ -604,7 +623,7 @@ function FinalCTA({ hasSession }: { hasSession: boolean }) {
           <Reveal delay={240}>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
               <CTAButton to={hasSession ? "/dashboard" : "/auth"} primary>
-                {hasSession ? "Open your dashboard" : "Get started"}
+                {hasSession ? "Open your dashboard" : "Start planning for free"}
               </CTAButton>
             </div>
           </Reveal>
