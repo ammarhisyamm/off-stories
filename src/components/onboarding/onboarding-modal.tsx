@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { Check } from "@phosphor-icons/react";
+import { createPortal } from "react-dom";
 
 export function OnboardingModal({ children, titleId }: { children: ReactNode; titleId: string }) {
-  return (
+  const modal = (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#111111]/20 p-2 backdrop-blur-[2px] sm:items-center sm:p-4">
       <div
         role="dialog"
@@ -14,6 +15,9 @@ export function OnboardingModal({ children, titleId }: { children: ReactNode; ti
       </div>
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(modal, document.body);
 }
 
 export function Progress({ current, total }: { current: number; total: number }) {
