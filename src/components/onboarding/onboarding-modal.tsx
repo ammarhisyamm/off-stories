@@ -3,12 +3,12 @@ import { Check } from "@phosphor-icons/react";
 
 export function OnboardingModal({ children, titleId }: { children: ReactNode; titleId: string }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/20 p-3 backdrop-blur-[2px] sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[#111111]/20 p-2 backdrop-blur-[2px] sm:items-center sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="max-h-[calc(100dvh-24px)] w-full max-w-6xl overflow-y-auto rounded-[28px] border border-[#e8e8e8] bg-[#fafafa] p-5 shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] sm:max-h-[calc(100dvh-48px)] sm:p-8 lg:p-10"
+        className="my-2 max-h-[calc(100dvh-16px)] w-full min-w-0 max-w-6xl overflow-x-hidden overflow-y-auto overscroll-contain rounded-[24px] border border-[#e8e8e8] bg-[#fafafa] p-4 shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] sm:my-4 sm:max-h-[calc(100dvh-32px)] sm:rounded-[28px] sm:p-7 lg:p-10"
       >
         {children}
       </div>
@@ -18,7 +18,10 @@ export function OnboardingModal({ children, titleId }: { children: ReactNode; ti
 
 export function Progress({ current, total }: { current: number; total: number }) {
   return (
-    <div className="mb-10 flex items-center gap-2" aria-label={`Step ${current} of ${total}`}>
+    <div
+      className="mb-7 flex items-center gap-2 sm:mb-10"
+      aria-label={`Step ${current} of ${total}`}
+    >
       {Array.from({ length: total }, (_, index) => {
         const step = index + 1;
         return (
@@ -58,10 +61,10 @@ export function QuestionShell({
   return (
     <div className="mx-auto max-w-2xl">
       <Progress current={question} total={5} />
-      <div className="panel p-6 sm:p-8">
+      <div className="panel p-4 sm:p-8">
         <div className="eyebrow">Question {question} of 5</div>
         <div className="mt-6">{children}</div>
-        <div className="mt-10 flex items-center justify-between gap-3 border-t border-[#f1f1f1] pt-5">
+        <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#f1f1f1] pt-4 sm:mt-10 sm:pt-5">
           <button
             type="button"
             onClick={onBack}

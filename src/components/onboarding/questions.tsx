@@ -59,7 +59,7 @@ export function GuestsStep({
     <QuestionShell question={2} onBack={onBack} onNext={onNext}>
       <h3 className="display text-2xl">How many guests are you expecting?</h3>
       <p className="mt-3 text-sm text-muted-foreground">You can always fine-tune this later.</p>
-      <div className="mt-10 rounded-2xl bg-[#f6f6f6] p-5">
+      <div className="mt-8 rounded-2xl bg-[#f6f6f6] p-4 sm:mt-10 sm:p-5">
         <div className="flex items-end justify-between gap-3">
           <span className="text-sm text-muted-foreground">Estimated guests</span>
           <output htmlFor="guest-range" className="display text-3xl tabular-nums">
@@ -157,7 +157,7 @@ export function WeddingTypeStep({
   return (
     <QuestionShell question={4} onBack={onBack} onNext={onNext} disabled={!setup.weddingType}>
       <h3 className="display text-2xl">What type of wedding are you planning?</h3>
-      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:mt-8 sm:grid-cols-2">
         {weddingTypes.map(({ label, icon }) => {
           const Icon = typeIcons[icon];
           return (

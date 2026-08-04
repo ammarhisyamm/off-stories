@@ -23,7 +23,7 @@ export function ChoiceCard({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`group flex h-full flex-col rounded-[24px] border bg-surface p-6 text-left transition duration-200 ease-out hover:-translate-y-px hover:border-[#dddddd] sm:p-7 ${
+      className={`group flex h-full min-w-0 flex-col rounded-[20px] border bg-surface p-4 text-left transition duration-200 ease-out hover:-translate-y-px hover:border-[#dddddd] sm:rounded-[24px] sm:p-6 md:p-7 ${
         selected
           ? "border-foreground shadow-[0_0_0_4px_rgb(0_0_0_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)]"
           : "border-border shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)]"
@@ -39,8 +39,10 @@ export function ChoiceCard({
           </span>
         )}
       </div>
-      <h3 className="display mt-7 text-xl text-foreground">{title}</h3>
-      <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
+      <h3 className="display mt-6 text-lg text-foreground sm:mt-7 sm:text-xl">{title}</h3>
+      <p className="mt-3 max-w-md text-[13px] leading-6 text-muted-foreground sm:text-sm">
+        {description}
+      </p>
       <ul className="mt-6 space-y-3 border-t border-[#f1f1f1] pt-5 text-sm text-[#5e5e5e]">
         {features.map((feature) => (
           <li key={feature} className="flex items-center gap-2.5">
@@ -49,7 +51,7 @@ export function ChoiceCard({
           </li>
         ))}
       </ul>
-      <div className="mt-8 flex items-center justify-between border-t border-[#f1f1f1] pt-5 text-xs font-medium text-muted-foreground">
+      <div className="mt-6 flex items-center justify-between border-t border-[#f1f1f1] pt-4 text-xs font-medium text-muted-foreground sm:mt-8 sm:pt-5">
         <span>{selected ? "Selected" : "Choose this setup"}</span>
         <span
           className={`grid h-5 w-5 place-items-center rounded-full border ${

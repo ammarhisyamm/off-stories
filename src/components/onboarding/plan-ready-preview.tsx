@@ -95,14 +95,14 @@ export function PlanReadyPreview({
   ];
 
   return (
-    <div className="mx-auto max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
-      <header className="rounded-[28px] border border-[#eaeaea] bg-[#f6f6f6] px-6 py-7 shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_6px_20px_rgb(15_23_42_/_0.04)] sm:px-9 sm:py-9">
+    <div className="mx-auto min-w-0 max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
+      <header className="rounded-[24px] border border-[#eaeaea] bg-[#f6f6f6] px-4 py-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_6px_20px_rgb(15_23_42_/_0.04)] sm:rounded-[28px] sm:px-9 sm:py-9">
         <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
           <div>
             <div className="eyebrow">Wedding Workspace</div>
             <h2
               id="plan-ready-title"
-              className="display mt-3 max-w-xl text-3xl text-foreground sm:text-4xl"
+              className="display mt-3 max-w-xl text-2xl text-foreground sm:text-4xl"
             >
               Everything is ready for your wedding.
             </h2>
