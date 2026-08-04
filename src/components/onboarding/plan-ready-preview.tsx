@@ -36,7 +36,7 @@ export function PlanReadyPreview({
   onBack: () => void;
   onFinish: () => void;
 }) {
-  const planningDate = new Date(`${getPlanningDate()}T12:00:00`);
+  const planningDate = new Date(`${getPlanningDate(setup.weddingDate)}T12:00:00`);
   const formattedDate = planningDate.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
@@ -117,6 +117,9 @@ export function PlanReadyPreview({
                 setup.location || "Location to be decided",
                 `${setup.guests} Guests`,
                 formattedDate,
+                ...(setup.partnerOneName && setup.partnerTwoName
+                  ? [`${setup.partnerOneName} & ${setup.partnerTwoName}`]
+                  : []),
                 "14 Month Planning",
               ].map((chip) => (
                 <span
@@ -184,6 +187,20 @@ export function PlanReadyPreview({
               label="Wedding Date"
               value={formattedDate}
             />
+            {(setup.partnerOneName || setup.partnerTwoName) && (
+              <OverviewItem
+                icon={<Heart size={19} />}
+                label="Couple"
+                value={[setup.partnerOneName, setup.partnerTwoName].filter(Boolean).join(" & ")}
+              />
+            )}
+            {setup.officiantName && (
+              <OverviewItem
+                icon={<UserCircleGear size={19} />}
+                label="Penghulu"
+                value={setup.officiantName}
+              />
+            )}
             <OverviewItem
               icon={<UsersThree size={19} />}
               label="Estimated Guests"

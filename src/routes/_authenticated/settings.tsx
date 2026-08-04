@@ -79,6 +79,10 @@ function EventDetailsPanel() {
       type: formData.get("type") as string,
       date: formData.get("date") as string,
       location: formData.get("location") as string,
+      adat: eventData.adat,
+      brideName: eventData.brideName,
+      groomName: eventData.groomName,
+      officiantName: eventData.officiantName,
       guestEstimate: Number.isNaN(guestEstimate) ? eventData.guestEstimate : guestEstimate,
       budget: Number.isNaN(budget) ? eventData.budget : budget,
     };

@@ -51,13 +51,17 @@ export function DashboardOnboarding({
   function continueFromStart() {
     if (!mode) return;
     if (mode === "blank") {
+      const coupleName = [setup.partnerOneName, setup.partnerTwoName].filter(Boolean).join(" & ");
       setKind(
         "event",
         {
-          name: "Your wedding",
+          name: coupleName || "Your wedding",
           type: "Wedding",
-          date: "",
+          date: setup.weddingDate,
           location: "",
+          brideName: setup.partnerOneName,
+          groomName: setup.partnerTwoName,
+          officiantName: setup.officiantName,
           guestEstimate: 0,
           budget: 0,
         },
@@ -124,6 +128,54 @@ export function DashboardOnboarding({
             ]}
             icon={<MagicWand size={28} weight="regular" />}
           />
+        </div>
+        <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-white p-5 sm:p-6">
+          <div>
+            <div className="text-sm font-medium text-foreground">
+              Start with your wedding details
+            </div>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Optional for now, but these details help personalize your workspace and budget plan.
+            </p>
+          </div>
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">Nama mempelai 1</span>
+              <input
+                value={setup.partnerOneName}
+                onChange={(event) => onUpdate({ partnerOneName: event.target.value })}
+                placeholder="Contoh: Andra"
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">Nama mempelai 2</span>
+              <input
+                value={setup.partnerTwoName}
+                onChange={(event) => onUpdate({ partnerTwoName: event.target.value })}
+                placeholder="Contoh: Kirana"
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">Nama penghulu</span>
+              <input
+                value={setup.officiantName}
+                onChange={(event) => onUpdate({ officiantName: event.target.value })}
+                placeholder="Contoh: Ustaz Ahmad"
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">Tanggal akad / pernikahan</span>
+              <input
+                type="date"
+                value={setup.weddingDate}
+                onChange={(event) => onUpdate({ weddingDate: event.target.value })}
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              />
+            </label>
+          </div>
         </div>
         <div className="mx-auto mt-8 flex max-w-5xl items-center justify-between gap-4 border-t border-[#e9e9e9] pt-5">
           <p className="hidden text-xs text-muted-foreground sm:block">

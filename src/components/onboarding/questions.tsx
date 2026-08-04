@@ -10,6 +10,11 @@ const typeIcons = {
   "calendar-check": CalendarCheck,
 };
 
+function formatBudgetInput(value: string) {
+  const digits = value.replace(/\D/g, "");
+  return digits ? new Intl.NumberFormat("id-ID").format(Number(digits)) : "";
+}
+
 export function LocationStep({
   setup,
   onUpdate,
@@ -130,10 +135,10 @@ export function BudgetStep({
               Rp
             </span>
             <input
-              value={setup.budget}
+              value={formatBudgetInput(setup.budget)}
               onChange={(event) => onUpdate({ budget: event.target.value.replace(/\D/g, "") })}
               inputMode="numeric"
-              placeholder="250000000"
+              placeholder="250.000.000"
               className="h-12 w-full border border-[#eaeaea] bg-white pl-11 pr-4 text-base text-foreground sm:text-sm"
             />
           </div>

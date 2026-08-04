@@ -5,6 +5,10 @@ import { getBrowserStorage } from "@/lib/browser-storage";
 export type SetupMode = "blank" | "smart";
 export type BudgetChoice = "yes" | "no" | "";
 export type SetupState = {
+  partnerOneName: string;
+  partnerTwoName: string;
+  officiantName: string;
+  weddingDate: string;
   location: string;
   guests: number;
   budgetChoice: BudgetChoice;
@@ -77,6 +81,10 @@ export const adatOptions = [
 ] as const;
 
 export const blankSetup: SetupState = {
+  partnerOneName: "",
+  partnerTwoName: "",
+  officiantName: "",
+  weddingDate: "",
   location: "",
   guests: 250,
   budgetChoice: "",
@@ -91,7 +99,8 @@ export function setupBudget(guests: number, budgetChoice: BudgetChoice, budget: 
   return Math.round((guests * 1_140_000) / 1_000_000) * 1_000_000;
 }
 
-export function getPlanningDate() {
+export function getPlanningDate(weddingDate?: string) {
+  if (weddingDate) return weddingDate;
   const date = new Date();
   date.setMonth(date.getMonth() + 14);
   return date.toISOString().slice(0, 10);
@@ -99,7 +108,8 @@ export function getPlanningDate() {
 
 export function smartData(setup: SetupState) {
   const budget = setupBudget(setup.guests, setup.budgetChoice, setup.budget);
-  const date = getPlanningDate();
+  const date = getPlanningDate(setup.weddingDate);
+  const coupleName = [setup.partnerOneName, setup.partnerTwoName].filter(Boolean).join(" & ");
   const starterTasks: Task[] = [
     {
       id: "setup-venue",
@@ -173,11 +183,14 @@ export function smartData(setup: SetupState) {
 
   return {
     event: {
-      name: "Our wedding",
+      name: coupleName || "Our wedding",
       type: setup.weddingType,
       date,
       location: setup.location,
       adat: setup.adat,
+      brideName: setup.partnerOneName,
+      groomName: setup.partnerTwoName,
+      officiantName: setup.officiantName,
       guestEstimate: setup.guests,
       budget,
     },
