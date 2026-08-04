@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { ArrowClockwise, ArrowRight, CalendarBlank, WarningCircle } from "@phosphor-icons/react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { AddTaskModal } from "@/components/add-task-modal";
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const { data, setKind, loading } = useWorkspaceData();
+  const { data, setKind, loading, error, refresh } = useWorkspaceData();
   const tasks = data.tasks as Task[];
   const budgetItems = data.budget as BudgetItem[];
   const vendors = data.vendors as Vendor[];
@@ -84,8 +85,13 @@ function Dashboard() {
     ? Math.round((confirmed / event.guestEstimate) * 100)
     : 0;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextWeek = new Date(today);
+  nextWeek.setDate(nextWeek.getDate() + 7);
   const urgent = tasks
     .filter((t) => t.status !== "done")
+    .filter((t) => new Date(t.due) < nextWeek)
     .sort((a, b) => +new Date(a.due) - +new Date(b.due))
     .slice(0, 4);
 
@@ -120,16 +126,18 @@ function Dashboard() {
     <AppLayout
       eyebrow={eyebrowParts || undefined}
       title={
-        showOnboarding
-          ? "Set up your wedding"
-          : hasEvent
-            ? days !== null
-              ? `${days} days to ${event.name}`
-              : event.name
-            : "Set up your event"
+        error
+          ? "Unable to load your workspace"
+          : showOnboarding
+            ? "Set up your wedding"
+            : hasEvent
+              ? days !== null
+                ? `${days} days to ${event.name}`
+                : event.name
+              : "Set up your event"
       }
       actions={
-        showOnboarding ? undefined : (
+        showOnboarding || error ? undefined : (
           <>
             <QuietButton onClick={() => window.print()}>Export</QuietButton>
             <QuietButton
@@ -147,6 +155,8 @@ function Dashboard() {
     >
       {loading ? (
         <LoadingNote />
+      ) : error ? (
+        <WorkspaceErrorState message={error} onRetry={() => void refresh()} />
       ) : showOnboarding ? (
         <DashboardOnboarding
           setKind={setKind}
@@ -156,6 +166,8 @@ function Dashboard() {
             setOnboardingComplete(true);
           }}
         />
+      ) : !hasEvent ? (
+        <BlankWorkspaceState />
       ) : (
         <>
           {/* Top summary */}
@@ -213,37 +225,52 @@ function Dashboard() {
                   View all →
                 </Link>
               </div>
-              <ul className="divide-y divide-border">
-                {urgent.map((t) => {
-                  const d = daysUntil(t.due);
-                  return (
-                    <li
-                      key={t.id}
-                      onClick={() => setViewing(t)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          setViewing(t);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                    >
-                      <span
-                        className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm text-foreground truncate">{t.title}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">
-                          {t.category} · {t.assignee ?? "Unassigned"}
+              {urgent.length > 0 ? (
+                <ul className="divide-y divide-border">
+                  {urgent.map((t) => {
+                    const d = daysUntil(t.due);
+                    const overdue = new Date(t.due) < today;
+                    return (
+                      <li
+                        key={t.id}
+                        onClick={() => setViewing(t)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setViewing(t);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                      >
+                        <span
+                          className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm text-foreground truncate">{t.title}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {t.category} · {t.assignee ?? "Unassigned"}
+                          </div>
                         </div>
-                      </div>
-                      <Pill tone={d <= 7 ? "warn" : "neutral"}>in {d}d</Pill>
-                    </li>
-                  );
-                })}
-              </ul>
+                        <Pill tone={overdue || d <= 7 ? "warn" : "neutral"}>
+                          {overdue
+                            ? "Overdue"
+                            : d === 0
+                              ? "Today"
+                              : d === 1
+                                ? "Tomorrow"
+                                : `in ${d}d`}
+                        </Pill>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div className="rounded-xl bg-surface-2 px-4 py-5 text-sm text-muted-foreground">
+                  Nothing due in the next 7 days. Your checklist is in good shape.
+                </div>
+              )}
             </div>
 
             <div className="panel p-6">
@@ -403,6 +430,51 @@ function LoadingNote() {
     <div className="py-16 text-center">
       <div className="mx-auto h-8 w-8 rounded-full border-2 border-border border-t-[color:var(--sage)] animate-spin" />
       <p className="text-sm text-muted-foreground mt-4">Loading workspace…</p>
+    </div>
+  );
+}
+
+function WorkspaceErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="panel mx-auto flex max-w-xl flex-col items-center px-6 py-14 text-center">
+      <div className="grid h-11 w-11 place-items-center rounded-full bg-destructive/10 text-destructive">
+        <WarningCircle size={22} weight="regular" />
+      </div>
+      <h2 className="display mt-5 text-xl text-foreground">We couldn&apos;t load your workspace</h2>
+      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+        Something interrupted the connection. Your saved plans are still safe. Try loading the
+        workspace again.
+      </p>
+      <p className="mt-3 max-w-md truncate text-xs text-muted-foreground/70" title={message}>
+        {message}
+      </p>
+      <QuietButton variant="primary" className="mt-6" onClick={onRetry}>
+        <ArrowClockwise size={16} />
+        Try again
+      </QuietButton>
+    </div>
+  );
+}
+
+function BlankWorkspaceState() {
+  return (
+    <div className="panel mx-auto flex max-w-2xl flex-col items-center px-6 py-16 text-center sm:px-10">
+      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-secondary text-muted-foreground">
+        <CalendarBlank size={24} />
+      </div>
+      <div className="eyebrow mt-5">Your workspace is ready</div>
+      <h2 className="display mt-2 text-2xl text-foreground">Start with the details that matter.</h2>
+      <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+        Your blank canvas is ready. Add your wedding date, location, guest count, and budget to make
+        the dashboard useful from day one.
+      </p>
+      <Link
+        to="/settings"
+        className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-[0_1px_2px_rgb(17_24_39_/_0.04)] transition duration-150 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]"
+      >
+        Add event details
+        <ArrowRight size={16} />
+      </Link>
     </div>
   );
 }
