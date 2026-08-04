@@ -6,7 +6,7 @@
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Inter", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -95,24 +95,24 @@
 
 :root {
   --radius: 1.125rem;
-  --background: #fbfaf8;
-  --foreground: #321820;
+  --background: #ffffff;
+  --foreground: #171717;
   --surface: #ffffff;
-  --surface-2: #f7f0eb;
+  --surface-2: #f7f7f7;
 
   --card: #ffffff;
-  --card-foreground: #35151d;
+  --card-foreground: #171717;
   --popover: #ffffff;
-  --popover-foreground: #35151d;
+  --popover-foreground: #171717;
 
   --primary: #5b0e20;
   --primary-foreground: #fff8f2;
 
-  --secondary: #f3e8e5;
+  --secondary: #f4f4f4;
   --secondary-foreground: #5b0e20;
 
-  --muted: #f5efec;
-  --muted-foreground: #75676a;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
 
   --accent: #d8a7ad;
   --accent-foreground: #5b0e20;
@@ -124,17 +124,17 @@
   --destructive: #a33e4e;
   --destructive-foreground: #fff8f2;
 
-  --border: #eadeda;
-  --input: #ded2ce;
+  --border: #e8e8e8;
+  --input: #dedede;
   --ring: #5b0e20;
 
-  --sidebar: #fffdfb;
-  --sidebar-foreground: #66565a;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #666666;
   --sidebar-primary: #5b0e20;
   --sidebar-primary-foreground: #fff8f2;
-  --sidebar-accent: #f3e8e5;
+  --sidebar-accent: #f5f5f5;
   --sidebar-accent-foreground: #5b0e20;
-  --sidebar-border: #eee2de;
+  --sidebar-border: #e8e8e8;
   --sidebar-ring: #5b0e20;
 }
 
@@ -314,9 +314,9 @@
   }
   .display {
     font-family: var(--font-serif);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1.08;
     font-optical-sizing: auto;
   }
   .panel {
@@ -384,9 +384,9 @@
   .editorial-value {
     font-family: var(--font-serif);
     font-size: clamp(2rem, 3vw, 2.65rem);
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: -0.04em;
-    line-height: 0.98;
+    line-height: 1.05;
   }
   .sidebar-icon {
     display: inline-block;
@@ -471,9 +471,9 @@
   }
   .serif {
     font-family: var(--font-serif);
-    font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
     font-optical-sizing: auto;
   }
   .reveal {
