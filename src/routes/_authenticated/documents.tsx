@@ -62,12 +62,11 @@ function Documents() {
     const vendor = formData.get("vendor") as string;
     const url = formData.get("url") as string;
 
-    if (!editingDoc && !selectedFile && !url) {
+    if (!editingDoc && !selectedFile && !url.trim()) {
       showToast("Add a PDF, DOCX, or URL first", "error");
       return;
     }
 
-    setIsUploading(true);
     let filePath = editingDoc?.filePath;
     let fileMimeType = editingDoc?.mimeType;
     let fileSize = editingDoc?.size;
@@ -77,7 +76,12 @@ function Documents() {
         "application/pdf",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       ]);
-      if (!allowedTypes.has(selectedFile.type) || selectedFile.size > MAX_DOCUMENT_SIZE_BYTES) {
+      const fileExtension = selectedFile.name.toLowerCase().split(".").pop();
+      const validExtension = fileExtension === "pdf" || fileExtension === "docx";
+      if (
+        (!allowedTypes.has(selectedFile.type) && !validExtension) ||
+        selectedFile.size > MAX_DOCUMENT_SIZE_BYTES
+      ) {
         showToast("Choose a PDF or DOCX file up to 5 MB", "error");
         return;
       }
@@ -86,8 +90,10 @@ function Documents() {
         setIsUploading(false);
         return;
       }
+      setIsUploading(true);
       const fileName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-      filePath = `${workspaceId}/${crypto.randomUUID()}-${fileName}`;
+      const uniqueId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+      filePath = `${workspaceId}/${uniqueId}-${fileName}`;
       const { error } = await supabase.storage.from("documents").upload(filePath, selectedFile, {
         contentType: selectedFile.type,
         upsert: false,
@@ -105,7 +111,16 @@ function Documents() {
       saveDocs(
         docs.map((d) =>
           d.id === editingDoc.id
-            ? { ...d, title, kind, vendor, url, filePath, mimeType: fileMimeType, size: fileSize }
+            ? {
+                ...d,
+                title,
+                kind,
+                vendor,
+                url: url.trim(),
+                filePath,
+                mimeType: fileMimeType,
+                size: fileSize,
+              }
             : d,
         ),
       );
@@ -115,7 +130,7 @@ function Documents() {
         title,
         kind,
         vendor,
-        url: selectedFile ? "" : url,
+        url: selectedFile ? "" : url.trim(),
         filePath,
         mimeType: fileMimeType,
         size: fileSize,
@@ -362,6 +377,9 @@ function Documents() {
                     />
                   </label>
                   <div className="rounded-lg border border-dashed border-border bg-surface-2 p-4">
+                    <div className="mb-3 text-sm font-medium text-foreground">
+                      Document source *
+                    </div>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <div className="text-sm font-medium text-foreground">Upload a file</div>

@@ -178,6 +178,12 @@
   textarea:focus::placeholder {
     opacity: 0.35;
   }
+  label:has(> input[required]) > span:first-child::after,
+  label:has(> select[required]) > span:first-child::after,
+  label:has(> textarea[required]) > span:first-child::after {
+    content: " *";
+    color: var(--color-destructive);
+  }
   input,
   textarea,
   select {

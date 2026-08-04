@@ -33,7 +33,7 @@ export function LocationStep({
         We&apos;ll use this to shape your first planning suggestions.
       </p>
       <label className="mt-8 block">
-        <span className="mb-2 block text-sm font-medium">Location</span>
+        <span className="mb-2 block text-sm font-medium">Location *</span>
         <select
           value={setup.location}
           onChange={(event) => onUpdate({ location: event.target.value })}
@@ -103,8 +103,13 @@ export function BudgetStep({
   onNext: () => void;
 }) {
   return (
-    <QuestionShell question={3} onBack={onBack} onNext={onNext} disabled={!setup.budgetChoice}>
-      <h3 className="display text-2xl">Do you already know your budget?</h3>
+    <QuestionShell
+      question={3}
+      onBack={onBack}
+      onNext={onNext}
+      disabled={!setup.budgetChoice || (setup.budgetChoice === "yes" && !setup.budget)}
+    >
+      <h3 className="display text-2xl">Do you already know your budget? *</h3>
       <div className="mt-8 space-y-3">
         {[
           { value: "yes" as const, label: "Yes, I know my budget" },
@@ -161,7 +166,7 @@ export function WeddingTypeStep({
 }) {
   return (
     <QuestionShell question={4} onBack={onBack} onNext={onNext} disabled={!setup.weddingType}>
-      <h3 className="display text-2xl">What type of wedding are you planning?</h3>
+      <h3 className="display text-2xl">What type of wedding are you planning? *</h3>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
         Choose the closest starting point. You can combine styles and adjust the plan later.
       </p>
@@ -227,7 +232,7 @@ export function OrganizerStep({
       disabled={!setup.organizer}
       nextLabel="See your plan"
     >
-      <h3 className="display text-2xl">Will you hire a Wedding Organizer?</h3>
+      <h3 className="display text-2xl">Will you hire a Wedding Organizer? *</h3>
       <div className="mt-8 space-y-3">
         {[
           { value: "yes" as const, label: "Yes" },
