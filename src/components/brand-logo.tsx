@@ -12,10 +12,10 @@ export function BrandLogo({
       {...props}
     >
       <svg aria-hidden="true" viewBox="0 0 120 120" className="h-8 w-8 shrink-0">
-        <rect width="120" height="120" rx="20" fill="#111111" />
-        <circle cx="56" cy="60" r="34" fill="#ffffff" />
-        <circle cx="56" cy="60" r="18" fill="#111111" />
-        <circle cx="77" cy="43" r="12" fill="#111111" />
+        <rect width="120" height="120" rx="20" fill="#5B0E20" />
+        <circle cx="56" cy="60" r="34" fill="#FFF8F2" />
+        <circle cx="56" cy="60" r="18" fill="#5B0E20" />
+        <circle cx="77" cy="43" r="12" fill="#5B0E20" />
       </svg>
       {!compact && (
         <span className="whitespace-nowrap text-base font-semibold tracking-[-0.065em]">

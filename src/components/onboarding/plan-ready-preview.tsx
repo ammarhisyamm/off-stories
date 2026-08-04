@@ -133,7 +133,7 @@ export function PlanReadyPreview({
             <button
               type="button"
               onClick={onFinish}
-              className="mt-7 inline-flex h-10 items-center justify-center rounded-[14px] bg-primary px-4 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+              className="mt-7 inline-flex h-10 items-center justify-center rounded-[14px] bg-primary px-4 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             >
               Continue Planning
             </button>
@@ -379,7 +379,7 @@ export function PlanReadyPreview({
         <button
           type="button"
           onClick={onFinish}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] bg-primary px-5 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] bg-primary px-5 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
         >
           Enter My Dashboard <ArrowRight size={17} />
         </button>

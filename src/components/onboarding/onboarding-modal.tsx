@@ -12,12 +12,12 @@ export function OnboardingModal({
   onClose?: () => void;
 }) {
   const modal = (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#fafafa] sm:flex sm:items-center sm:justify-center sm:bg-[#111111]/20 sm:p-4 sm:backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background sm:flex sm:items-center sm:justify-center sm:bg-[#35151d]/20 sm:p-4 sm:backdrop-blur-[2px]">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="onboarding-dialog relative min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-[#fafafa] p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-[#e8e8e8] sm:p-7 sm:shadow-[0_18px_70px_rgb(15_23_42_/_0.16)] lg:p-10"
+        className="onboarding-dialog relative min-h-full w-full min-w-0 max-w-6xl overflow-x-hidden bg-background p-4 sm:my-4 sm:min-h-0 sm:max-h-[calc(100dvh-32px)] sm:overflow-y-auto sm:overscroll-contain sm:rounded-[28px] sm:border sm:border-border sm:p-7 sm:shadow-[0_18px_70px_rgb(91_14_32_/_0.16)] lg:p-10"
       >
         {onClose && (
           <button
@@ -98,7 +98,7 @@ export function QuestionShell({
             type="button"
             onClick={onNext}
             disabled={disabled}
-            className="rounded-[14px] bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-35"
+            className="rounded-[14px] bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-35"
           >
             {nextLabel}
           </button>

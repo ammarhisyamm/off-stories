@@ -74,8 +74,8 @@ function NavList({
               "sidebar-nav-link flex items-center gap-3 rounded-[14px] border py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               collapsed ? "justify-center px-2" : "px-3",
               active
-                ? "is-active border-[#e2e5e9] bg-white font-medium text-[#20242a] shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_4px_12px_rgb(15_23_42_/_0.04)]"
-                : "border-transparent text-[#737b87] hover:border-[#eceef1] hover:bg-white/75 hover:text-[#30353d]",
+                ? "is-active border-sidebar-border bg-surface font-medium text-sidebar-foreground shadow-[0_1px_2px_rgb(91_14_32_/_0.04),0_4px_12px_rgb(91_14_32_/_0.05)]"
+                : "border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-surface/75 hover:text-foreground",
             ].join(" ")}
           >
             <Icon className={active ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"} />
@@ -183,9 +183,11 @@ export function AppLayout({
     <div className="app-shell min-h-screen bg-background flex">
       {/* Desktop sidebar */}
       <aside
-        className={`hidden md:flex shrink-0 flex-col border-r border-[#e6e8ec] bg-[#f7f8fa] transition-[width] duration-300 ease-out ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
+        className={`hidden md:flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-out ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
       >
-        <div className={`border-b border-[#e6e8ec] py-6 ${sidebarCollapsed ? "px-3" : "px-6"}`}>
+        <div
+          className={`border-b border-sidebar-border py-6 ${sidebarCollapsed ? "px-3" : "px-6"}`}
+        >
           <div
             className={`flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between"}`}
           >
