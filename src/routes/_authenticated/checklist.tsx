@@ -71,25 +71,9 @@ function Checklist() {
       eyebrow="Operational"
       title="Master checklist"
       actions={
-        <>
-          <div className="inline-flex rounded-md border border-border bg-surface p-0.5">
-            <button
-              onClick={() => setView("list")}
-              className={`px-3 py-1 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
-            >
-              List
-            </button>
-            <button
-              onClick={() => setView("kanban")}
-              className={`px-3 py-1 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "kanban" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
-            >
-              Kanban
-            </button>
-          </div>
-          <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-            Add task
-          </QuietButton>
-        </>
+        <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+          Add task
+        </QuietButton>
       }
     >
       <div className="flex flex-wrap gap-1.5 mb-6">
@@ -106,6 +90,23 @@ function Checklist() {
             {c}
           </button>
         ))}
+      </div>
+
+      <div className="mb-6 inline-flex rounded-md border border-border bg-surface p-0.5">
+        <button
+          onClick={() => setView("list")}
+          aria-pressed={view === "list"}
+          className={`px-3 py-1 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "list" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+        >
+          List
+        </button>
+        <button
+          onClick={() => setView("kanban")}
+          aria-pressed={view === "kanban"}
+          className={`px-3 py-1 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${view === "kanban" ? "bg-secondary text-foreground" : "text-muted-foreground"}`}
+        >
+          Kanban
+        </button>
       </div>
 
       {view === "list" ? (
