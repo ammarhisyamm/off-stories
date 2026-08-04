@@ -3,8 +3,12 @@ import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layou
 import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { DocRef } from "@/lib/types";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X, Trash, ArrowSquareOut, FolderOpen } from "@phosphor-icons/react";
+import { supabase } from "@/integrations/supabase/client";
+import { showToast } from "@/components/toast";
+
+const MAX_DOCUMENT_SIZE_BYTES = 5 * 1024 * 1024;
 
 export const Route = createFileRoute("/_authenticated/documents")({
   head: () => ({
@@ -20,12 +24,15 @@ export const Route = createFileRoute("/_authenticated/documents")({
 });
 
 function Documents() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, workspaceId } = useWorkspaceData();
   const docs = data.documents as DocRef[];
   const [editingDoc, setEditingDoc] = useState<DocRef | null>(null);
   const [viewingDoc, setViewingDoc] = useState<DocRef | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const saveDocs = (newDocs: DocRef[], opts?: { success?: string | null }) => {
     setKind("documents", newDocs, opts);
@@ -33,11 +40,13 @@ function Documents() {
 
   const handleOpenNew = () => {
     setEditingDoc(null);
+    setSelectedFile(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEdit = (doc: DocRef) => {
     setEditingDoc(doc);
+    setSelectedFile(null);
     setIsModalOpen(true);
   };
 
@@ -45,7 +54,7 @@ function Documents() {
     setViewingDoc(doc);
   };
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const title = formData.get("title") as string;
@@ -53,20 +62,91 @@ function Documents() {
     const vendor = formData.get("vendor") as string;
     const url = formData.get("url") as string;
 
+    if (!editingDoc && !selectedFile && !url) {
+      showToast("Add a PDF, DOCX, or URL first", "error");
+      return;
+    }
+
+    setIsUploading(true);
+    let filePath = editingDoc?.filePath;
+    let fileMimeType = editingDoc?.mimeType;
+    let fileSize = editingDoc?.size;
+
+    if (selectedFile) {
+      const allowedTypes = new Set([
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ]);
+      if (!allowedTypes.has(selectedFile.type) || selectedFile.size > MAX_DOCUMENT_SIZE_BYTES) {
+        showToast("Choose a PDF or DOCX file up to 5 MB", "error");
+        return;
+      }
+      if (!workspaceId) {
+        showToast("Your workspace is not ready yet", "error");
+        setIsUploading(false);
+        return;
+      }
+      const fileName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+      filePath = `${workspaceId}/${crypto.randomUUID()}-${fileName}`;
+      const { error } = await supabase.storage.from("documents").upload(filePath, selectedFile, {
+        contentType: selectedFile.type,
+        upsert: false,
+      });
+      if (error) {
+        showToast(error.message || "Couldn't upload document", "error");
+        setIsUploading(false);
+        return;
+      }
+      fileMimeType = selectedFile.type;
+      fileSize = selectedFile.size;
+    }
+
     if (editingDoc) {
-      saveDocs(docs.map((d) => (d.id === editingDoc.id ? { ...d, title, kind, vendor, url } : d)));
+      saveDocs(
+        docs.map((d) =>
+          d.id === editingDoc.id
+            ? { ...d, title, kind, vendor, url, filePath, mimeType: fileMimeType, size: fileSize }
+            : d,
+        ),
+      );
     } else {
       const newDoc: DocRef = {
         id: `d${Date.now()}`,
         title,
         kind,
         vendor,
-        url,
+        url: selectedFile ? "" : url,
+        filePath,
+        mimeType: fileMimeType,
+        size: fileSize,
         addedAt: new Date().toISOString().split("T")[0],
       };
       saveDocs([...docs, newDoc]);
     }
+    setSelectedFile(null);
+    setIsUploading(false);
     setIsModalOpen(false);
+  };
+
+  const openDocument = async (doc: DocRef) => {
+    const popup = window.open("about:blank", "_blank");
+    if (!popup) {
+      showToast("Allow pop-ups to open this document", "error");
+      return;
+    }
+    if (!doc.filePath) {
+      popup.location.href = doc.url;
+      return;
+    }
+    const { data: signed, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl(doc.filePath, 60 * 60);
+    if (error || !signed?.signedUrl) {
+      popup.close();
+      showToast("Couldn't open this document", "error");
+      return;
+    }
+    popup.location.href = signed.signedUrl;
   };
 
   const handleDelete = (id: string) => {
@@ -88,7 +168,7 @@ function Documents() {
       title="Documents & references"
       actions={
         <QuietButton variant="primary" onClick={handleOpenNew}>
-          Add link
+          Add document
         </QuietButton>
       }
     >
@@ -100,7 +180,7 @@ function Documents() {
             description="Save links to contracts, invoices, moodboards and floor plans so everything lives in one vault."
             action={
               <QuietButton variant="primary" onClick={handleOpenNew}>
-                Add link
+                Add document
               </QuietButton>
             }
           />
@@ -137,16 +217,17 @@ function Documents() {
                     </div>
                     <div className="text-sm text-foreground pr-6 relative">
                       {d.title}
-                      <a
-                        href={d.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void openDocument(d);
+                        }}
                         className="absolute right-0 top-0.5 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => e.stopPropagation()}
-                        title="Open link"
+                        title="Open document"
                       >
                         <ArrowSquareOut size={16} />
-                      </a>
+                      </button>
                     </div>
                     {d.vendor && (
                       <div className="text-xs text-muted-foreground mt-1">{d.vendor}</div>
@@ -184,15 +265,22 @@ function Documents() {
             <Detail label="Vendor" value={viewingDoc.vendor || "—"} />
           </DetailGrid>
           <Detail
-            label="URL"
+            label={viewingDoc.filePath ? "File" : "URL"}
             value={
               <a
-                href={viewingDoc.url}
+                href={viewingDoc.filePath ? undefined : viewingDoc.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(event) => {
+                  if (viewingDoc.filePath) {
+                    event.preventDefault();
+                    void openDocument(viewingDoc);
+                  }
+                }}
                 className="text-[color:var(--sage)] hover:underline break-all inline-flex items-center gap-1"
               >
-                {viewingDoc.url} <ArrowSquareOut size={13} />
+                {viewingDoc.filePath ? "Open uploaded file" : viewingDoc.url}{" "}
+                <ArrowSquareOut size={13} />
               </a>
             }
           />
@@ -211,7 +299,7 @@ function Documents() {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSave} className="space-y-4">
+            <form onSubmit={(event) => void handleSave(event)} className="space-y-4">
               {confirming ? (
                 <ConfirmDelete
                   message="Delete this document? This can't be undone."
@@ -264,16 +352,42 @@ function Documents() {
                     </label>
                   </div>
                   <label className="block">
-                    <span className="block text-sm font-medium mb-1.5">URL</span>
+                    <span className="block text-sm font-medium mb-1.5">URL (optional)</span>
                     <input
                       name="url"
                       type="url"
-                      required
                       defaultValue={editingDoc?.url}
                       className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                       placeholder="https://..."
                     />
                   </label>
+                  <div className="rounded-lg border border-dashed border-border bg-surface-2 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="text-sm font-medium text-foreground">Upload a file</div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          PDF or DOCX, up to 5 MB.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-2"
+                      >
+                        {selectedFile ? "Choose another" : "Choose file"}
+                      </button>
+                    </div>
+                    {selectedFile && (
+                      <div className="mt-3 text-xs text-muted-foreground">{selectedFile.name}</div>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="application/pdf,.pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.docx"
+                      className="sr-only"
+                      onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+                    />
+                  </div>
                   <div className="flex items-center justify-between pt-2">
                     {editingDoc ? (
                       <button
@@ -290,8 +404,12 @@ function Documents() {
                       <QuietButton type="button" onClick={() => setIsModalOpen(false)}>
                         Cancel
                       </QuietButton>
-                      <QuietButton variant="primary" type="submit">
-                        Save Link
+                      <QuietButton variant="primary" type="submit" disabled={isUploading}>
+                        {isUploading
+                          ? "Uploading…"
+                          : selectedFile
+                            ? "Upload document"
+                            : "Save Link"}
                       </QuietButton>
                     </div>
                   </div>

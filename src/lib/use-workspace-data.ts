@@ -13,6 +13,7 @@ import { reportClientError } from "@/lib/telemetry";
 type Listener = () => void;
 const listeners = new Set<Listener>();
 let cache: WorkspaceData = emptyWorkspaceData();
+let workspaceId: string | null = null;
 let loaded = false;
 let loadError: string | null = null;
 let boundLoad: (() => Promise<unknown>) | null = null;
@@ -54,7 +55,9 @@ async function pollRefresh() {
   pollInFlight = true;
   try {
     const res = await boundLoad();
-    cache = (res as { data: WorkspaceData }).data;
+    const result = res as { workspaceId?: string | null; data: WorkspaceData };
+    workspaceId = result.workspaceId ?? workspaceId;
+    cache = result.data;
     loaded = true;
     loadError = null;
     notify();
@@ -82,6 +85,7 @@ function stopPolling() {
 
 export function resetWorkspaceDataCache() {
   cache = emptyWorkspaceData();
+  workspaceId = null;
   loaded = false;
   loadError = null;
   stopPolling();
@@ -113,7 +117,9 @@ export function useWorkspaceData() {
       loadFn()
         .then((res) => {
           if (cancelled) return;
-          cache = (res as { data: WorkspaceData }).data;
+          const result = res as { workspaceId?: string | null; data: WorkspaceData };
+          workspaceId = result.workspaceId ?? workspaceId;
+          cache = result.data;
           loaded = true;
           loadError = null;
           startPolling();
@@ -166,7 +172,9 @@ export function useWorkspaceData() {
     if (!boundLoad) return;
     try {
       const res = await boundLoad();
-      cache = (res as { data: WorkspaceData }).data;
+      const result = res as { workspaceId?: string | null; data: WorkspaceData };
+      workspaceId = result.workspaceId ?? workspaceId;
+      cache = result.data;
       loaded = true;
       loadError = null;
     } catch (e) {
@@ -178,6 +186,7 @@ export function useWorkspaceData() {
 
   return {
     data: cache,
+    workspaceId,
     loading: state.loading,
     error: state.error,
     setKind,

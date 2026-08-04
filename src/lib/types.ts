@@ -84,6 +84,9 @@ export interface DocRef {
   kind: "Contract" | "Invoice" | "Moodboard" | "Reference" | "Rundown" | "Floor plan";
   vendor?: string;
   url: string;
+  filePath?: string;
+  mimeType?: string;
+  size?: number;
   addedAt: string;
 }
 
