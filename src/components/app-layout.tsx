@@ -296,7 +296,7 @@ export function AppLayout({
           </div>
         </div>
 
-        <header className="border-b border-border bg-background/90 backdrop-blur-md md:sticky md:top-0 z-10">
+        <header className="border-b border-border bg-background/95 backdrop-blur-md md:sticky md:top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5 sm:flex sm:flex-wrap sm:justify-between">
             <div className="min-w-0">
               {eyebrow && <div className="eyebrow mb-2 truncate">{eyebrow}</div>}

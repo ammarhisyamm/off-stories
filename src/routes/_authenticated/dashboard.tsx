@@ -190,7 +190,7 @@ function Dashboard() {
       ) : (
         <>
           {/* Top summary */}
-          <section className="dashboard-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          <section className="dashboard-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             <SummaryCard
               label="Planning progress"
               value={`${progress}%`}
@@ -239,7 +239,7 @@ function Dashboard() {
           </section>
 
           {/* Priority area */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
             <div className="panel editorial-panel p-6 lg:col-span-2">
               <div className="flex items-baseline justify-between mb-5">
                 <div>
@@ -349,7 +349,7 @@ function Dashboard() {
           </section>
 
           {/* Lower detail */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="panel editorial-panel p-6 lg:col-span-2">
               <div className="flex items-baseline justify-between mb-5">
                 <div>
