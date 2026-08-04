@@ -11,8 +11,9 @@ import {
   removePartner,
   leaveWorkspace,
 } from "@/lib/invites.functions";
+import { getBrowserStorage } from "@/lib/browser-storage";
 import { showToast } from "@/components/toast";
-import { Check, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRight, Check, MagicWand, WarningCircle } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -64,6 +65,7 @@ function Settings() {
 }
 
 function EventDetailsPanel() {
+  const navigate = useNavigate();
   const { data, setKind } = useWorkspaceData();
   const eventData = data.event;
   const [isSaving, setIsSaving] = useState(false);
@@ -85,6 +87,11 @@ function EventDetailsPanel() {
     setKind("event", newEvent);
     setTimeout(() => setIsSaving(false), 500);
   };
+
+  function previewOnboarding() {
+    getBrowserStorage("session").setItem("offstories-onboarding-preview", "true");
+    navigate({ to: "/dashboard" });
+  }
 
   return (
     <div className="panel p-7">
@@ -139,6 +146,27 @@ function EventDetailsPanel() {
           </QuietButton>
         </div>
       </form>
+      <div className="mt-8 flex flex-col gap-4 rounded-[20px] border border-[#e8e8e8] bg-[#fafafa] p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#444444] shadow-[0_1px_2px_rgb(15_23_42_/_0.04)]">
+            <MagicWand size={18} />
+          </span>
+          <div className="min-w-0">
+            <div className="text-sm font-medium text-foreground">Try the onboarding flow</div>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Preview the template selection and smart wedding setup without deleting your current
+              workspace.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={previewOnboarding}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] border border-[#e2e2e2] bg-white px-4 py-2.5 text-sm font-medium text-[#333333] transition duration-200 hover:bg-[#f6f6f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+        >
+          Choose a template <ArrowRight size={16} />
+        </button>
+      </div>
     </div>
   );
 }

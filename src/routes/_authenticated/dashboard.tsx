@@ -49,11 +49,15 @@ function Dashboard() {
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [onboardingPreview, setOnboardingPreview] = useState(false);
 
   useEffect(() => {
     try {
       setOnboardingComplete(
         getBrowserStorage("local").getItem("offstories-onboarding-complete") === "true",
+      );
+      setOnboardingPreview(
+        getBrowserStorage("session").getItem("offstories-onboarding-preview") === "true",
       );
     } catch {
       setOnboardingComplete(false);
@@ -61,7 +65,7 @@ function Dashboard() {
   }, []);
 
   const hasEvent = Boolean(event.date && event.name);
-  const showOnboarding = !loading && !hasEvent && !onboardingComplete;
+  const showOnboarding = !loading && ((!hasEvent && !onboardingComplete) || onboardingPreview);
   const days = hasEvent ? daysUntil(event.date) : null;
   const done = tasks.filter((t) => t.status === "done").length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
@@ -147,6 +151,8 @@ function Dashboard() {
         <DashboardOnboarding
           setKind={setKind}
           onComplete={() => {
+            getBrowserStorage("session").removeItem("offstories-onboarding-preview");
+            setOnboardingPreview(false);
             setOnboardingComplete(true);
           }}
         />
