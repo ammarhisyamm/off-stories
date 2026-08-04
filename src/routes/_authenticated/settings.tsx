@@ -31,31 +31,29 @@ function Settings() {
   const [section, setSection] = useState<Section>("Event");
   return (
     <AppLayout eyebrow="Workspace" title="Settings">
-      <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-6">
-        <aside>
-          <nav
-            className="panel p-1 flex gap-1 text-sm lg:flex-col lg:p-2"
-            role="tablist"
-            aria-label="Settings sections"
-          >
-            {(["Event", "Collaborators"] as Section[]).map((s) => (
-              <button
-                key={s}
-                role="tab"
-                aria-selected={section === s}
-                onClick={() => setSection(s)}
-                className={`flex-1 lg:w-full text-left px-3 py-2 rounded-md transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
-                  section === s
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {s === "Event" ? "Event details" : s}
-              </button>
-            ))}
-          </nav>
-        </aside>
-        <section key={section} className="animate-in fade-in duration-200 ease-out">
+      <div className="mx-auto max-w-3xl">
+        <nav
+          className="panel p-1 flex gap-1 text-sm"
+          role="tablist"
+          aria-label="Settings sections"
+        >
+          {(["Event", "Collaborators"] as Section[]).map((s) => (
+            <button
+              key={s}
+              role="tab"
+              aria-selected={section === s}
+              onClick={() => setSection(s)}
+              className={`flex-1 px-3 py-2 rounded-md text-center transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
+                section === s
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {s === "Event" ? "Event details" : s}
+            </button>
+          ))}
+        </nav>
+        <section key={section} className="mt-6 animate-in fade-in duration-200 ease-out">
           {section === "Event" && <EventDetailsPanel />}
           {section === "Collaborators" && <CollaboratorsPanel />}
         </section>
