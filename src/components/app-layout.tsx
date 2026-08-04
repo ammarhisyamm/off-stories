@@ -300,7 +300,7 @@ export function AppLayout({
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5 sm:flex sm:flex-wrap sm:justify-between">
             <div className="min-w-0">
               {eyebrow && <div className="eyebrow mb-2 truncate">{eyebrow}</div>}
-              <h1 className="display text-3xl md:text-5xl text-foreground truncate sm:whitespace-normal">
+              <h1 className="display text-3xl md:text-5xl text-foreground whitespace-normal break-words">
                 {title}
               </h1>
             </div>
