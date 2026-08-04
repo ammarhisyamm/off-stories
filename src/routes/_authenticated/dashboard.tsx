@@ -1,6 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowClockwise, ArrowRight, CalendarBlank, WarningCircle } from "@phosphor-icons/react";
+import {
+  ArrowClockwise,
+  ArrowRight,
+  CalendarBlank,
+  Check,
+  WarningCircle,
+} from "@phosphor-icons/react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { AddTaskModal } from "@/components/add-task-modal";
@@ -139,7 +145,7 @@ function Dashboard() {
       actions={
         showOnboarding || error ? undefined : (
           <>
-            <QuietButton onClick={() => window.print()}>Export</QuietButton>
+            <QuietButton onClick={() => window.print()}>Print</QuietButton>
             <QuietButton
               variant="primary"
               onClick={() => {
@@ -176,6 +182,7 @@ function Dashboard() {
               label="Planning progress"
               value={`${progress}%`}
               sub={`${done} of ${tasks.length} tasks done`}
+              featured
             >
               <ProgressBar value={progress} />
             </SummaryCard>
@@ -233,26 +240,37 @@ function Dashboard() {
                     return (
                       <li
                         key={t.id}
-                        onClick={() => setViewing(t)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setViewing(t);
-                          }
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        className="py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-2/60 transition-colors focus-within:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                        className="py-2 flex items-center gap-3 hover:bg-surface-2/60 transition-colors"
                       >
-                        <span
-                          className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-[color:var(--rose)]" : "bg-[color:var(--taupe)]"}`}
-                        />
-                        <div className="min-w-0 flex-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = tasks.map((task) =>
+                              task.id === t.id ? { ...task, status: "done" as const } : task,
+                            );
+                            setKind("tasks", next, { success: null });
+                          }}
+                          aria-label={`Mark ${t.title} as done`}
+                          className="group -m-1 grid h-7 w-7 shrink-0 place-items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
+                        >
+                          <span className="grid h-4 w-4 place-items-center rounded-sm border border-border transition-colors group-hover:border-muted-foreground">
+                            <Check
+                              size={12}
+                              weight="bold"
+                              className="text-transparent transition-colors group-hover:text-muted-foreground"
+                            />
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setViewing(t)}
+                          className="min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                        >
                           <div className="text-sm text-foreground truncate">{t.title}</div>
                           <div className="text-xs text-muted-foreground mt-0.5">
                             {t.category} · {t.assignee ?? "Unassigned"}
                           </div>
-                        </div>
+                        </button>
                         <Pill tone={overdue || d <= 7 ? "warn" : "neutral"}>
                           {overdue
                             ? "Overdue"
@@ -276,28 +294,36 @@ function Dashboard() {
             <div className="panel p-6">
               <div className="eyebrow">Payments due</div>
               <h2 className="serif text-xl mt-1 mb-5 text-balance">Upcoming</h2>
-              <ul className="space-y-4">
-                {upcomingPayments.map((p) => (
-                  <li key={p.id} className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm text-foreground">{p.vendor ?? p.category}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{p.category}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm tabular-nums text-foreground">
-                        {formatIDR(p.amount - p.paid)}
+              {upcomingPayments.length > 0 ? (
+                <ul className="space-y-4">
+                  {upcomingPayments.map((p) => (
+                    <li key={p.id} className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-sm text-foreground">{p.vendor ?? p.category}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{p.category}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        by{" "}
-                        {new Date(p.dueDate!).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                        })}
+                      <div className="text-right">
+                        <div className="text-sm tabular-nums text-foreground">
+                          {formatIDR(p.amount - p.paid)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Due{" "}
+                          {new Date(p.dueDate!).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <PanelEmptyState
+                  description="No upcoming payments to review."
+                  href="/budget"
+                  action="Open budget"
+                />
+              )}
             </div>
           </section>
 
@@ -316,23 +342,31 @@ function Dashboard() {
                   Open timeline →
                 </Link>
               </div>
-              <ol className="relative border-l border-border ml-2 space-y-5">
-                {nextMilestones.map((m) => (
-                  <li key={m.id} className="pl-5 relative">
-                    <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-sage" />
-                    <div className="text-sm text-foreground">{m.title}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(m.date).toLocaleDateString("en-GB", {
-                        weekday: "short",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}{" "}
-                      · {daysUntil(m.date)} days away
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              {nextMilestones.length > 0 ? (
+                <ol className="relative border-l border-border ml-2 space-y-5">
+                  {nextMilestones.map((m) => (
+                    <li key={m.id} className="pl-5 relative">
+                      <span className="absolute -left-[5px] top-1.5 h-2 w-2 rounded-full bg-sage" />
+                      <div className="text-sm text-foreground">{m.title}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {new Date(m.date).toLocaleDateString("en-GB", {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}{" "}
+                        · {daysUntil(m.date)} days from now
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <PanelEmptyState
+                  description="No milestones have been added yet."
+                  href="/timeline"
+                  action="Open timeline"
+                />
+              )}
             </div>
 
             <div className="panel p-6">
@@ -348,23 +382,33 @@ function Dashboard() {
                   All →
                 </Link>
               </div>
-              <ul className="space-y-4">
-                {notes.slice(0, 3).map((n) => (
-                  <li key={n.id}>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Pill tone="sage">{n.tag}</Pill>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(n.date).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </span>
-                    </div>
-                    <div className="text-sm text-foreground">{n.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.body}</div>
-                  </li>
-                ))}
-              </ul>
+              {notes.length > 0 ? (
+                <ul className="space-y-4">
+                  {notes.slice(0, 3).map((n) => (
+                    <li key={n.id}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Pill tone="sage">{n.tag}</Pill>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(n.date).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                      </div>
+                      <div className="text-sm text-foreground">{n.title}</div>
+                      <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {n.body}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <PanelEmptyState
+                  description="Capture decisions, questions, and family notes here."
+                  href="/notes"
+                  action="Open notes"
+                />
+              )}
             </div>
           </section>
         </>
@@ -479,21 +523,52 @@ function BlankWorkspaceState() {
   );
 }
 
+function PanelEmptyState({
+  description,
+  href,
+  action,
+}: {
+  description: string;
+  href: "/budget" | "/timeline" | "/notes";
+  action: string;
+}) {
+  return (
+    <div className="rounded-xl bg-surface-2 px-4 py-5">
+      <p className="text-sm leading-6 text-muted-foreground">{description}</p>
+      <Link
+        to={href}
+        className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-foreground transition-colors hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {action}
+        <ArrowRight size={13} />
+      </Link>
+    </div>
+  );
+}
+
 function SummaryCard({
   label,
   value,
   sub,
   children,
+  featured = false,
 }: {
   label: string;
   value: string;
   sub: string;
   children?: React.ReactNode;
+  featured?: boolean;
 }) {
   return (
-    <div className="panel dashboard-metric p-5">
+    <div
+      className={`panel dashboard-metric p-5 ${featured ? "border-[#d9d9d9] bg-[#f6f6f4] sm:p-6" : ""}`}
+    >
       <div className="eyebrow">{label}</div>
-      <div className="display text-2xl mt-3 text-foreground tabular-nums">{value}</div>
+      <div
+        className={`display mt-3 text-foreground tabular-nums ${featured ? "text-3xl" : "text-2xl"}`}
+      >
+        {value}
+      </div>
       <div className="text-xs text-muted-foreground mt-1">{sub}</div>
       {children}
     </div>
