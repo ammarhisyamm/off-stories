@@ -119,10 +119,10 @@ export function BudgetStep({
             key={option.value}
             type="button"
             onClick={() => onUpdate({ budgetChoice: option.value })}
-            className={`flex w-full items-center gap-3 rounded-[14px] border px-4 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.budgetChoice === option.value ? "border-foreground bg-[#f6f6f6]" : "border-border hover:bg-[#fafafa]"}`}
+            className={`flex w-full items-center gap-3 rounded-[14px] border px-4 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.budgetChoice === option.value ? "border-primary bg-primary/5" : "border-border hover:bg-[#fafafa]"}`}
           >
             <span
-              className={`grid h-5 w-5 place-items-center rounded-full border ${setup.budgetChoice === option.value ? "border-foreground" : "border-[#cfcfcf]"}`}
+              className={`grid h-5 w-5 place-items-center rounded-full border ${setup.budgetChoice === option.value ? "border-primary" : "border-[#cfcfcf]"}`}
             >
               {setup.budgetChoice === option.value && (
                 <span className="h-2.5 w-2.5 rounded-full bg-primary" />
@@ -178,7 +178,7 @@ export function WeddingTypeStep({
               key={label}
               type="button"
               onClick={() => onUpdate({ weddingType: label })}
-              className={`flex items-start gap-3 rounded-[14px] border px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.weddingType === label ? "border-foreground bg-[#f6f6f6]" : "border-border hover:bg-[#fafafa]"}`}
+              className={`flex items-start gap-3 rounded-[14px] border px-4 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.weddingType === label ? "border-primary bg-primary/5" : "border-border hover:bg-[#fafafa]"}`}
             >
               <Icon size={20} className="mt-0.5 shrink-0" />
               <span className="min-w-0">
@@ -242,10 +242,10 @@ export function OrganizerStep({
             key={option.value}
             type="button"
             onClick={() => onUpdate({ organizer: option.value })}
-            className={`flex w-full items-center gap-3 rounded-[14px] border px-4 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.organizer === option.value ? "border-foreground bg-[#f6f6f6]" : "border-border hover:bg-[#fafafa]"}`}
+            className={`flex w-full items-center gap-3 rounded-[14px] border px-4 py-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${setup.organizer === option.value ? "border-primary bg-primary/5" : "border-border hover:bg-[#fafafa]"}`}
           >
             <span
-              className={`grid h-5 w-5 place-items-center rounded-full border ${setup.organizer === option.value ? "border-foreground" : "border-[#cfcfcf]"}`}
+              className={`grid h-5 w-5 place-items-center rounded-full border ${setup.organizer === option.value ? "border-primary" : "border-[#cfcfcf]"}`}
             >
               {setup.organizer === option.value && (
                 <span className="h-2.5 w-2.5 rounded-full bg-primary" />

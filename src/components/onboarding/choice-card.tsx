@@ -25,12 +25,14 @@ export function ChoiceCard({
       aria-pressed={selected}
       className={`group flex h-full min-w-0 flex-col rounded-[20px] border bg-surface p-4 text-left transition duration-200 ease-out hover:-translate-y-px hover:border-[#dddddd] sm:rounded-[24px] sm:p-6 md:p-7 ${
         selected
-          ? "border-foreground shadow-[0_0_0_4px_rgb(0_0_0_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)]"
+          ? "border-primary shadow-[0_0_0_4px_rgb(91_14_32_/_0.08),0_6px_20px_rgb(15_23_42_/_0.05)]"
           : "border-border shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)]"
       }`}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#f6f6f6] text-foreground">
+        <div
+          className={`grid h-12 w-12 place-items-center rounded-2xl bg-[#f6f6f6] ${selected ? "text-primary" : "text-foreground"}`}
+        >
           {icon}
         </div>
         {badge && (
@@ -55,7 +57,7 @@ export function ChoiceCard({
         <span>{selected ? "Selected" : "Choose this setup"}</span>
         <span
           className={`grid h-5 w-5 place-items-center rounded-full border ${
-            selected ? "border-foreground bg-primary text-primary-foreground" : "border-[#d8d8d8]"
+            selected ? "border-primary bg-primary text-primary-foreground" : "border-[#d8d8d8]"
           }`}
         >
           {selected && <Check size={12} weight="bold" />}
