@@ -11,6 +11,7 @@ import {
   type PlanningInterpretation,
   type SetupState,
 } from "@/lib/onboarding";
+import { formatIDRInput } from "@/lib/types";
 import { QuestionShell } from "./onboarding-modal";
 
 const typeIcons = {
@@ -20,11 +21,6 @@ const typeIcons = {
   "map-pin": MapPin,
   "calendar-check": CalendarCheck,
 };
-
-function formatBudgetInput(value: string) {
-  const digits = value.replace(/\D/g, "");
-  return digits ? new Intl.NumberFormat("id-ID").format(Number(digits)) : "";
-}
 
 export function LocationStep({
   setup,
@@ -87,7 +83,7 @@ export function GuestsStep({
           id="guest-range"
           type="range"
           min="20"
-          max="1000"
+          max="3000"
           step="10"
           value={setup.guests}
           aria-valuetext={`${setup.guests} guests`}
@@ -96,7 +92,7 @@ export function GuestsStep({
         />
         <div className="mt-2 flex justify-between text-xs text-muted-foreground">
           <span>20</span>
-          <span>1000 guests</span>
+          <span>3000 guests</span>
         </div>
       </div>
       <InterpretationPanel data={interpretGuests(setup.guests)} />
@@ -153,7 +149,7 @@ export function BudgetStep({
               Rp
             </span>
             <input
-              value={formatBudgetInput(setup.budget)}
+              value={formatIDRInput(setup.budget)}
               onChange={(event) => onUpdate({ budget: event.target.value.replace(/\D/g, "") })}
               inputMode="numeric"
               placeholder="250.000.000"

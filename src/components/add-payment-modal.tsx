@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ModalShell } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { payerLabels } from "@/lib/onboarding";
-import type { BudgetPayment, Payer } from "@/lib/types";
+import { formatIDRInput, parseIDRInput, type BudgetPayment, type Payer } from "@/lib/types";
 
 export function AddPaymentModal({
   remaining,
@@ -16,11 +16,12 @@ export function AddPaymentModal({
   defaultPayer?: Payer;
 }) {
   const [date] = useState(() => new Date().toISOString().slice(0, 10));
+  const [amountInput, setAmountInput] = useState("");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const amount = Math.min(Number(form.get("amount")), remaining);
+    const amount = Math.min(parseIDRInput(amountInput), remaining);
     if (!amount) return;
     onSave({
       id: `payment-${Date.now()}`,
@@ -56,13 +57,16 @@ export function AddPaymentModal({
           <span className="mb-1.5 block text-sm font-medium">Payment amount (IDR)</span>
           <input
             name="amount"
-            type="number"
+            type="text"
+            inputMode="numeric"
             required
             min={1}
             max={remaining}
             autoFocus
             className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-            placeholder="e.g. 10000000"
+            value={amountInput}
+            onChange={(event) => setAmountInput(formatIDRInput(event.target.value))}
+            placeholder="e.g. 10.000.000"
           />
         </label>
         <label className="block">

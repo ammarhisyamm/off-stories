@@ -5,7 +5,13 @@ import { AddExpenseModal } from "@/components/add-expense-modal";
 import { AddPaymentModal } from "@/components/add-payment-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
-import { formatIDR, type BudgetItem, type BudgetPayment } from "@/lib/types";
+import {
+  formatIDR,
+  formatIDRInput,
+  parseIDRInput,
+  type BudgetItem,
+  type BudgetPayment,
+} from "@/lib/types";
 import type { EventData } from "@/lib/data.functions";
 import { payerLabels } from "@/lib/onboarding";
 import { CurrencyDollar } from "@phosphor-icons/react";
@@ -373,13 +379,14 @@ function Legend({ color, label }: { color: string; label: string }) {
 function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: EventData) => void }) {
   const [target, setTarget] = useState(event.savingsTarget ?? 0);
   const [saved, setSaved] = useState(event.savingsSaved ?? 0);
+  const [targetInput, setTargetInput] = useState(formatIDRInput(event.savingsTarget));
+  const [savedInput, setSavedInput] = useState(formatIDRInput(event.savingsSaved));
   const progress = target ? Math.min(100, Math.round((saved / target) * 100)) : 0;
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const nextTarget = Math.max(0, Number(form.get("savingsTarget")) || 0);
-    const nextSaved = Math.max(0, Number(form.get("savingsSaved")) || 0);
+    const nextTarget = Math.max(0, parseIDRInput(targetInput));
+    const nextSaved = Math.max(0, parseIDRInput(savedInput));
     setTarget(nextTarget);
     setSaved(nextSaved);
     onSave({ ...event, savingsTarget: nextTarget, savingsSaved: nextSaved });
@@ -414,10 +421,11 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
             </span>
             <input
               name="savingsTarget"
-              type="number"
-              min={0}
-              defaultValue={target || ""}
-              placeholder="e.g. 50000000"
+              type="text"
+              inputMode="numeric"
+              value={targetInput}
+              onChange={(event) => setTargetInput(formatIDRInput(event.target.value))}
+              placeholder="e.g. 50.000.000"
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
@@ -427,10 +435,11 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
             </span>
             <input
               name="savingsSaved"
-              type="number"
-              min={0}
-              defaultValue={saved || ""}
-              placeholder="e.g. 10000000"
+              type="text"
+              inputMode="numeric"
+              value={savedInput}
+              onChange={(event) => setSavedInput(formatIDRInput(event.target.value))}
+              placeholder="e.g. 10.000.000"
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>

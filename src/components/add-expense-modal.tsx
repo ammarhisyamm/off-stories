@@ -3,7 +3,7 @@ import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
 import { payerLabels } from "@/lib/onboarding";
-import type { BudgetItem, Payer } from "@/lib/types";
+import { formatIDRInput, parseIDRInput, type BudgetItem, type Payer } from "@/lib/types";
 
 const budgetCategories = [
   "Venue",
@@ -31,12 +31,15 @@ export function AddExpenseModal({
 }) {
   const [status, setStatus] = useState<BudgetItem["status"] | "">(initial?.status ?? "");
   const [confirming, setConfirming] = useState(false);
+  const [amountInput, setAmountInput] = useState(formatIDRInput(initial?.amount));
+  const [paidInput, setPaidInput] = useState(formatIDRInput(initial?.paid));
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const amount = Number(form.get("amount"));
-    const paid = Math.min(Number(form.get("paid") ?? 0) || 0, amount);
+    const amount = parseIDRInput(amountInput);
+    if (!amount) return;
+    const paid = Math.min(parseIDRInput(paidInput), amount);
     onSave({
       id: initial?.id ?? `b${Date.now()}`,
       category: (form.get("category") as string) || "Other",
@@ -95,22 +98,26 @@ export function AddExpenseModal({
               <span className="block text-sm font-medium mb-1.5">Amount (IDR)</span>
               <input
                 name="amount"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 required
                 min={1}
                 autoFocus={!initial}
-                defaultValue={initial?.amount}
+                value={amountInput}
+                onChange={(event) => setAmountInput(formatIDRInput(event.target.value))}
                 className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                placeholder="e.g. 25000000"
+                placeholder="e.g. 25.000.000"
               />
             </label>
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Paid so far (IDR)</span>
               <input
                 name="paid"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 min={0}
-                defaultValue={initial?.paid}
+                value={paidInput}
+                onChange={(event) => setPaidInput(formatIDRInput(event.target.value))}
                 className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 placeholder="0"
               />

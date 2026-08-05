@@ -12,6 +12,7 @@ import {
   leaveWorkspace,
 } from "@/lib/invites.functions";
 import { getBrowserStorage } from "@/lib/browser-storage";
+import { formatIDRInput, parseIDRInput } from "@/lib/types";
 import { showToast } from "@/components/toast";
 import { ArrowRight, Check, MagicWand, WarningCircle } from "@phosphor-icons/react";
 
@@ -69,7 +70,7 @@ function EventDetailsPanel() {
     setIsSaving(true);
     const formData = new FormData(e.currentTarget);
     const guestEstimate = parseInt(formData.get("guestEstimate") as string, 10);
-    const budget = parseInt(formData.get("budget") as string, 10);
+    const budget = parseIDRInput(formData.get("budget") as string);
     const newEvent = {
       name: formData.get("name") as string,
       type: formData.get("type") as string,
@@ -84,7 +85,7 @@ function EventDetailsPanel() {
       budgetPayer: eventData.budgetPayer,
       planningTeam: eventData.planningTeam,
       guestEstimate: Number.isNaN(guestEstimate) ? eventData.guestEstimate : guestEstimate,
-      budget: Number.isNaN(budget) ? eventData.budget : budget,
+      budget: budget || eventData.budget,
     };
     setKind("event", newEvent);
     setTimeout(() => setIsSaving(false), 500);
@@ -137,9 +138,10 @@ function EventDetailsPanel() {
           <Field
             label="Estimated budget (Rp)"
             name="budget"
-            type="number"
+            type="text"
             defaultValue={String(eventData.budget)}
-            placeholder="e.g. 425000000"
+            placeholder="e.g. 425.000.000"
+            formatCurrency
           />
         </div>
         <div className="mt-6 flex justify-end">
@@ -179,20 +181,27 @@ function Field({
   type,
   defaultValue,
   placeholder,
+  formatCurrency,
 }: {
   label: string;
   name: string;
   type: string;
   defaultValue: string;
   placeholder?: string;
+  formatCurrency?: boolean;
 }) {
+  const [value, setValue] = useState(formatCurrency ? formatIDRInput(defaultValue) : defaultValue);
   return (
     <label className="block">
       <span className="block text-sm font-medium mb-1.5">{label}</span>
       <input
         name={name}
-        type={type}
-        defaultValue={defaultValue}
+        type={formatCurrency ? "text" : type}
+        inputMode={formatCurrency ? "numeric" : undefined}
+        value={value}
+        onChange={(event) =>
+          setValue(formatCurrency ? formatIDRInput(event.target.value) : event.target.value)
+        }
         placeholder={placeholder}
         className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
       />

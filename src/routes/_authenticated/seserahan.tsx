@@ -6,6 +6,8 @@ import { ModalShell } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import {
   formatIDR,
+  formatIDRInput,
+  parseIDRInput,
   type BudgetItem,
   type Payer,
   type SeserahanItem,
@@ -216,6 +218,9 @@ function SeserahanModal({
   onClose: () => void;
   onSave: (item: SeserahanItem) => void;
 }) {
+  const [estimatedInput, setEstimatedInput] = useState(formatIDRInput(initial?.estimatedCost));
+  const [actualInput, setActualInput] = useState(formatIDRInput(initial?.actualCost));
+
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -224,8 +229,8 @@ function SeserahanModal({
       name: String(form.get("name") || "Seserahan item").trim(),
       category: String(form.get("category") || "Other"),
       quantity: Math.max(1, Number(form.get("quantity")) || 1),
-      estimatedCost: Math.max(0, Number(form.get("estimatedCost")) || 0),
-      actualCost: Math.max(0, Number(form.get("actualCost")) || 0),
+      estimatedCost: Math.max(0, parseIDRInput(estimatedInput)),
+      actualCost: Math.max(0, parseIDRInput(actualInput)),
       status: (form.get("status") as SeserahanStatus) || "to_buy",
       payer: (form.get("payer") as Payer) || "shared",
       assignedTo: String(form.get("assignedTo") || "").trim() || undefined,
@@ -271,9 +276,10 @@ function SeserahanModal({
             <span className="mb-1.5 block text-sm font-medium">Estimated cost</span>
             <input
               name="estimatedCost"
-              type="number"
-              min={0}
-              defaultValue={initial?.estimatedCost || ""}
+              type="text"
+              inputMode="numeric"
+              value={estimatedInput}
+              onChange={(event) => setEstimatedInput(formatIDRInput(event.target.value))}
               placeholder="0"
               className="w-full border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm"
             />
@@ -282,9 +288,10 @@ function SeserahanModal({
             <span className="mb-1.5 block text-sm font-medium">Actual cost</span>
             <input
               name="actualCost"
-              type="number"
-              min={0}
-              defaultValue={initial?.actualCost || ""}
+              type="text"
+              inputMode="numeric"
+              value={actualInput}
+              onChange={(event) => setActualInput(formatIDRInput(event.target.value))}
               placeholder="0"
               className="w-full border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm"
             />

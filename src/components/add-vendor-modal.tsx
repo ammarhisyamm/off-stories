@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
-import type { Vendor } from "@/lib/types";
+import { formatIDRInput, parseIDRInput, type Vendor } from "@/lib/types";
 
 const vendorCategories = [
   "Venue",
@@ -29,6 +29,7 @@ export function AddVendorModal({
 }) {
   const [status, setStatus] = useState<Vendor["status"] | "">(initial?.status ?? "");
   const [confirming, setConfirming] = useState(false);
+  const [quotedInput, setQuotedInput] = useState(formatIDRInput(initial?.quoted));
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,7 +41,7 @@ export function AddVendorModal({
       contact: (form.get("contact") as string)?.trim() || "—",
       phone: (form.get("phone") as string)?.trim() || "—",
       packageName: (form.get("packageName") as string)?.trim() || "—",
-      quoted: Number(form.get("quoted")) || 0,
+      quoted: parseIDRInput(quotedInput),
       final: initial?.final,
       status: (status || "researching") as Vendor["status"],
     });
@@ -141,12 +142,14 @@ export function AddVendorModal({
               <span className="block text-sm font-medium mb-1.5">Quoted (IDR)</span>
               <input
                 name="quoted"
-                type="number"
+                type="text"
+                inputMode="numeric"
                 required
                 min={0}
-                defaultValue={initial?.quoted}
+                value={quotedInput}
+                onChange={(event) => setQuotedInput(formatIDRInput(event.target.value))}
                 className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                placeholder="e.g. 15000000"
+                placeholder="e.g. 15.000.000"
               />
             </label>
           </div>

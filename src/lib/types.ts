@@ -136,6 +136,16 @@ export const formatIDR = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
+export const parseIDRInput = (value: string | number | null | undefined) => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits ? Number(digits) : 0;
+};
+
+export const formatIDRInput = (value: string | number | null | undefined) => {
+  const amount = parseIDRInput(value);
+  return amount ? new Intl.NumberFormat("id-ID").format(amount) : "";
+};
+
 export const taskCategories = [
   "Venue",
   "Catering",

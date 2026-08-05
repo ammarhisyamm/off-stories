@@ -57,13 +57,8 @@ export function DashboardOnboarding({
 
   function continueFromStart() {
     if (!mode) return;
-    if (
-      mode === "blank" &&
-      (!setup.partnerOneName.trim() || !setup.partnerTwoName.trim() || !setup.weddingDate)
-    ) {
-      setStartError(
-        "Nama kedua mempelai dan tanggal pernikahan wajib diisi untuk memulai Blank Canvas.",
-      );
+    if (!setup.partnerOneName.trim() || !setup.partnerTwoName.trim() || !setup.weddingDate) {
+      setStartError("Nama kedua mempelai dan tanggal pernikahan wajib diisi sebelum melanjutkan.");
       return;
     }
     if (mode === "blank") {
@@ -152,14 +147,16 @@ export function DashboardOnboarding({
             icon={<MagicWand size={28} weight="regular" />}
           />
         </div>
-        {mode === "blank" && (
+        {mode && (
           <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-white p-5 sm:p-6">
             <div>
               <div className="text-sm font-medium text-foreground">
                 Start with your wedding details
               </div>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Optional for now, but these details help personalize your workspace and budget plan.
+                {mode === "blank"
+                  ? "Isi detail ini untuk membuka workspace kosong."
+                  : "Isi nama dan tanggal dulu, lalu lanjutkan ke setup pintar."}
               </p>
             </div>
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -197,73 +194,81 @@ export function DashboardOnboarding({
                   className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                 />
               </label>
-              <div className="sm:col-span-2">
-                <span className="mb-2 block text-sm font-medium">Acara yang akan direncanakan</span>
-                <div className="flex flex-wrap gap-2">
-                  {ceremonyOptions.map((ceremony) => {
-                    const active = setup.ceremonyTypes.includes(ceremony);
-                    return (
-                      <button
-                        key={ceremony}
-                        type="button"
-                        onClick={() =>
-                          onUpdate({
-                            ceremonyTypes: active
-                              ? setup.ceremonyTypes.filter((item) => item !== ceremony)
-                              : [...setup.ceremonyTypes, ceremony],
-                          })
-                        }
-                        className={`rounded-full border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
-                        aria-pressed={active}
-                      >
-                        {ceremony}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">Status venue</span>
-                <select
-                  value={setup.venueStatus}
-                  onChange={(event) =>
-                    onUpdate({ venueStatus: event.target.value as SetupState["venueStatus"] })
-                  }
-                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-                >
-                  <option value="not_decided">Belum menentukan</option>
-                  <option value="shortlisted">Sudah shortlist</option>
-                  <option value="booked">Sudah booking</option>
-                </select>
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">Budget utama dibayar oleh</span>
-                <select
-                  value={setup.budgetPayer}
-                  onChange={(event) =>
-                    onUpdate({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
-                  }
-                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-                >
-                  {Object.entries(payerLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block sm:col-span-2">
-                <span className="mb-2 block text-sm font-medium">Nama venue (opsional)</span>
-                <input
-                  type="text"
-                  name="venue-name"
-                  autoComplete="off"
-                  value={setup.venueName}
-                  onChange={(event) => onUpdate({ venueName: event.target.value })}
-                  placeholder="Contoh: Gedung Serbaguna Jakarta"
-                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-                />
-              </label>
+              {mode === "blank" && (
+                <>
+                  <div className="sm:col-span-2">
+                    <span className="mb-2 block text-sm font-medium">
+                      Acara yang akan direncanakan
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {ceremonyOptions.map((ceremony) => {
+                        const active = setup.ceremonyTypes.includes(ceremony);
+                        return (
+                          <button
+                            key={ceremony}
+                            type="button"
+                            onClick={() =>
+                              onUpdate({
+                                ceremonyTypes: active
+                                  ? setup.ceremonyTypes.filter((item) => item !== ceremony)
+                                  : [...setup.ceremonyTypes, ceremony],
+                              })
+                            }
+                            className={`rounded-full border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
+                            aria-pressed={active}
+                          >
+                            {ceremony}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium">Status venue</span>
+                    <select
+                      value={setup.venueStatus}
+                      onChange={(event) =>
+                        onUpdate({ venueStatus: event.target.value as SetupState["venueStatus"] })
+                      }
+                      className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                    >
+                      <option value="not_decided">Belum menentukan</option>
+                      <option value="shortlisted">Sudah shortlist</option>
+                      <option value="booked">Sudah booking</option>
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium">
+                      Budget utama dibayar oleh
+                    </span>
+                    <select
+                      value={setup.budgetPayer}
+                      onChange={(event) =>
+                        onUpdate({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
+                      }
+                      className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                    >
+                      {Object.entries(payerLabels).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block sm:col-span-2">
+                    <span className="mb-2 block text-sm font-medium">Nama venue (opsional)</span>
+                    <input
+                      type="text"
+                      name="venue-name"
+                      autoComplete="off"
+                      value={setup.venueName}
+                      onChange={(event) => onUpdate({ venueName: event.target.value })}
+                      placeholder="Contoh: Gedung Serbaguna Jakarta"
+                      className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                    />
+                  </label>
+                </>
+              )}
             </div>
           </div>
         )}
