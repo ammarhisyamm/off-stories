@@ -23,7 +23,7 @@ import {
   Wallet,
 } from "@phosphor-icons/react";
 import { formatIDR } from "@/lib/types";
-import { getPlanningDate, type SetupState } from "@/lib/onboarding";
+import { getPlanningDate, getPlanningDurationMonths, type SetupState } from "@/lib/onboarding";
 
 export function PlanReadyPreview({
   setup,
@@ -42,6 +42,8 @@ export function PlanReadyPreview({
     month: "long",
     year: "numeric",
   });
+  const planningDurationMonths = getPlanningDurationMonths(setup.weddingDate);
+  const planningDuration = `${planningDurationMonths} ${planningDurationMonths === 1 ? "Month" : "Months"}`;
   const allocation = [
     { label: "Venue", percent: 28, icon: Buildings },
     { label: "Catering", percent: 33, icon: UsersThree },
@@ -120,7 +122,7 @@ export function PlanReadyPreview({
                 ...(setup.partnerOneName && setup.partnerTwoName
                   ? [`${setup.partnerOneName} & ${setup.partnerTwoName}`]
                   : []),
-                "14 Month Planning",
+                `${planningDuration} Planning`,
               ].map((chip) => (
                 <span
                   key={chip}
@@ -204,7 +206,11 @@ export function PlanReadyPreview({
               label="Wedding Organizer"
               value={setup.organizer === "yes" ? "Yes" : "No"}
             />
-            <OverviewItem icon={<Clock size={19} />} label="Planning Duration" value="14 Months" />
+            <OverviewItem
+              icon={<Clock size={19} />}
+              label="Planning Duration"
+              value={planningDuration}
+            />
           </div>
         </div>
 
@@ -254,7 +260,7 @@ export function PlanReadyPreview({
               label="Style"
               value={setup.weddingType || "Wedding celebration"}
             />
-            <BudgetInfoItem icon={<Clock size={17} />} label="Timeline" value="14 Months" />
+            <BudgetInfoItem icon={<Clock size={17} />} label="Timeline" value={planningDuration} />
           </div>
           <p className="mt-6 border-t border-[#f1f1f1] pt-4 text-xs leading-5 text-muted-foreground">
             This estimate becomes more accurate as you add vendors, expenses, and update your

@@ -1,14 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddGuestModal } from "@/components/add-guest-modal";
 import { ModalShell, ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { Guest } from "@/lib/types";
-import { Check, LinkSimple, QrCode, Users } from "@phosphor-icons/react";
-import { createRsvpLink } from "@/lib/rsvp.functions";
-import { QRCodeSVG } from "qrcode.react";
+import { Check, Users } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
@@ -29,11 +26,6 @@ function Guests() {
   const [editing, setEditing] = useState<Guest | null>(null);
   const [viewing, setViewing] = useState<Guest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [linkError, setLinkError] = useState<string | null>(null);
-  const [linkCopied, setLinkCopied] = useState(false);
-  const [qrLink, setQrLink] = useState<string | null>(null);
-  const [qrGuestName, setQrGuestName] = useState<string | null>(null);
-  const createLink = useServerFn(createRsvpLink);
   const totalInvited = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const pending = guests.filter((g) => g.rsvp === "pending").reduce((s, g) => s + g.pax, 0);
@@ -66,33 +58,6 @@ function Guests() {
     setViewing(guest);
   }
 
-  async function handleRsvpLink(guest: Guest) {
-    setLinkError(null);
-    setLinkCopied(false);
-    try {
-      const result = await createLink({ data: { guestId: guest.id } });
-      if (!navigator.clipboard)
-        throw new Error(
-          "Clipboard access is unavailable. Copy the link from the browser address bar instead.",
-        );
-      await navigator.clipboard.writeText(result.url);
-      setLinkCopied(true);
-    } catch (error) {
-      setLinkError(error instanceof Error ? error.message : "Couldn't create RSVP link");
-    }
-  }
-
-  async function handleQrCode(guest: Guest) {
-    setLinkError(null);
-    try {
-      const result = await createLink({ data: { guestId: guest.id } });
-      setQrLink(result.checkInUrl);
-      setQrGuestName(guest.name);
-    } catch (error) {
-      setLinkError(error instanceof Error ? error.message : "Couldn't create check-in QR");
-    }
-  }
-
   function toggleCheckIn(guest: Guest) {
     setKind(
       "guests",
@@ -117,20 +82,6 @@ function Guests() {
         <Stat label="Pending" value={pending} tone="taupe" />
         <Stat label="Declined" value={declined} tone="warn" />
       </div>
-      {(linkError || linkCopied) && (
-        <div className="mb-6 rounded-md border border-border bg-surface-2 px-4 py-3 text-sm">
-          {linkError ? (
-            <p role="alert" className="text-destructive">
-              {linkError}
-            </p>
-          ) : (
-            <p className="text-muted-foreground">
-              RSVP link copied. Share it with the guest group via WhatsApp.
-            </p>
-          )}
-        </div>
-      )}
-
       <div className="panel overflow-x-auto">
         {guests.length === 0 ? (
           <EmptyState
@@ -144,7 +95,7 @@ function Guests() {
             }
           />
         ) : (
-          <table className="w-full text-sm min-w-[860px]">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="text-left text-xs text-muted-foreground bg-surface-2">
                 <th className="px-5 py-3 font-medium">Group</th>
@@ -153,7 +104,6 @@ function Guests() {
                 <th className="px-5 py-3 font-medium">Invitation</th>
                 <th className="px-5 py-3 font-medium">RSVP</th>
                 <th className="px-5 py-3 font-medium">Check-in</th>
-                <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -203,26 +153,6 @@ function Guests() {
                       {g.checkedIn && <Check size={13} weight="bold" />}
                       {g.checkedIn ? "Checked in" : "Not checked in"}
                     </button>
-                  </td>
-                  <td className="px-5 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex justify-end gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => handleRsvpLink(g)}
-                        aria-label={`Copy RSVP link for ${g.name}`}
-                        className="rounded-md border border-border p-2 text-muted-foreground transition hover:border-primary hover:text-foreground"
-                      >
-                        <LinkSimple size={15} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleQrCode(g)}
-                        aria-label={`Create QR check-in link for ${g.name}`}
-                        className="rounded-md border border-border p-2 text-muted-foreground transition hover:border-primary hover:text-foreground"
-                      >
-                        <QrCode size={15} />
-                      </button>
-                    </div>
                   </td>
                 </tr>
               ))}
@@ -280,29 +210,6 @@ function Guests() {
           onSave={handleSave}
           onDelete={handleDelete}
         />
-      )}
-      {qrLink && qrGuestName && (
-        <ModalShell
-          title="Guest check-in QR"
-          onClose={() => {
-            setQrLink(null);
-            setQrGuestName(null);
-          }}
-        >
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Scan this code at the entrance to check in{" "}
-              <span className="font-medium text-foreground">{qrGuestName}</span>.
-            </p>
-            <div className="mx-auto my-6 grid w-fit place-items-center rounded-xl border border-border bg-white p-4">
-              <QRCodeSVG value={qrLink} size={220} includeMargin />
-            </div>
-            <p className="break-all text-xs text-muted-foreground">{qrLink}</p>
-            <QuietButton type="button" className="mt-5" onClick={() => window.print()}>
-              Print QR
-            </QuietButton>
-          </div>
-        </ModalShell>
       )}
     </AppLayout>
   );

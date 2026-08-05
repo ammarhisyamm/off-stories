@@ -126,6 +126,16 @@ export function setupBudget(guests: number, budgetChoice: BudgetChoice, budget: 
   return Math.round((guests * 1_140_000) / 1_000_000) * 1_000_000;
 }
 
+export function getPlanningDurationMonths(weddingDate: string, startDate = new Date()) {
+  const wedding = new Date(`${weddingDate}T12:00:00`);
+  if (Number.isNaN(wedding.getTime())) return 0;
+
+  const months =
+    (wedding.getFullYear() - startDate.getFullYear()) * 12 +
+    (wedding.getMonth() - startDate.getMonth());
+  return Math.max(0, months - (wedding.getDate() < startDate.getDate() ? 1 : 0));
+}
+
 export type PlanningInterpretation = {
   title: string;
   interpretation: string;

@@ -5,8 +5,7 @@ import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { daysUntil, type Task } from "@/lib/types";
-import { createTemplateTasks, preparationTemplates } from "@/lib/preparation-templates";
-import { ArrowSquareOut, FileText, ShoppingBag, Sparkle } from "@phosphor-icons/react";
+import { ArrowSquareOut } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
@@ -29,7 +28,6 @@ function Checklist() {
   const [editing, setEditing] = useState<Task | null>(null);
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [templatesOpen, setTemplatesOpen] = useState(false);
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(tasks.map((t) => t.category)))],
     [tasks],
@@ -74,13 +72,6 @@ function Checklist() {
     [persist, tasks],
   );
 
-  function addTemplate(templateId: (typeof preparationTemplates)[number]["id"]) {
-    const template = preparationTemplates.find((item) => item.id === templateId);
-    if (!template) return;
-    setKind("tasks", [...tasks, ...createTemplateTasks(template)]);
-    setTemplatesOpen(false);
-  }
-
   function openEdit(task: Task) {
     setEditing(task);
     setIsModalOpen(true);
@@ -115,51 +106,6 @@ function Checklist() {
           </button>
         ))}
       </div>
-
-      <section className="panel mb-6 p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="eyebrow">Local planning templates</div>
-            <h2 className="serif mt-1 text-xl">Start with details unique to your wedding</h2>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Add a practical KUA, adat, or seserahan checklist to your workspace. Customize every
-              item after adding it.
-            </p>
-          </div>
-          <QuietButton type="button" onClick={() => setTemplatesOpen((open) => !open)}>
-            {templatesOpen ? "Close templates" : "Browse templates"}
-          </QuietButton>
-        </div>
-        {templatesOpen && (
-          <div className="mt-5 grid grid-cols-1 gap-3 border-t border-border pt-5 md:grid-cols-3">
-            {preparationTemplates.map((template) => (
-              <div key={template.id} className="rounded-xl border border-border bg-surface-2 p-4">
-                <div className="flex items-center gap-2">
-                  {template.id === "kua" ? (
-                    <FileText size={18} />
-                  ) : template.id === "adat" ? (
-                    <Sparkle size={18} />
-                  ) : (
-                    <ShoppingBag size={18} />
-                  )}
-                  <h3 className="text-sm font-medium text-foreground">{template.title}</h3>
-                </div>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  {template.description}
-                </p>
-                <QuietButton
-                  type="button"
-                  variant="primary"
-                  className="mt-4 w-full justify-center"
-                  onClick={() => addTemplate(template.id)}
-                >
-                  Add {template.items.length} items
-                </QuietButton>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
 
       <div className="mb-6 inline-flex rounded-md border border-border bg-surface p-0.5">
         <button
