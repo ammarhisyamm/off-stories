@@ -1,7 +1,7 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { List as ListIcon, SignOut, X, SidebarSimple } from "@phosphor-icons/react";
+import { CaretDown, List as ListIcon, SignOut, X, SidebarSimple } from "@phosphor-icons/react";
 import {
   SidebarBudget,
   SidebarCalendar,
@@ -20,11 +20,8 @@ import { getBrowserStorage } from "@/lib/browser-storage";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { ToastViewport } from "@/components/toast";
 
-const nav = [
+const primaryNav = [
   { to: "/dashboard", label: "Dashboard", Icon: SidebarHouse },
-  { to: "/timeline", label: "Timeline", Icon: SidebarCalendar },
-  { to: "/rundown", label: "Rundown", Icon: SidebarCalendar },
-  { to: "/command-center", label: "Command center", Icon: SidebarCalendar },
   { to: "/checklist", label: "Checklist", Icon: SidebarChecklist },
   { to: "/budget", label: "Budget", Icon: SidebarBudget },
   { to: "/seserahan", label: "Seserahan", Icon: SidebarChecklist },
@@ -33,6 +30,12 @@ const nav = [
   { to: "/notes", label: "Notes", Icon: SidebarNotes },
   { to: "/documents", label: "Documents", Icon: SidebarDocuments },
   { to: "/settings", label: "Settings", Icon: SidebarSettings },
+] as const;
+
+const weddingDayNav = [
+  { to: "/timeline", label: "Timeline" },
+  { to: "/rundown", label: "Rundown" },
+  { to: "/command-center", label: "Command center" },
 ] as const;
 
 function useCurrentUser() {
@@ -61,9 +64,25 @@ function NavList({
   onNavigate?: () => void;
   collapsed?: boolean;
 }) {
+  const weddingDayActive = weddingDayNav.some(({ to }) => pathname.startsWith(to));
+  const [weddingDayOpen, setWeddingDayOpen] = useState(weddingDayActive);
+
+  useEffect(() => {
+    if (weddingDayActive) setWeddingDayOpen(true);
+  }, [weddingDayActive]);
+
+  const itemClass = (active: boolean, nested = false) =>
+    [
+      "sidebar-nav-link flex items-center gap-3 rounded-[14px] border py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      collapsed ? "justify-center px-2" : nested ? "ml-7 px-3" : "px-3",
+      active
+        ? "is-active border-sidebar-border bg-surface font-medium text-sidebar-foreground shadow-[0_1px_2px_rgb(91_14_32_/_0.04),0_4px_12px_rgb(91_14_32_/_0.05)]"
+        : "border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-surface/75 hover:text-foreground",
+    ].join(" ");
+
   return (
     <nav className="flex-1 px-3 py-5 space-y-1">
-      {nav.map(({ to, label, Icon }) => {
+      {primaryNav.map(({ to, label, Icon }) => {
         const active = pathname.startsWith(to);
         return (
           <Link
@@ -72,13 +91,7 @@ function NavList({
             preload="intent"
             preloadDelay={0}
             onClick={onNavigate}
-            className={[
-              "sidebar-nav-link flex items-center gap-3 rounded-[14px] border py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              collapsed ? "justify-center px-2" : "px-3",
-              active
-                ? "is-active border-sidebar-border bg-surface font-medium text-sidebar-foreground shadow-[0_1px_2px_rgb(91_14_32_/_0.04),0_4px_12px_rgb(91_14_32_/_0.05)]"
-                : "border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-surface/75 hover:text-foreground",
-            ].join(" ")}
+            className={itemClass(active)}
           >
             <Icon className={active ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"} />
             <span
@@ -89,6 +102,59 @@ function NavList({
           </Link>
         );
       })}
+      {collapsed ? (
+        <Link
+          to="/timeline"
+          preload="intent"
+          onClick={onNavigate}
+          title="Wedding day"
+          aria-label="Wedding day"
+          className={itemClass(weddingDayActive)}
+        >
+          <SidebarCalendar
+            className={weddingDayActive ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"}
+          />
+        </Link>
+      ) : (
+        <div>
+          <button
+            type="button"
+            onClick={() => setWeddingDayOpen((open) => !open)}
+            aria-expanded={weddingDayOpen}
+            className={`${itemClass(weddingDayActive)} w-full`}
+          >
+            <SidebarCalendar
+              className={weddingDayActive ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"}
+            />
+            <span className="min-w-0 flex-1 truncate text-left">Wedding day</span>
+            <CaretDown
+              size={15}
+              className={`shrink-0 transition-transform duration-200 ${weddingDayOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          <div
+            className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${weddingDayOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+          >
+            <div className="min-h-0 overflow-hidden pt-1">
+              {weddingDayNav.map(({ to, label }) => {
+                const active = pathname.startsWith(to);
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    preload="intent"
+                    preloadDelay={0}
+                    onClick={onNavigate}
+                    className={itemClass(active, true)}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
@@ -171,7 +237,9 @@ export function AppLayout({
       const next = !collapsed;
       try {
         getBrowserStorage("local").setItem("offstories-sidebar-collapsed", String(next));
-      } catch {}
+      } catch {
+        return next;
+      }
       return next;
     });
   }
