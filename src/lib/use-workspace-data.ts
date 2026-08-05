@@ -96,9 +96,14 @@ export function useWorkspaceData() {
   const loadFn = useServerFn(loadWorkspaceData);
   const saveFn = useServerFn(saveWorkspaceData);
   const reportFn = useServerFn(reportClientError);
-  const [state, setState] = useState<{ loading: boolean; error: string | null }>(() => ({
+  const [state, setState] = useState<{
+    loading: boolean;
+    error: string | null;
+    revision: number;
+  }>(() => ({
     loading: !loaded,
     error: loadError,
+    revision: 0,
   }));
 
   useEffect(() => {
@@ -107,9 +112,11 @@ export function useWorkspaceData() {
     boundReport = reportFn as (input: unknown) => Promise<unknown>;
 
     const listener = () =>
-      setState((s) =>
-        s.loading === false && s.error === loadError ? s : { loading: false, error: loadError },
-      );
+      setState((s) => ({
+        loading: false,
+        error: loadError,
+        revision: s.revision + 1,
+      }));
     listeners.add(listener);
 
     if (!loaded) {
