@@ -26,6 +26,7 @@ const nav = [
   { to: "/rundown", label: "Rundown", Icon: SidebarCalendar },
   { to: "/checklist", label: "Checklist", Icon: SidebarChecklist },
   { to: "/budget", label: "Budget", Icon: SidebarBudget },
+  { to: "/seserahan", label: "Seserahan", Icon: SidebarChecklist },
   { to: "/vendors", label: "Vendors", Icon: SidebarVendors },
   { to: "/guests", label: "Guests", Icon: SidebarGuests },
   { to: "/notes", label: "Notes", Icon: SidebarNotes },

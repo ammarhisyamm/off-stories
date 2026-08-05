@@ -2,7 +2,8 @@ import { useState } from "react";
 import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
-import type { BudgetItem } from "@/lib/types";
+import { payerLabels } from "@/lib/onboarding";
+import type { BudgetItem, Payer } from "@/lib/types";
 
 const budgetCategories = [
   "Venue",
@@ -45,6 +46,7 @@ export function AddExpenseModal({
       committed: amount,
       status: (status || "planned") as BudgetItem["status"],
       dueDate: (form.get("dueDate") as string) || undefined,
+      payer: (form.get("payer") as Payer) || "shared",
       payments: initial?.payments,
     });
   }
@@ -112,6 +114,20 @@ export function AddExpenseModal({
                 className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
                 placeholder="0"
               />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium mb-1.5">Paid by</span>
+              <select
+                name="payer"
+                defaultValue={initial?.payer ?? "shared"}
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              >
+                {Object.entries(payerLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

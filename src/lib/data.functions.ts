@@ -12,6 +12,7 @@ import type {
   Note,
   DocRef,
   RundownItem,
+  SeserahanItem,
 } from "@/lib/types";
 
 export const KINDS = [
@@ -24,6 +25,7 @@ export const KINDS = [
   "notes",
   "documents",
   "rundown",
+  "seserahan",
 ] as const;
 export type DataKind = (typeof KINDS)[number];
 
@@ -42,6 +44,11 @@ export type EventData = typeof emptyEvent & {
   adat?: string;
   brideName?: string;
   groomName?: string;
+  ceremonyTypes?: string[];
+  venueStatus?: "not_decided" | "shortlisted" | "booked";
+  venueName?: string;
+  budgetPayer?: "couple" | "bride_family" | "groom_family" | "shared" | "other";
+  planningTeam?: string[];
 };
 
 export type WorkspaceData = {
@@ -54,6 +61,7 @@ export type WorkspaceData = {
   notes: Note[];
   documents: DocRef[];
   rundown: RundownItem[];
+  seserahan: SeserahanItem[];
 };
 
 export function emptyWorkspaceData(): WorkspaceData {
@@ -67,6 +75,7 @@ export function emptyWorkspaceData(): WorkspaceData {
     notes: [],
     documents: [],
     rundown: [],
+    seserahan: [],
   };
 }
 

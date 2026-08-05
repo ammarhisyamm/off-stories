@@ -31,6 +31,7 @@ export interface BudgetItem {
   committed: number;
   status: "paid" | "partial" | "due" | "planned";
   dueDate?: string;
+  payer?: Payer;
   payments?: BudgetPayment[];
 }
 
@@ -38,7 +39,26 @@ export interface BudgetPayment {
   id: string;
   amount: number;
   date: string;
+  payer?: Payer;
   note?: string;
+}
+
+export type Payer = "couple" | "bride_family" | "groom_family" | "shared" | "other";
+
+export type SeserahanStatus = "to_buy" | "bought" | "wrapped" | "ready";
+
+export interface SeserahanItem {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  estimatedCost: number;
+  actualCost: number;
+  status: SeserahanStatus;
+  payer?: Payer;
+  assignedTo?: string;
+  link?: string;
+  notes?: string;
 }
 
 export interface Vendor {

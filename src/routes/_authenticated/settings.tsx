@@ -78,6 +78,11 @@ function EventDetailsPanel() {
       adat: eventData.adat,
       brideName: eventData.brideName,
       groomName: eventData.groomName,
+      ceremonyTypes: eventData.ceremonyTypes,
+      venueStatus: eventData.venueStatus,
+      venueName: eventData.venueName,
+      budgetPayer: eventData.budgetPayer,
+      planningTeam: eventData.planningTeam,
       guestEstimate: Number.isNaN(guestEstimate) ? eventData.guestEstimate : guestEstimate,
       budget: Number.isNaN(budget) ? eventData.budget : budget,
     };

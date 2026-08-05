@@ -19,6 +19,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
 import { Route as AuthenticatedTimelineRouteImport } from './routes/_authenticated/timeline'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSeserahanRouteImport } from './routes/_authenticated/seserahan'
 import { Route as AuthenticatedRundownRouteImport } from './routes/_authenticated/rundown'
 import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/notes'
 import { Route as AuthenticatedGuestsRouteImport } from './routes/_authenticated/guests'
@@ -76,6 +77,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSeserahanRoute = AuthenticatedSeserahanRouteImport.update({
+  id: '/seserahan',
+  path: '/seserahan',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRundownRoute = AuthenticatedRundownRouteImport.update({
   id: '/rundown',
   path: '/rundown',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/guests': typeof AuthenticatedGuestsRoute
   '/notes': typeof AuthenticatedNotesRoute
   '/rundown': typeof AuthenticatedRundownRoute
+  '/seserahan': typeof AuthenticatedSeserahanRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
   '/vendors': typeof AuthenticatedVendorsRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/guests': typeof AuthenticatedGuestsRoute
   '/notes': typeof AuthenticatedNotesRoute
   '/rundown': typeof AuthenticatedRundownRoute
+  '/seserahan': typeof AuthenticatedSeserahanRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
   '/vendors': typeof AuthenticatedVendorsRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/_authenticated/guests': typeof AuthenticatedGuestsRoute
   '/_authenticated/notes': typeof AuthenticatedNotesRoute
   '/_authenticated/rundown': typeof AuthenticatedRundownRoute
+  '/_authenticated/seserahan': typeof AuthenticatedSeserahanRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/timeline': typeof AuthenticatedTimelineRoute
   '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/guests'
     | '/notes'
     | '/rundown'
+    | '/seserahan'
     | '/settings'
     | '/timeline'
     | '/vendors'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/guests'
     | '/notes'
     | '/rundown'
+    | '/seserahan'
     | '/settings'
     | '/timeline'
     | '/vendors'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/_authenticated/guests'
     | '/_authenticated/notes'
     | '/_authenticated/rundown'
+    | '/_authenticated/seserahan'
     | '/_authenticated/settings'
     | '/_authenticated/timeline'
     | '/_authenticated/vendors'
@@ -308,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/seserahan': {
+      id: '/_authenticated/seserahan'
+      path: '/seserahan'
+      fullPath: '/seserahan'
+      preLoaderRoute: typeof AuthenticatedSeserahanRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/rundown': {
       id: '/_authenticated/rundown'
       path: '/rundown'
@@ -368,6 +387,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGuestsRoute: typeof AuthenticatedGuestsRoute
   AuthenticatedNotesRoute: typeof AuthenticatedNotesRoute
   AuthenticatedRundownRoute: typeof AuthenticatedRundownRoute
+  AuthenticatedSeserahanRoute: typeof AuthenticatedSeserahanRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTimelineRoute: typeof AuthenticatedTimelineRoute
   AuthenticatedVendorsRoute: typeof AuthenticatedVendorsRoute
@@ -381,6 +401,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGuestsRoute: AuthenticatedGuestsRoute,
   AuthenticatedNotesRoute: AuthenticatedNotesRoute,
   AuthenticatedRundownRoute: AuthenticatedRundownRoute,
+  AuthenticatedSeserahanRoute: AuthenticatedSeserahanRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTimelineRoute: AuthenticatedTimelineRoute,
   AuthenticatedVendorsRoute: AuthenticatedVendorsRoute,

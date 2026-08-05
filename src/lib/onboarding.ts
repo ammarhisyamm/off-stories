@@ -1,4 +1,4 @@
-import type { BudgetItem, Milestone, Task, Vendor } from "@/lib/types";
+import type { BudgetItem, Milestone, Payer, SeserahanItem, Task, Vendor } from "@/lib/types";
 import type { WorkspaceData } from "@/lib/data.functions";
 import { getBrowserStorage } from "@/lib/browser-storage";
 
@@ -15,6 +15,11 @@ export type SetupState = {
   weddingType: string;
   adat: string;
   organizer: "yes" | "no" | "";
+  ceremonyTypes: string[];
+  venueStatus: "not_decided" | "shortlisted" | "booked";
+  venueName: string;
+  budgetPayer: Payer;
+  planningTeam: string[];
 };
 
 export function markOnboardingComplete() {
@@ -90,6 +95,28 @@ export const blankSetup: SetupState = {
   weddingType: "",
   adat: "No specific adat yet",
   organizer: "",
+  ceremonyTypes: ["Akad", "Resepsi"],
+  venueStatus: "not_decided",
+  venueName: "",
+  budgetPayer: "shared",
+  planningTeam: ["Partner 1", "Partner 2"],
+};
+
+export const ceremonyOptions = [
+  "Lamaran",
+  "Akad",
+  "Resepsi",
+  "Pengajian",
+  "Siraman",
+  "Tea Pai",
+] as const;
+
+export const payerLabels: Record<Payer, string> = {
+  couple: "Pasangan",
+  bride_family: "Keluarga mempelai 1",
+  groom_family: "Keluarga mempelai 2",
+  shared: "Dibagi bersama",
+  other: "Lainnya",
 };
 
 export function setupBudget(guests: number, budgetChoice: BudgetChoice, budget: string) {
@@ -134,6 +161,7 @@ export function smartData(setup: SetupState) {
       status: "todo",
     },
   ];
+  const localPack = createLocalPlanningPack(setup);
   const starterBudget: BudgetItem[] = [
     {
       id: "setup-venue-budget",
@@ -190,8 +218,13 @@ export function smartData(setup: SetupState) {
       groomName: setup.partnerTwoName,
       guestEstimate: setup.guests,
       budget,
+      ceremonyTypes: setup.ceremonyTypes,
+      venueStatus: setup.venueStatus,
+      venueName: setup.venueName,
+      budgetPayer: setup.budgetPayer,
+      planningTeam: setup.planningTeam,
     },
-    tasks: starterTasks,
+    tasks: [...starterTasks, ...localPack],
     budget: starterBudget,
     vendors: starterVendors,
     milestones: starterMilestones,
@@ -199,4 +232,56 @@ export function smartData(setup: SetupState) {
   } satisfies Pick<WorkspaceData, "event" | "tasks" | "budget" | "vendors" | "milestones"> & {
     budgetValue: number;
   };
+}
+
+export function createLocalPlanningPack(setup: SetupState): Task[] {
+  const date = getPlanningDate(setup.weddingDate);
+  const tasks: Task[] = [];
+  const add = (title: string, category: string, priority: Task["priority"] = "medium") =>
+    tasks.push({
+      id: `local-${category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${tasks.length}`,
+      title,
+      category,
+      due: date,
+      priority,
+      status: "todo",
+    });
+
+  if (setup.adat !== "No specific adat yet") {
+    add(`Confirm ${setup.adat} ceremony sequence with both families`, "Adat", "high");
+    add(`List ${setup.adat} attire, accessories, and symbolic items`, "Adat");
+  }
+  if (setup.ceremonyTypes.includes("Akad")) {
+    add("Confirm KUA or civil registration requirements", "KUA & Legal", "high");
+    add("Prepare identity documents and required photos", "KUA & Legal", "high");
+  }
+  if (setup.ceremonyTypes.includes("Resepsi")) {
+    add("Confirm catering menu and guest serving count", "Catering");
+    add("Draft the reception rundown and family PICs", "Rundown");
+  }
+  if (setup.ceremonyTypes.includes("Siraman"))
+    add("Confirm siraman items and ceremony helpers", "Adat");
+  if (setup.ceremonyTypes.includes("Tea Pai"))
+    add("Confirm tea pai sequence, tea set, and family seating", "Adat");
+  if (setup.organizer === "no") add("Assign a family or friend as day-of coordinator", "Family");
+  return tasks;
+}
+
+export function createStarterSeserahan(): SeserahanItem[] {
+  return [
+    ["Alat ibadah", "Alat ibadah", "alat ibadah seserahan"],
+    ["Perlengkapan wanita", "Perlengkapan", "perlengkapan wanita seserahan"],
+    ["Pakaian atau kain", "Pakaian", "kain seserahan"],
+    ["Skincare dan makeup", "Perawatan", "skincare makeup seserahan"],
+    ["Tas atau sepatu", "Aksesori", "tas sepatu seserahan"],
+  ].map(([name, category, keyword], index) => ({
+    id: `seserahan-${index}`,
+    name,
+    category,
+    quantity: 1,
+    estimatedCost: 0,
+    actualCost: 0,
+    status: "to_buy" as const,
+    link: `https://shopee.co.id/search?keyword=${encodeURIComponent(keyword)}`,
+  }));
 }

@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { ModalShell } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
-import type { BudgetPayment } from "@/lib/types";
+import { payerLabels } from "@/lib/onboarding";
+import type { BudgetPayment, Payer } from "@/lib/types";
 
 export function AddPaymentModal({
   remaining,
   onClose,
   onSave,
+  defaultPayer = "shared",
 }: {
   remaining: number;
   onClose: () => void;
   onSave: (payment: BudgetPayment) => void;
+  defaultPayer?: Payer;
 }) {
   const [date] = useState(() => new Date().toISOString().slice(0, 10));
 
@@ -23,6 +26,7 @@ export function AddPaymentModal({
       id: `payment-${Date.now()}`,
       amount,
       date: (form.get("date") as string) || date,
+      payer: (form.get("payer") as Payer) || "shared",
       note: (form.get("note") as string)?.trim() || undefined,
     });
   }
@@ -34,6 +38,20 @@ export function AddPaymentModal({
           Remaining on this item:{" "}
           <span className="font-medium text-foreground">Rp{remaining.toLocaleString("id-ID")}</span>
         </div>
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium">Paid by</span>
+          <select
+            name="payer"
+            defaultValue={defaultPayer}
+            className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+          >
+            {Object.entries(payerLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium">Payment amount (IDR)</span>
           <input

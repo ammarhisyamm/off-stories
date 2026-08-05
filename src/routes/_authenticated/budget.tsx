@@ -7,6 +7,7 @@ import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { formatIDR, type BudgetItem, type BudgetPayment } from "@/lib/types";
 import type { EventData } from "@/lib/data.functions";
+import { payerLabels } from "@/lib/onboarding";
 import { CurrencyDollar } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/budget")({
@@ -157,6 +158,7 @@ function Budget() {
                 <th className="px-5 py-3 font-medium text-right">Amount</th>
                 <th className="px-5 py-3 font-medium text-right">Paid</th>
                 <th className="px-5 py-3 font-medium">Status</th>
+                <th className="px-5 py-3 font-medium">Paid by</th>
                 <th className="px-5 py-3 font-medium">Due</th>
               </tr>
             </thead>
@@ -195,6 +197,9 @@ function Budget() {
                     >
                       {b.status}
                     </Pill>
+                  </td>
+                  <td className="px-5 py-3 text-xs text-muted-foreground">
+                    {payerLabels[b.payer ?? "shared"]}
                   </td>
                   <td className="px-5 py-3 text-muted-foreground text-xs">
                     {b.dueDate
@@ -242,6 +247,7 @@ function Budget() {
             <Detail label="Vendor" value={viewing.vendor ?? "—"} />
             <Detail label="Amount" value={formatIDR(viewing.amount)} />
             <Detail label="Paid" value={formatIDR(viewing.paid)} />
+            <Detail label="Paid by" value={payerLabels[viewing.payer ?? "shared"]} />
           </DetailGrid>
           <Detail
             label="Due date"
@@ -295,6 +301,7 @@ function Budget() {
                             year: "numeric",
                           })}
                           {payment.note ? ` · ${payment.note}` : ""}
+                          {payment.payer ? ` · ${payerLabels[payment.payer]}` : ""}
                         </div>
                       </div>
                     </li>
@@ -311,6 +318,7 @@ function Budget() {
       {paymentTarget && (
         <AddPaymentModal
           remaining={Math.max(0, paymentTarget.amount - paymentTarget.paid)}
+          defaultPayer={paymentTarget.payer}
           onClose={() => setPaymentTarget(null)}
           onSave={handleSavePayment}
         />

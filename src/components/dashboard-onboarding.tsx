@@ -2,7 +2,10 @@ import { useMemo, useState } from "react";
 import { FileText, MagicWand } from "@phosphor-icons/react";
 import {
   blankSetup,
+  ceremonyOptions,
   markOnboardingComplete,
+  payerLabels,
+  createStarterSeserahan,
   setupBudget,
   smartData,
   type SetupMode,
@@ -25,7 +28,7 @@ export function DashboardOnboarding({
   onClose,
 }: {
   setKind: (
-    kind: "event" | "tasks" | "budget" | "vendors" | "milestones",
+    kind: "event" | "tasks" | "budget" | "vendors" | "milestones" | "seserahan",
     payload: unknown,
     opts?: { success?: string | null },
   ) => void;
@@ -65,6 +68,11 @@ export function DashboardOnboarding({
           groomName: setup.partnerTwoName,
           guestEstimate: 0,
           budget: 0,
+          ceremonyTypes: setup.ceremonyTypes,
+          venueStatus: setup.venueStatus,
+          venueName: setup.venueName,
+          budgetPayer: setup.budgetPayer,
+          planningTeam: setup.planningTeam,
         },
         { success: null },
       );
@@ -87,6 +95,7 @@ export function DashboardOnboarding({
     setKind("budget", prepared.budget, { success: null });
     setKind("vendors", prepared.vendors, { success: null });
     setKind("milestones", prepared.milestones, { success: null });
+    setKind("seserahan", createStarterSeserahan(), { success: null });
     markOnboardingComplete();
     onComplete();
   }
@@ -164,6 +173,70 @@ export function DashboardOnboarding({
                 type="date"
                 value={setup.weddingDate}
                 onChange={(event) => onUpdate({ weddingDate: event.target.value })}
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              />
+            </label>
+            <div className="sm:col-span-2">
+              <span className="mb-2 block text-sm font-medium">Acara yang akan direncanakan</span>
+              <div className="flex flex-wrap gap-2">
+                {ceremonyOptions.map((ceremony) => {
+                  const active = setup.ceremonyTypes.includes(ceremony);
+                  return (
+                    <button
+                      key={ceremony}
+                      type="button"
+                      onClick={() =>
+                        onUpdate({
+                          ceremonyTypes: active
+                            ? setup.ceremonyTypes.filter((item) => item !== ceremony)
+                            : [...setup.ceremonyTypes, ceremony],
+                        })
+                      }
+                      className={`rounded-full border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
+                      aria-pressed={active}
+                    >
+                      {ceremony}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">Status venue</span>
+              <select
+                value={setup.venueStatus}
+                onChange={(event) =>
+                  onUpdate({ venueStatus: event.target.value as SetupState["venueStatus"] })
+                }
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              >
+                <option value="not_decided">Belum menentukan</option>
+                <option value="shortlisted">Sudah shortlist</option>
+                <option value="booked">Sudah booking</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium">Budget utama dibayar oleh</span>
+              <select
+                value={setup.budgetPayer}
+                onChange={(event) =>
+                  onUpdate({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
+                }
+                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+              >
+                {Object.entries(payerLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block sm:col-span-2">
+              <span className="mb-2 block text-sm font-medium">Nama venue (opsional)</span>
+              <input
+                value={setup.venueName}
+                onChange={(event) => onUpdate({ venueName: event.target.value })}
+                placeholder="Contoh: Gedung Serbaguna Jakarta"
                 className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
               />
             </label>
