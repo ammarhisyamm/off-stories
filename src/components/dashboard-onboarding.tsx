@@ -39,6 +39,11 @@ export function DashboardOnboarding({
   const [stage, setStage] = useState<1 | 2 | 3>(1);
   const [question, setQuestion] = useState(1);
   const [setup, setSetup] = useState<SetupState>(blankSetup);
+  const [startDetails, setStartDetails] = useState({
+    partnerOneName: blankSetup.partnerOneName,
+    partnerTwoName: blankSetup.partnerTwoName,
+    weddingDate: blankSetup.weddingDate,
+  });
   const [startError, setStartError] = useState<string | null>(null);
 
   const estimatedBudget = useMemo(
@@ -57,20 +62,22 @@ export function DashboardOnboarding({
 
   function continueFromStart() {
     if (!mode) return;
-    if (!setup.partnerOneName.trim() || !setup.partnerTwoName.trim() || !setup.weddingDate) {
+    const partnerOneName = startDetails.partnerOneName.trim();
+    const partnerTwoName = startDetails.partnerTwoName.trim();
+    const weddingDate = startDetails.weddingDate;
+    if (!partnerOneName || !partnerTwoName || !weddingDate) {
       setStartError("Nama kedua mempelai dan tanggal pernikahan wajib diisi sebelum melanjutkan.");
       return;
     }
+    update({ partnerOneName, partnerTwoName, weddingDate });
     if (mode === "blank") {
-      const partnerOneName = setup.partnerOneName.trim();
-      const partnerTwoName = setup.partnerTwoName.trim();
       const coupleName = `${partnerOneName} & ${partnerTwoName}`;
       setKind(
         "event",
         {
           name: coupleName || "Your wedding",
           type: "Wedding",
-          date: setup.weddingDate,
+          date: weddingDate,
           location: "",
           brideName: partnerOneName,
           groomName: partnerTwoName,
@@ -166,8 +173,13 @@ export function DashboardOnboarding({
                   type="text"
                   name="partner-one-name"
                   autoComplete="off"
-                  value={setup.partnerOneName}
-                  onChange={(event) => onUpdate({ partnerOneName: event.target.value })}
+                  value={startDetails.partnerOneName}
+                  onChange={(event) =>
+                    setStartDetails((current) => ({
+                      ...current,
+                      partnerOneName: event.target.value,
+                    }))
+                  }
                   placeholder="Contoh: Andra"
                   className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                 />
@@ -178,8 +190,13 @@ export function DashboardOnboarding({
                   type="text"
                   name="partner-two-name"
                   autoComplete="off"
-                  value={setup.partnerTwoName}
-                  onChange={(event) => onUpdate({ partnerTwoName: event.target.value })}
+                  value={startDetails.partnerTwoName}
+                  onChange={(event) =>
+                    setStartDetails((current) => ({
+                      ...current,
+                      partnerTwoName: event.target.value,
+                    }))
+                  }
                   placeholder="Contoh: Kirana"
                   className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                 />
@@ -189,8 +206,13 @@ export function DashboardOnboarding({
                 <input
                   type="date"
                   name="wedding-date"
-                  value={setup.weddingDate}
-                  onChange={(event) => onUpdate({ weddingDate: event.target.value })}
+                  value={startDetails.weddingDate}
+                  onChange={(event) =>
+                    setStartDetails((current) => ({
+                      ...current,
+                      weddingDate: event.target.value,
+                    }))
+                  }
                   className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                 />
               </label>
