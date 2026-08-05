@@ -24,6 +24,7 @@ const nav = [
   { to: "/dashboard", label: "Dashboard", Icon: SidebarHouse },
   { to: "/timeline", label: "Timeline", Icon: SidebarCalendar },
   { to: "/rundown", label: "Rundown", Icon: SidebarCalendar },
+  { to: "/command-center", label: "Command center", Icon: SidebarCalendar },
   { to: "/checklist", label: "Checklist", Icon: SidebarChecklist },
   { to: "/budget", label: "Budget", Icon: SidebarBudget },
   { to: "/seserahan", label: "Seserahan", Icon: SidebarChecklist },

@@ -23,7 +23,15 @@ import {
   Wallet,
 } from "@phosphor-icons/react";
 import { formatIDR } from "@/lib/types";
-import { getPlanningDate, type SetupState } from "@/lib/onboarding";
+import {
+  getPlanningDate,
+  interpretBudget,
+  interpretGuests,
+  interpretLocation,
+  interpretOrganizer,
+  interpretWeddingType,
+  type SetupState,
+} from "@/lib/onboarding";
 
 export function PlanReadyPreview({
   setup,
@@ -93,6 +101,21 @@ export function PlanReadyPreview({
     { label: "Checklist Created", icon: CheckCircle },
     { label: "Vendor Suggestions Ready", icon: UserCircleGear },
   ];
+  const interpretations = [
+    interpretLocation(setup.location),
+    interpretGuests(setup.guests),
+    interpretBudget(setup.budgetChoice, setup.budget),
+    interpretWeddingType(setup.weddingType, setup.adat),
+    interpretOrganizer(setup.organizer),
+  ];
+  const budgetAssumptions = [
+    `${setup.location || "Lokasi belum dipilih"} sebagai konteks biaya utama`,
+    `${setup.guests} tamu sebagai skala catering dan venue`,
+    `${setup.weddingType || "Gaya belum dipilih"}${setup.adat !== "No specific adat yet" ? ` dengan tradisi ${setup.adat}` : ""}`,
+    setup.organizer === "yes"
+      ? "Dengan koordinasi Wedding Organizer"
+      : "Tanpa Wedding Organizer, perlu PIC keluarga",
+  ];
 
   return (
     <div className="mx-auto min-w-0 max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
@@ -156,6 +179,39 @@ export function PlanReadyPreview({
           </div>
         </div>
       </header>
+
+      <section className="mt-6 rounded-[24px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-8">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+          <SectionHeading eyebrow="Assistant summary" title="How your answers shape the plan" />
+          <span className="text-xs text-muted-foreground">Indonesia planning logic</span>
+        </div>
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {interpretations.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[16px] border border-[#f0f0f0] bg-[#fafafa] p-4"
+            >
+              <div className="text-sm font-semibold text-foreground">{item.title}</div>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.interpretation}</p>
+              <p className="mt-3 text-xs font-medium leading-5 text-foreground">
+                Recommendation: {item.recommendation}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 border-t border-[#f1f1f1] pt-5">
+          <div className="text-sm font-semibold text-foreground">Major assumptions</div>
+          <ul className="mt-3 grid gap-2 text-xs leading-5 text-muted-foreground sm:grid-cols-2">
+            {budgetAssumptions.map((assumption) => (
+              <li key={assumption}>• {assumption}</li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs leading-5 text-muted-foreground">
+            Confidence note: this is a directional estimate. It becomes more accurate after venue,
+            catering, and vendor quotations are added.
+          </p>
+        </div>
+      </section>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-[24px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-7">

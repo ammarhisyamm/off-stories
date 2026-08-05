@@ -38,6 +38,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      rsvp_links: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          guest_id: string;
+          token: string;
+          created_at: string;
+          revoked_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          workspace_id: string;
+          guest_id: string;
+          token?: string;
+          created_at?: string;
+          revoked_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          workspace_id?: string;
+          guest_id?: string;
+          token?: string;
+          created_at?: string;
+          revoked_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rsvp_links_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: {
           active_workspace_id: string | null;

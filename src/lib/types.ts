@@ -80,6 +80,20 @@ export interface Guest {
   pax: number;
   invited: boolean;
   rsvp: "pending" | "yes" | "no" | "maybe";
+  phone?: string;
+  email?: string;
+  table?: string;
+  dietaryNotes?: string;
+  checkedIn?: boolean;
+}
+
+export interface CommandContact {
+  id: string;
+  name: string;
+  role: string;
+  phone: string;
+  type: "vendor" | "family" | "emergency";
+  notes?: string;
 }
 
 export interface Milestone {

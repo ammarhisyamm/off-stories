@@ -13,6 +13,7 @@ import type {
   DocRef,
   RundownItem,
   SeserahanItem,
+  CommandContact,
 } from "@/lib/types";
 
 export const KINDS = [
@@ -26,6 +27,7 @@ export const KINDS = [
   "documents",
   "rundown",
   "seserahan",
+  "command",
 ] as const;
 export type DataKind = (typeof KINDS)[number];
 
@@ -62,6 +64,7 @@ export type WorkspaceData = {
   documents: DocRef[];
   rundown: RundownItem[];
   seserahan: SeserahanItem[];
+  command: { contacts: CommandContact[] };
 };
 
 export function emptyWorkspaceData(): WorkspaceData {
@@ -76,6 +79,7 @@ export function emptyWorkspaceData(): WorkspaceData {
     documents: [],
     rundown: [],
     seserahan: [],
+    command: { contacts: [] },
   };
 }
 

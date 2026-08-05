@@ -30,6 +30,11 @@ export function AddGuestModal({
       pax: Number(form.get("pax")) || 1,
       invited,
       rsvp: (rsvp || "pending") as Guest["rsvp"],
+      phone: (form.get("phone") as string)?.trim() || undefined,
+      email: (form.get("email") as string)?.trim() || undefined,
+      table: (form.get("table") as string)?.trim() || undefined,
+      dietaryNotes: (form.get("dietaryNotes") as string)?.trim() || undefined,
+      checkedIn: initial?.checkedIn ?? false,
     });
   }
 
@@ -87,6 +92,37 @@ export function AddGuestModal({
               />
             </label>
           </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="block text-sm font-medium mb-1.5">WhatsApp / phone (optional)</span>
+              <input
+                name="phone"
+                type="tel"
+                defaultValue={initial?.phone}
+                placeholder="e.g. 0812 3456 7890"
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium mb-1.5">Table (optional)</span>
+              <input
+                name="table"
+                defaultValue={initial?.table}
+                placeholder="e.g. Table 4"
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              />
+            </label>
+          </div>
+          <label className="block">
+            <span className="block text-sm font-medium mb-1.5">Dietary notes (optional)</span>
+            <input
+              name="dietaryNotes"
+              defaultValue={initial?.dietaryNotes}
+              maxLength={240}
+              placeholder="e.g. vegetarian, no peanuts"
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            />
+          </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Invitation</span>

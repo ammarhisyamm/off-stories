@@ -39,6 +39,7 @@ export function DashboardOnboarding({
   const [stage, setStage] = useState<1 | 2 | 3>(1);
   const [question, setQuestion] = useState(1);
   const [setup, setSetup] = useState<SetupState>(blankSetup);
+  const [startError, setStartError] = useState<string | null>(null);
 
   const estimatedBudget = useMemo(
     () => setupBudget(setup.guests, setup.budgetChoice, setup.budget),
@@ -50,13 +51,25 @@ export function DashboardOnboarding({
   }
 
   function chooseMode(next: SetupMode) {
+    setStartError(null);
     setMode(next);
   }
 
   function continueFromStart() {
     if (!mode) return;
+    if (
+      mode === "blank" &&
+      (!setup.partnerOneName.trim() || !setup.partnerTwoName.trim() || !setup.weddingDate)
+    ) {
+      setStartError(
+        "Nama kedua mempelai dan tanggal pernikahan wajib diisi untuk memulai Blank Canvas.",
+      );
+      return;
+    }
     if (mode === "blank") {
-      const coupleName = [setup.partnerOneName, setup.partnerTwoName].filter(Boolean).join(" & ");
+      const partnerOneName = setup.partnerOneName.trim();
+      const partnerTwoName = setup.partnerTwoName.trim();
+      const coupleName = `${partnerOneName} & ${partnerTwoName}`;
       setKind(
         "event",
         {
@@ -64,8 +77,8 @@ export function DashboardOnboarding({
           type: "Wedding",
           date: setup.weddingDate,
           location: "",
-          brideName: setup.partnerOneName,
-          groomName: setup.partnerTwoName,
+          brideName: partnerOneName,
+          groomName: partnerTwoName,
           guestEstimate: 0,
           budget: 0,
           ceremonyTypes: setup.ceremonyTypes,
@@ -150,7 +163,7 @@ export function DashboardOnboarding({
           </div>
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="mb-2 block text-sm font-medium">Nama mempelai 1</span>
+              <span className="mb-2 block text-sm font-medium">Nama mempelai 1 *</span>
               <input
                 value={setup.partnerOneName}
                 onChange={(event) => onUpdate({ partnerOneName: event.target.value })}
@@ -159,7 +172,7 @@ export function DashboardOnboarding({
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-medium">Nama mempelai 2</span>
+              <span className="mb-2 block text-sm font-medium">Nama mempelai 2 *</span>
               <input
                 value={setup.partnerTwoName}
                 onChange={(event) => onUpdate({ partnerTwoName: event.target.value })}
@@ -168,7 +181,7 @@ export function DashboardOnboarding({
               />
             </label>
             <label className="block">
-              <span className="mb-2 block text-sm font-medium">Tanggal akad / pernikahan</span>
+              <span className="mb-2 block text-sm font-medium">Tanggal akad / pernikahan *</span>
               <input
                 type="date"
                 value={setup.weddingDate}
@@ -255,6 +268,11 @@ export function DashboardOnboarding({
             Continue
           </button>
         </div>
+        {startError && (
+          <p role="alert" className="mx-auto mt-3 max-w-5xl text-right text-sm text-destructive">
+            {startError}
+          </p>
+        )}
       </div>
     ) : stage === 2 ? (
       <div className="onboarding-page" key={`question-${question}`}>

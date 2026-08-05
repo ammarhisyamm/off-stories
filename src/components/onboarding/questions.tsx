@@ -1,5 +1,16 @@
 import { CalendarCheck, MapPin, Notebook, Sparkle, UsersThree } from "@phosphor-icons/react";
-import { adatOptions, locations, weddingTypes, type SetupState } from "@/lib/onboarding";
+import {
+  adatOptions,
+  interpretBudget,
+  interpretGuests,
+  interpretLocation,
+  interpretOrganizer,
+  interpretWeddingType,
+  locations,
+  weddingTypes,
+  type PlanningInterpretation,
+  type SetupState,
+} from "@/lib/onboarding";
 import { QuestionShell } from "./onboarding-modal";
 
 const typeIcons = {
@@ -45,6 +56,7 @@ export function LocationStep({
           ))}
         </select>
       </label>
+      <InterpretationPanel data={interpretLocation(setup.location)} />
     </QuestionShell>
   );
 }
@@ -87,6 +99,7 @@ export function GuestsStep({
           <span>1000 guests</span>
         </div>
       </div>
+      <InterpretationPanel data={interpretGuests(setup.guests)} />
     </QuestionShell>
   );
 }
@@ -149,6 +162,7 @@ export function BudgetStep({
           </div>
         </label>
       )}
+      <InterpretationPanel data={interpretBudget(setup.budgetChoice, setup.budget)} />
     </QuestionShell>
   );
 }
@@ -209,6 +223,7 @@ export function WeddingTypeStep({
           changed later.
         </span>
       </label>
+      <InterpretationPanel data={interpretWeddingType(setup.weddingType, setup.adat)} />
     </QuestionShell>
   );
 }
@@ -255,6 +270,48 @@ export function OrganizerStep({
           </button>
         ))}
       </div>
+      <InterpretationPanel data={interpretOrganizer(setup.organizer)} />
     </QuestionShell>
+  );
+}
+
+function InterpretationPanel({ data }: { data: PlanningInterpretation }) {
+  return (
+    <section
+      className="mt-6 rounded-[18px] border border-[#ececec] bg-[#fafafa] p-4 sm:p-5"
+      aria-live="polite"
+    >
+      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        OffStories interpretation
+      </div>
+      <div className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto]">
+        <div>
+          <h4 className="text-sm font-semibold text-foreground">{data.title}</h4>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">{data.interpretation}</p>
+          <ul className="mt-3 space-y-1.5 text-xs leading-5 text-muted-foreground">
+            {data.implications.map((item) => (
+              <li key={item}>• {item}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex gap-3 text-xs sm:block sm:min-w-[150px] sm:text-right">
+          {data.tier && (
+            <div>
+              <div className="text-muted-foreground">Likely cost tier</div>
+              <div className="mt-1 font-medium text-foreground">{data.tier}</div>
+            </div>
+          )}
+          {data.complexity && (
+            <div className={data.tier ? "sm:mt-3" : ""}>
+              <div className="text-muted-foreground">Complexity</div>
+              <div className="mt-1 font-medium text-foreground">{data.complexity}</div>
+            </div>
+          )}
+        </div>
+      </div>
+      <p className="mt-4 border-t border-[#eaeaea] pt-3 text-xs font-medium leading-5 text-foreground">
+        Recommendation: {data.recommendation}
+      </p>
+    </section>
   );
 }

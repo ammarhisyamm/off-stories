@@ -14,7 +14,9 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RsvpTokenRouteImport } from './routes/rsvp.$token'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as CheckInTokenRouteImport } from './routes/check-in.$token'
 import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
 import { Route as AuthenticatedTimelineRouteImport } from './routes/_authenticated/timeline'
@@ -25,6 +27,7 @@ import { Route as AuthenticatedNotesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedGuestsRouteImport } from './routes/_authenticated/guests'
 import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authenticated/documents'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedCommandCenterRouteImport } from './routes/_authenticated/command-center'
 import { Route as AuthenticatedChecklistRouteImport } from './routes/_authenticated/checklist'
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
 
@@ -52,9 +55,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RsvpTokenRoute = RsvpTokenRouteImport.update({
+  id: '/rsvp/$token',
+  path: '/rsvp/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckInTokenRoute = CheckInTokenRouteImport.update({
+  id: '/check-in/$token',
+  path: '/check-in/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -107,6 +120,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCommandCenterRoute =
+  AuthenticatedCommandCenterRouteImport.update({
+    id: '/command-center',
+    path: '/command-center',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedChecklistRoute = AuthenticatedChecklistRouteImport.update({
   id: '/checklist',
   path: '/checklist',
@@ -125,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/budget': typeof AuthenticatedBudgetRoute
   '/checklist': typeof AuthenticatedChecklistRoute
+  '/command-center': typeof AuthenticatedCommandCenterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/guests': typeof AuthenticatedGuestsRoute
@@ -135,7 +155,9 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof AuthenticatedTimelineRoute
   '/vendors': typeof AuthenticatedVendorsRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/rsvp/$token': typeof RsvpTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -144,6 +166,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/budget': typeof AuthenticatedBudgetRoute
   '/checklist': typeof AuthenticatedChecklistRoute
+  '/command-center': typeof AuthenticatedCommandCenterRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/guests': typeof AuthenticatedGuestsRoute
@@ -154,7 +177,9 @@ export interface FileRoutesByTo {
   '/timeline': typeof AuthenticatedTimelineRoute
   '/vendors': typeof AuthenticatedVendorsRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/rsvp/$token': typeof RsvpTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -165,6 +190,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/budget': typeof AuthenticatedBudgetRoute
   '/_authenticated/checklist': typeof AuthenticatedChecklistRoute
+  '/_authenticated/command-center': typeof AuthenticatedCommandCenterRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/_authenticated/guests': typeof AuthenticatedGuestsRoute
@@ -175,7 +201,9 @@ export interface FileRoutesById {
   '/_authenticated/timeline': typeof AuthenticatedTimelineRoute
   '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
   '/auth_/callback': typeof AuthCallbackRoute
+  '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/rsvp/$token': typeof RsvpTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -186,6 +214,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/budget'
     | '/checklist'
+    | '/command-center'
     | '/dashboard'
     | '/documents'
     | '/guests'
@@ -196,7 +225,9 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/vendors'
     | '/auth/callback'
+    | '/check-in/$token'
     | '/invite/$token'
+    | '/rsvp/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -205,6 +236,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/budget'
     | '/checklist'
+    | '/command-center'
     | '/dashboard'
     | '/documents'
     | '/guests'
@@ -215,7 +247,9 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/vendors'
     | '/auth/callback'
+    | '/check-in/$token'
     | '/invite/$token'
+    | '/rsvp/$token'
   id:
     | '__root__'
     | '/'
@@ -225,6 +259,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/budget'
     | '/_authenticated/checklist'
+    | '/_authenticated/command-center'
     | '/_authenticated/dashboard'
     | '/_authenticated/documents'
     | '/_authenticated/guests'
@@ -235,7 +270,9 @@ export interface FileRouteTypes {
     | '/_authenticated/timeline'
     | '/_authenticated/vendors'
     | '/auth_/callback'
+    | '/check-in/$token'
     | '/invite/$token'
+    | '/rsvp/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -245,7 +282,9 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  CheckInTokenRoute: typeof CheckInTokenRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  RsvpTokenRoute: typeof RsvpTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -285,11 +324,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rsvp/$token': {
+      id: '/rsvp/$token'
+      path: '/rsvp/$token'
+      fullPath: '/rsvp/$token'
+      preLoaderRoute: typeof RsvpTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invite/$token': {
       id: '/invite/$token'
       path: '/invite/$token'
       fullPath: '/invite/$token'
       preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/check-in/$token': {
+      id: '/check-in/$token'
+      path: '/check-in/$token'
+      fullPath: '/check-in/$token'
+      preLoaderRoute: typeof CheckInTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth_/callback': {
@@ -362,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/command-center': {
+      id: '/_authenticated/command-center'
+      path: '/command-center'
+      fullPath: '/command-center'
+      preLoaderRoute: typeof AuthenticatedCommandCenterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/checklist': {
       id: '/_authenticated/checklist'
       path: '/checklist'
@@ -382,6 +442,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBudgetRoute: typeof AuthenticatedBudgetRoute
   AuthenticatedChecklistRoute: typeof AuthenticatedChecklistRoute
+  AuthenticatedCommandCenterRoute: typeof AuthenticatedCommandCenterRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedGuestsRoute: typeof AuthenticatedGuestsRoute
@@ -396,6 +457,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBudgetRoute: AuthenticatedBudgetRoute,
   AuthenticatedChecklistRoute: AuthenticatedChecklistRoute,
+  AuthenticatedCommandCenterRoute: AuthenticatedCommandCenterRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedGuestsRoute: AuthenticatedGuestsRoute,
@@ -417,7 +479,9 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  CheckInTokenRoute: CheckInTokenRoute,
   InviteTokenRoute: InviteTokenRoute,
+  RsvpTokenRoute: RsvpTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

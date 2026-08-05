@@ -2,6 +2,28 @@
 @source "../src";
 @import "tw-animate-css";
 
+@media print {
+  @page {
+    margin: 14mm;
+  }
+  body {
+    background: white !important;
+  }
+  .app-shell > aside,
+  .app-shell header,
+  .print\:hidden {
+    display: none !important;
+  }
+  .app-shell > main {
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  .panel {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

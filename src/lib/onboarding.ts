@@ -25,7 +25,9 @@ export type SetupState = {
 export function markOnboardingComplete() {
   try {
     getBrowserStorage("local").setItem("offstories-onboarding-complete", "true");
-  } catch {}
+  } catch {
+    return;
+  }
 }
 
 export const locations = [
@@ -122,6 +124,156 @@ export const payerLabels: Record<Payer, string> = {
 export function setupBudget(guests: number, budgetChoice: BudgetChoice, budget: string) {
   if (budgetChoice === "yes" && Number(budget) > 0) return Number(budget);
   return Math.round((guests * 1_140_000) / 1_000_000) * 1_000_000;
+}
+
+export type PlanningInterpretation = {
+  title: string;
+  interpretation: string;
+  implications: string[];
+  recommendation: string;
+  tier?: string;
+  complexity?: string;
+};
+
+export function interpretLocation(location: string): PlanningInterpretation {
+  const metro = ["Jakarta", "Tangerang", "Bekasi", "Depok", "Bogor", "Surabaya", "Bali"].includes(
+    location,
+  );
+  const label = location || "kota belum dipilih";
+  return {
+    title: "Location interpretation",
+    interpretation: location
+      ? `${location} memberi konteks lokal untuk venue, vendor, dan logistik acara.`
+      : "Lokasi belum ditentukan, jadi estimasi masih menggunakan asumsi umum pasar Indonesia.",
+    tier: metro ? "Menengah–tinggi" : location ? "Menengah" : "Belum dapat ditentukan",
+    implications: metro
+      ? [
+          `Venue dan catering di ${label} cenderung lebih kompetitif dan mahal.`,
+          "Transportasi, parkir, dan waktu tempuh vendor perlu dikunci lebih awal.",
+        ]
+      : [
+          "Pilihan venue dan vendor lokal dapat membantu efisiensi biaya.",
+          "Akses keluarga, pengiriman barang, dan ketersediaan vendor perlu dikonfirmasi.",
+        ],
+    recommendation: location
+      ? `Mulai shortlist venue dan vendor yang biasa menangani acara di ${location}.`
+      : "Tentukan kota utama terlebih dahulu agar asumsi biaya tidak terlalu lebar.",
+  };
+}
+
+export function interpretGuests(guests: number): PlanningInterpretation {
+  const scale = guests < 100 ? "Intimate" : guests < 300 ? "Menengah" : "Besar";
+  const implications =
+    guests < 100
+      ? [
+          "Venue kecil dan format seated dinner atau intimate reception lebih mudah dikontrol.",
+          "Variasi menu dan dekorasi dapat dibuat lebih personal.",
+        ]
+      : guests < 300
+        ? [
+            "Kapasitas venue, jumlah buffet line, seating, dan parkir mulai menjadi faktor utama.",
+            "Catering, dekorasi, dan staffing akan naik mengikuti jumlah pax.",
+          ]
+        : [
+            "Perlu venue dengan alur tamu, parkir, toilet, dan service flow yang kuat.",
+            "Catering, meja-kursi, usher, keamanan, dan transportasi menjadi cost driver terbesar.",
+          ];
+  return {
+    title: "Guest count interpretation",
+    interpretation: `${guests || 0} tamu masuk skala ${scale.toLowerCase()} untuk konteks pernikahan Indonesia.`,
+    tier: scale,
+    implications,
+    recommendation:
+      guests >= 300
+        ? "Validasi kapasitas venue dan flow catering sebelum mengunci vendor."
+        : "Buat guest list per keluarga dan teman agar target pax tidak terus melebar.",
+  };
+}
+
+export function interpretBudget(
+  budgetChoice: BudgetChoice,
+  budget: string,
+): PlanningInterpretation {
+  if (budgetChoice !== "yes") {
+    return {
+      title: "Budget readiness interpretation",
+      interpretation:
+        "Budget belum dikunci; pendekatan terbaik adalah discovery berbasis guest count, kota, dan prioritas keluarga.",
+      implications: [
+        "Mulai dari rentang biaya, bukan satu angka tunggal.",
+        "Booking vendor sebelum scope jelas meningkatkan risiko overbudget.",
+      ],
+      recommendation:
+        "Tetapkan batas atas dan tiga prioritas utama sebelum meminta quotation vendor.",
+    };
+  }
+  const amount = Number(budget) || 0;
+  const tier = amount < 100_000_000 ? "Lean" : amount < 300_000_000 ? "Balanced" : "Premium";
+  return {
+    title: "Budget readiness interpretation",
+    interpretation: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount)} masuk tier ${tier.toLowerCase()} sebagai titik awal perencanaan.`,
+    tier,
+    implications: [
+      "Alokasi venue, catering, dan vendor utama perlu dijaga agar tidak menghabiskan seluruh dana.",
+      "Sisakan buffer 10–15% untuk biaya tambahan, overtime, dan perubahan jumlah tamu.",
+    ],
+    recommendation: "Pisahkan budget committed, paid, dan buffer sejak quotation pertama masuk.",
+  };
+}
+
+export function interpretWeddingType(weddingType: string, adat: string): PlanningInterpretation {
+  const style = weddingType || "gaya belum dipilih";
+  const tradition =
+    adat && adat !== "No specific adat yet"
+      ? ` Dengan tradisi ${adat},`
+      : " Tanpa tradisi khusus yang dipilih,";
+  const complexity =
+    adat && adat !== "No specific adat yet"
+      ? "Menengah–tinggi"
+      : weddingType === "Intimate Wedding"
+        ? "Rendah–menengah"
+        : "Menengah";
+  return {
+    title: "Wedding style interpretation",
+    interpretation: `${style}${tradition} kebutuhan venue, vendor, dan keterlibatan keluarga akan mengikuti format acara yang dipilih.`,
+    complexity,
+    implications: [
+      "Gaya acara memengaruhi layout venue, urutan rundown, kebutuhan vendor, dan jumlah PIC keluarga.",
+      adat && adat !== "No specific adat yet"
+        ? `Tradisi ${adat} perlu dikonfirmasi urutan prosesi, perlengkapan, dan penanggung jawabnya.`
+        : "Jika ada prosesi keluarga tambahan, masukkan sebagai ceremony terpisah agar tidak hilang dari rundown.",
+    ],
+    recommendation:
+      "Konfirmasi urutan prosesi dengan kedua keluarga sebelum mengunci rundown dan vendor.",
+  };
+}
+
+export function interpretOrganizer(organizer: SetupState["organizer"]): PlanningInterpretation {
+  if (organizer === "yes") {
+    return {
+      title: "WO interpretation",
+      interpretation:
+        "Wedding Organizer dapat menjadi pusat koordinasi vendor, keluarga, dan timeline di pasar pernikahan Indonesia.",
+      implications: [
+        "WO membantu mengelola vendor arrival, rundown, dan eskalasi masalah pada hari-H.",
+        "Pasangan tetap perlu menyepakati scope kerja, jumlah kru, dan overtime secara tertulis.",
+      ],
+      recommendation: "Minta breakdown scope, PIC utama, dan simulasi hari-H sebelum booking.",
+      complexity: "Risiko lebih rendah",
+    };
+  }
+  return {
+    title: "WO interpretation",
+    interpretation:
+      "Tanpa WO, pasangan dan keluarga memegang lebih banyak pekerjaan koordinasi sebelum dan saat hari-H.",
+    implications: [
+      "Perlu menunjuk family coordinator atau day-of PIC yang tidak sedang menjadi pengantin.",
+      "Vendor contacts, call sheet, rundown, dan emergency plan harus siap sebelum hari-H.",
+    ],
+    recommendation:
+      "Tunjuk satu PIC operasional dan mulai susun call sheet sejak vendor mulai dibooking.",
+    complexity: "Risiko lebih tinggi",
+  };
 }
 
 export function getPlanningDate(weddingDate?: string) {
