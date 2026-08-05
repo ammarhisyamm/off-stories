@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
@@ -30,12 +30,21 @@ function Checklist() {
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
-  const categories = ["All", ...Array.from(new Set(tasks.map((t) => t.category)))];
-  const filtered = filter === "All" ? tasks : tasks.filter((t) => t.category === filter);
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(tasks.map((t) => t.category)))],
+    [tasks],
+  );
+  const filtered = useMemo(
+    () => (filter === "All" ? tasks : tasks.filter((t) => t.category === filter)),
+    [filter, tasks],
+  );
 
-  function persist(next: Task[], opts?: { success?: string | null }) {
-    setKind("tasks", next, opts);
-  }
+  const persist = useCallback(
+    (next: Task[], opts?: { success?: string | null }) => {
+      setKind("tasks", next, opts);
+    },
+    [setKind],
+  );
 
   function handleSave(task: Task) {
     const exists = tasks.some((t) => t.id === task.id);
@@ -53,12 +62,17 @@ function Checklist() {
     setEditing(null);
   }
 
-  function handleToggle(id: string) {
-    persist(
-      tasks.map((t) => (t.id === id ? { ...t, status: t.status === "done" ? "todo" : "done" } : t)),
-      { success: null },
-    );
-  }
+  const handleToggle = useCallback(
+    (id: string) => {
+      persist(
+        tasks.map((t) =>
+          t.id === id ? { ...t, status: t.status === "done" ? "todo" : "done" } : t,
+        ),
+        { success: null },
+      );
+    },
+    [persist, tasks],
+  );
 
   function addTemplate(templateId: (typeof preparationTemplates)[number]["id"]) {
     const template = preparationTemplates.find((item) => item.id === templateId);
@@ -72,9 +86,9 @@ function Checklist() {
     setIsModalOpen(true);
   }
 
-  function openView(task: Task) {
+  const openView = useCallback((task: Task) => {
     setViewing(task);
-  }
+  }, []);
 
   return (
     <AppLayout
@@ -266,7 +280,7 @@ function Checklist() {
   );
 }
 
-function TaskRow({
+const TaskRow = memo(function TaskRow({
   task,
   onToggle,
   onEdit,
@@ -342,4 +356,4 @@ function TaskRow({
       </div>
     </div>
   );
-}
+});
