@@ -33,13 +33,19 @@ jobs:
       - name: Install opencode
         run: npm install -g opencode-ai
 
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
       - name: Jalankan agent
         id: agent
         env:
           JATEVO_API_KEY: ${{ secrets.JATEVO_API_KEY }}
           OPENCODE_CONFIG_CONTENT: |
             {"provider":{"jatevo":{"npm":"@ai-sdk/openai-compatible","name":"Jatevo","options":{"baseURL":"https://api.jatevo.ai/v1","apiKey":"{env:JATEVO_API_KEY}"},"models":{"gpt-5.6-terra":{"name":"GPT-5.6 Terra"}}}}}
-          PROMPT: ${{ github.event.inputs.prompt }}
+          PROMPT: |
+            ${{ github.event.inputs.prompt }}
+
+            Setelah mengubah kode, jalankan "npm run build" dan perbaiki error build jika ada sebelum selesai.
         run: |
           set -euo pipefail
           git config user.name "opencode-telegram-bot"
@@ -63,22 +69,45 @@ jobs:
           echo "oc_exit=$OC_EXIT" >> "$GITHUB_OUTPUT"
           exit $OC_EXIT
 
-      - name: Commit & push
-        id: commit
+      - name: Build check
+        id: build
+        if: steps.agent.outputs.oc_exit == '0'
         run: |
           set -euo pipefail
           if [ -z "$(git status --porcelain)" ]; then
             echo "no_changes=true" >> "$GITHUB_OUTPUT"
+            echo "build_failed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          echo "no_changes=false" >> "$GITHUB_OUTPUT"
+          set +e
+          npm run build > /tmp/build_log.txt 2>&1
+          BUILD_EXIT=$?
+          set -e
+          sed -E 's/\x1B\[[0-9;]*[mK]//g' /tmp/build_log.txt > /tmp/build_clean.txt
+          {
+            echo "build_log<<EOF"
+            tail -c 3000 /tmp/build_clean.txt
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+          if [ "$BUILD_EXIT" != "0" ]; then
+            echo "build_failed=true" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "build_failed=false" >> "$GITHUB_OUTPUT"
+
+      - name: Commit & push
+        if: steps.build.outputs.no_changes == 'false'
+        run: |
+          set -euo pipefail
           git add -A
           git commit -m "feat: apply telegram prompt"
           git push -u origin "${{ steps.agent.outputs.branch }}"
-          echo "no_changes=false" >> "$GITHUB_OUTPUT"
 
       - name: Buka PR
         id: pr
-        if: steps.commit.outputs.no_changes == 'false'
+        if: steps.build.outputs.no_changes == 'false'
         env:
           GH_TOKEN: ${{ secrets.AGENT_PR_TOKEN }}
         run: |
@@ -96,9 +125,15 @@ jobs:
         env:
           AGENT_RESPONSE: ${{ steps.agent.outputs.agent_response }}
           PR_URL: ${{ steps.pr.outputs.pr_url }}
+          BUILD_LOG: ${{ steps.build.outputs.build_log }}
         run: |
           set -euo pipefail
-          if [ "${{ steps.commit.outputs.no_changes }}" = "true" ]; then
+          if [ "${{ steps.build.outputs.build_failed }}" = "true" ]; then
+            MSG="Build gagal setelah agent mengubah kode. Log error:
+        ${BUILD_LOG}"
+          elif [ "${{ steps.agent.outputs.oc_exit }}" != "0" ]; then
+            MSG="Agent error. Log: https://github.com/ammarhisyamm/off-stories/actions"
+          elif [ "${{ steps.build.outputs.no_changes }}" = "true" ]; then
             MSG="${AGENT_RESPONSE}"
           elif [ -n "${PR_URL}" ]; then
             MSG="Selesai! PR: ${PR_URL}"
