@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
 import { AddPaymentModal } from "@/components/add-payment-modal";
@@ -44,6 +44,27 @@ function Budget() {
   const committedPct = total ? Math.round((committed / total) * 100) : 0;
   const paidPct = total ? (paid / total) * 100 : 0;
   const committedPendingPct = total ? ((committed - paid) / total) * 100 : 0;
+  const categorySummary = useMemo(() => {
+    return Array.from(
+      items
+        .reduce((categories, item) => {
+          const current = categories.get(item.category) ?? { committed: 0, paid: 0, count: 0 };
+          categories.set(item.category, {
+            committed: current.committed + item.committed,
+            paid: current.paid + item.paid,
+            count: current.count + 1,
+          });
+          return categories;
+        }, new Map<string, { committed: number; paid: number; count: number }>())
+        .entries(),
+    )
+      .map(([category, summary]) => ({
+        category,
+        ...summary,
+        remaining: summary.committed - summary.paid,
+      }))
+      .sort((a, b) => b.committed - a.committed);
+  }, [items]);
 
   function handleSave(item: BudgetItem) {
     const exists = items.some((i) => i.id === item.id);
@@ -138,6 +159,47 @@ function Budget() {
           <Legend color="bg-secondary" label={`Headroom · ${formatIDR(remaining)}`} />
         </div>
       </div>
+
+      {categorySummary.length > 0 && (
+        <section className="panel mb-8 overflow-hidden">
+          <div className="flex items-baseline justify-between border-b border-border px-5 py-4">
+            <div>
+              <div className="eyebrow">By category</div>
+              <h2 className="serif mt-1 text-lg">Budget summary</h2>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {categorySummary.length} categories
+            </span>
+          </div>
+          <div className="divide-y divide-border">
+            {categorySummary.map((summary) => {
+              const progress = summary.committed
+                ? Math.min(100, (summary.paid / summary.committed) * 100)
+                : 0;
+              return (
+                <div key={summary.category} className="px-5 py-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1 text-sm">
+                    <div className="text-foreground">
+                      {summary.category}{" "}
+                      <span className="text-xs text-muted-foreground">({summary.count})</span>
+                    </div>
+                    <div className="text-right tabular-nums text-muted-foreground">
+                      {formatIDR(summary.paid)} paid{" "}
+                      <span className="text-foreground">of {formatIDR(summary.committed)}</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+                    <div className="h-full rounded-full bg-sage" style={{ width: `${progress}%` }} />
+                  </div>
+                  <div className="mt-1.5 text-right text-xs tabular-nums text-muted-foreground">
+                    {formatIDR(summary.remaining)} remaining
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div className="panel overflow-x-auto">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
