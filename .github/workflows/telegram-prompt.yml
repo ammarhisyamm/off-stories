@@ -1,0 +1,94 @@
+name: telegram-prompt
+
+on:
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Instruksi untuk opencode agent
+        required: true
+        type: string
+      chat_id:
+        description: Telegram chat ID untuk reply
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install opencode
+        run: npm install -g opencode-ai
+
+      - name: Jalankan agent
+        id: agent
+        env:
+          JATEVO_API_KEY: ${{ secrets.JATEVO_API_KEY }}
+          OPENCODE_CONFIG_CONTENT: |
+            {"provider":{"jatevo":{"npm":"@ai-sdk/openai-compatible","name":"Jatevo","options":{"baseURL":"https://api.jatevo.ai/v1"},"models":{"gpt-5.6-terra":{"name":"GPT-5.6 Terra"}}}}}
+          PROMPT: ${{ github.event.inputs.prompt }}
+        run: |
+          set -euo pipefail
+          git config user.name "opencode-telegram-bot"
+          git config user.email "opencode-telegram-bot@users.noreply.github.com"
+          BRANCH="telegram-prompt/$(date +%s)"
+          git checkout -b "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          opencode run --model jatevo/gpt-5.6-terra --auto \
+            --title "Telegram prompt" "$PROMPT"
+
+      - name: Commit & push
+        id: commit
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "no_changes=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add -A
+          git commit -m "feat: apply telegram prompt"
+          git push -u origin "${{ steps.agent.outputs.branch }}"
+          echo "no_changes=false" >> "$GITHUB_OUTPUT"
+
+      - name: Buka PR
+        id: pr
+        if: steps.commit.outputs.no_changes == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr create \
+            --base main \
+            --head "${{ steps.agent.outputs.branch }}" \
+            --title "Telegram prompt: ${{ github.event.inputs.prompt }}" \
+            --body "Prompt dari Telegram:
+          ${{ github.event.inputs.prompt }}" > /tmp/pr_url.txt
+          echo "pr_url=$(cat /tmp/pr_url.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Kirim hasil ke Telegram
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.commit.outputs.no_changes }}" = "true" ]; then
+            MSG="Agent selesai, tapi tidak ada perubahan untuk prompt tsb."
+          elif [ -n "${{ steps.pr.outputs.pr_url }}" ]; then
+            MSG="Selesai! PR: ${{ steps.pr.outputs.pr_url }}"
+          else
+            MSG="Ada error. Cek log: https://github.com/ammarhisyamm/off-stories/actions"
+          fi
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ github.event.inputs.chat_id }}" \
+            --data-urlencode "text=${MSG}" > /dev/null
