@@ -153,7 +153,8 @@ function Guests() {
             }
           />
         ) : (
-          <table className="w-full min-w-[760px] text-sm">
+          <>
+            <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="text-left text-xs text-muted-foreground bg-surface-2">
                 <th className="px-5 py-3 font-medium">Group</th>
@@ -221,6 +222,7 @@ function Guests() {
               No guest groups match these filters.
             </p>
           )}
+          </>
         )}
       </div>
       {viewing && (
