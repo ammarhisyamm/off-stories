@@ -278,39 +278,23 @@ export function OrganizerStep({
 function InterpretationPanel({ data }: { data: PlanningInterpretation }) {
   return (
     <section
-      className="mt-6 rounded-[18px] border border-[#ececec] bg-[#fafafa] p-4 sm:p-5"
+      className="mt-5 rounded-[16px] border border-[#ececec] bg-[#fafafa] px-4 py-3.5"
       aria-live="polite"
     >
-      <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        OffStories interpretation
-      </div>
-      <div className="mt-3 grid gap-4 sm:grid-cols-[1fr_auto]">
-        <div>
-          <h4 className="text-sm font-semibold text-foreground">{data.title}</h4>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">{data.interpretation}</p>
-          <ul className="mt-3 space-y-1.5 text-xs leading-5 text-muted-foreground">
-            {data.implications.map((item) => (
-              <li key={item}>• {item}</li>
-            ))}
-          </ul>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Quick planning note
         </div>
-        <div className="flex gap-3 text-xs sm:block sm:min-w-[150px] sm:text-right">
-          {data.tier && (
-            <div>
-              <div className="text-muted-foreground">Likely cost tier</div>
-              <div className="mt-1 font-medium text-foreground">{data.tier}</div>
-            </div>
-          )}
-          {data.complexity && (
-            <div className={data.tier ? "sm:mt-3" : ""}>
-              <div className="text-muted-foreground">Complexity</div>
-              <div className="mt-1 font-medium text-foreground">{data.complexity}</div>
-            </div>
-          )}
-        </div>
+        {(data.tier || data.complexity) && (
+          <div className="text-xs font-medium text-foreground">{data.tier ?? data.complexity}</div>
+        )}
       </div>
-      <p className="mt-4 border-t border-[#eaeaea] pt-3 text-xs font-medium leading-5 text-foreground">
-        Recommendation: {data.recommendation}
+      <h4 className="mt-2 text-sm font-semibold text-foreground">{data.title}</h4>
+      <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+        {data.interpretation} {data.implications[0]}
+      </p>
+      <p className="mt-2 border-t border-[#eaeaea] pt-2 text-xs font-medium leading-5 text-foreground">
+        Next: {data.recommendation}
       </p>
     </section>
   );
