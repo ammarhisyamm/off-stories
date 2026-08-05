@@ -47,8 +47,21 @@ jobs:
           BRANCH="telegram-prompt/$(date +%s)"
           git checkout -b "$BRANCH"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          set +e
           opencode run --model jatevo/gpt-5.6-terra --auto \
-            --title "Telegram prompt" "$PROMPT"
+            --title "Telegram prompt" "$PROMPT" > /tmp/agent_output.txt 2>&1
+          OC_EXIT=$?
+          set -e
+          # simpan isi jawaban agent (strip ANSI + batasi panjang)
+          sed -E 's/\x1B\[[0-9;]*[mK]//g' /tmp/agent_output.txt > /tmp/agent_clean.txt
+          {
+            echo "agent_response<<EOF"
+            head -c 3500 /tmp/agent_clean.txt
+            echo
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+          echo "oc_exit=$OC_EXIT" >> "$GITHUB_OUTPUT"
+          exit $OC_EXIT
 
       - name: Commit & push
         id: commit
@@ -80,12 +93,15 @@ jobs:
 
       - name: Kirim hasil ke Telegram
         if: always()
+        env:
+          AGENT_RESPONSE: ${{ steps.agent.outputs.agent_response }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
         run: |
           set -euo pipefail
           if [ "${{ steps.commit.outputs.no_changes }}" = "true" ]; then
-            MSG="Agent selesai, tapi tidak ada perubahan untuk prompt tsb."
-          elif [ -n "${{ steps.pr.outputs.pr_url }}" ]; then
-            MSG="Selesai! PR: ${{ steps.pr.outputs.pr_url }}"
+            MSG="${AGENT_RESPONSE}"
+          elif [ -n "${PR_URL}" ]; then
+            MSG="Selesai! PR: ${PR_URL}"
           else
             MSG="Ada error. Cek log: https://github.com/ammarhisyamm/off-stories/actions"
           fi
