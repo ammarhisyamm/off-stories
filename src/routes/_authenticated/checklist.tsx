@@ -5,7 +5,7 @@ import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { daysUntil, type Task } from "@/lib/types";
-import { ArrowSquareOut } from "@phosphor-icons/react";
+import { ArrowSquareOut, BellRinging } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
@@ -36,6 +36,16 @@ function Checklist() {
     () => (filter === "All" ? tasks : tasks.filter((t) => t.category === filter)),
     [filter, tasks],
   );
+  const deadlineReminders = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadline = new Date(today);
+    deadline.setDate(deadline.getDate() + 7);
+    return tasks
+      .filter((task) => task.status !== "done")
+      .filter((task) => new Date(`${task.due}T00:00:00`) <= deadline)
+      .sort((a, b) => +new Date(a.due) - +new Date(b.due));
+  }, [tasks]);
 
   const persist = useCallback(
     (next: Task[], opts?: { success?: string | null }) => {
@@ -107,6 +117,39 @@ function Checklist() {
         ))}
       </div>
 
+      {deadlineReminders.length > 0 && (
+        <section className="panel mb-6 overflow-hidden">
+          <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+            <div className="grid h-9 w-9 place-items-center rounded-full bg-destructive/10 text-destructive">
+              <BellRinging size={18} weight="duotone" />
+            </div>
+            <div>
+              <div className="eyebrow">Deadline reminders</div>
+              <p className="mt-0.5 text-sm text-foreground">
+                {deadlineReminders.length} open{" "}
+                {deadlineReminders.length === 1 ? "task needs" : "tasks need"} attention in the next
+                7 days.
+              </p>
+            </div>
+          </div>
+          <ul className="divide-y divide-border">
+            {deadlineReminders.slice(0, 4).map((task) => (
+              <li key={task.id} className="flex items-center justify-between gap-4 px-5 py-3">
+                <button
+                  type="button"
+                  onClick={() => openView(task)}
+                  className="min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <span className="block truncate text-sm text-foreground">{task.title}</span>
+                  <span className="text-xs text-muted-foreground">{task.category}</span>
+                </button>
+                <DeadlinePill due={task.due} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <div className="mb-6 inline-flex rounded-md border border-border bg-surface p-0.5">
         <button
           onClick={() => setView("list")}
@@ -157,9 +200,7 @@ function Checklist() {
                       <div className="text-sm text-foreground">{t.title}</div>
                       <div className="flex items-center gap-2 mt-2">
                         <Pill>{t.category}</Pill>
-                        <span className="text-xs text-muted-foreground">
-                          in {daysUntil(t.due)}d
-                        </span>
+                        <DeadlinePill due={t.due} />
                       </div>
                     </button>
                   ))}
@@ -297,9 +338,23 @@ const TaskRow = memo(function TaskRow({
       >
         {task.priority}
       </Pill>
-      <div className="text-xs text-muted-foreground w-20 text-right tabular-nums">
-        {done ? "—" : `in ${d}d`}
-      </div>
+      <div className="w-24 text-right">{done ? "—" : <DeadlinePill due={task.due} />}</div>
     </div>
   );
 });
+
+function DeadlinePill({ due }: { due: string }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dueDate = new Date(`${due}T00:00:00`);
+  const difference = Math.ceil((dueDate.getTime() - today.getTime()) / 86400000);
+  const label =
+    difference < 0
+      ? `Overdue ${Math.abs(difference)}d`
+      : difference === 0
+        ? "Today"
+        : difference === 1
+          ? "Tomorrow"
+          : `in ${daysUntil(due)}d`;
+  return <Pill tone={difference <= 7 ? "warn" : "neutral"}>{label}</Pill>;
+}

@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddGuestModal } from "@/components/add-guest-modal";
 import { ModalShell, ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { Guest } from "@/lib/types";
-import { Check, Users } from "@phosphor-icons/react";
+import { Check, MagnifyingGlass, Users } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
@@ -26,6 +26,26 @@ function Guests() {
   const [editing, setEditing] = useState<Guest | null>(null);
   const [viewing, setViewing] = useState<Guest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sideFilter, setSideFilter] = useState("All");
+  const [rsvpFilter, setRsvpFilter] = useState("All");
+  const deferredQuery = useDeferredValue(query.trim().toLocaleLowerCase());
+  const filteredGuests = useMemo(
+    () =>
+      guests.filter((guest) => {
+        const matchesQuery =
+          !deferredQuery ||
+          [guest.name, guest.phone, guest.email, guest.table].some((value) =>
+            value?.toLocaleLowerCase().includes(deferredQuery),
+          );
+        return (
+          matchesQuery &&
+          (sideFilter === "All" || guest.side === sideFilter) &&
+          (rsvpFilter === "All" || guest.rsvp === rsvpFilter)
+        );
+      }),
+    [deferredQuery, guests, rsvpFilter, sideFilter],
+  );
   const totalInvited = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const pending = guests.filter((g) => g.rsvp === "pending").reduce((s, g) => s + g.pax, 0);
@@ -82,6 +102,47 @@ function Guests() {
         <Stat label="Pending" value={pending} tone="taupe" />
         <Stat label="Declined" value={declined} tone="warn" />
       </div>
+      {guests.length > 0 && (
+        <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <label className="relative block">
+            <span className="sr-only">Search guests</span>
+            <MagnifyingGlass
+              size={17}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search group, contact, or table"
+              className="w-full rounded-md border border-border bg-surface px-10 py-2.5 text-base sm:text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          </label>
+          <select
+            value={sideFilter}
+            onChange={(event) => setSideFilter(event.target.value)}
+            aria-label="Filter by side"
+            className="rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="All">All sides</option>
+            <option value="Bride">Bride</option>
+            <option value="Groom">Groom</option>
+            <option value="Both">Both</option>
+          </select>
+          <select
+            value={rsvpFilter}
+            onChange={(event) => setRsvpFilter(event.target.value)}
+            aria-label="Filter by RSVP"
+            className="rounded-md border border-border bg-surface px-3 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+          >
+            <option value="All">All RSVPs</option>
+            <option value="pending">Pending</option>
+            <option value="yes">Confirmed</option>
+            <option value="maybe">Maybe</option>
+            <option value="no">Declined</option>
+          </select>
+        </div>
+      )}
       <div className="panel overflow-x-auto">
         {guests.length === 0 ? (
           <EmptyState
@@ -107,7 +168,7 @@ function Guests() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {guests.map((g) => (
+              {filteredGuests.map((g) => (
                 <tr
                   key={g.id}
                   onClick={() => openView(g)}
@@ -156,6 +217,13 @@ function Guests() {
                   </td>
                 </tr>
               ))}
+              {filteredGuests.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-muted-foreground">
+                    No guest groups match these filters.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         )}

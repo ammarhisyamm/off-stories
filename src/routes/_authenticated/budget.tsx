@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddExpenseModal } from "@/components/add-expense-modal";
 import { AddPaymentModal } from "@/components/add-payment-modal";
@@ -44,6 +44,26 @@ function Budget() {
   const committedPct = total ? Math.round((committed / total) * 100) : 0;
   const paidPct = total ? (paid / total) * 100 : 0;
   const committedPendingPct = total ? ((committed - paid) / total) * 100 : 0;
+  const categorySummary = useMemo(
+    () =>
+      Object.values(
+        items.reduce<Record<string, { category: string; committed: number; paid: number }>>(
+          (summary, item) => {
+            const current = summary[item.category] ?? {
+              category: item.category,
+              committed: 0,
+              paid: 0,
+            };
+            current.committed += item.committed;
+            current.paid += item.paid;
+            summary[item.category] = current;
+            return summary;
+          },
+          {},
+        ),
+      ).sort((a, b) => b.committed - a.committed),
+    [items],
+  );
 
   function handleSave(item: BudgetItem) {
     const exists = items.some((i) => i.id === item.id);
@@ -138,6 +158,39 @@ function Budget() {
           <Legend color="bg-secondary" label={`Headroom · ${formatIDR(remaining)}`} />
         </div>
       </div>
+
+      {categorySummary.length > 0 && (
+        <section className="panel mb-8 p-6">
+          <div className="flex items-baseline justify-between gap-4">
+            <div>
+              <div className="eyebrow">By category</div>
+              <h2 className="serif mt-1 text-xl">Budget summary</h2>
+            </div>
+            <span className="text-xs text-muted-foreground">Committed and paid</span>
+          </div>
+          <div className="mt-5 space-y-4">
+            {categorySummary.map((category) => {
+              const percent = total ? Math.min(100, (category.committed / total) * 100) : 0;
+              return (
+                <div key={category.category}>
+                  <div className="flex items-baseline justify-between gap-4 text-sm">
+                    <span className="min-w-0 truncate text-foreground">{category.category}</span>
+                    <span className="shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                      {formatIDR(category.paid)} paid / {formatIDR(category.committed)}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full rounded-full bg-[color:var(--taupe)]"
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div className="panel overflow-x-auto">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
