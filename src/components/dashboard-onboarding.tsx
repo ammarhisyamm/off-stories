@@ -152,112 +152,132 @@ export function DashboardOnboarding({
             icon={<MagicWand size={28} weight="regular" />}
           />
         </div>
-        <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-white p-5 sm:p-6">
-          <div>
-            <div className="text-sm font-medium text-foreground">
-              Start with your wedding details
-            </div>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              Optional for now, but these details help personalize your workspace and budget plan.
-            </p>
-          </div>
-          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium">Nama mempelai 1 *</span>
-              <input
-                value={setup.partnerOneName}
-                onChange={(event) => onUpdate({ partnerOneName: event.target.value })}
-                placeholder="Contoh: Andra"
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium">Nama mempelai 2 *</span>
-              <input
-                value={setup.partnerTwoName}
-                onChange={(event) => onUpdate({ partnerTwoName: event.target.value })}
-                placeholder="Contoh: Kirana"
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium">Tanggal akad / pernikahan *</span>
-              <input
-                type="date"
-                value={setup.weddingDate}
-                onChange={(event) => onUpdate({ weddingDate: event.target.value })}
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              />
-            </label>
-            <div className="sm:col-span-2">
-              <span className="mb-2 block text-sm font-medium">Acara yang akan direncanakan</span>
-              <div className="flex flex-wrap gap-2">
-                {ceremonyOptions.map((ceremony) => {
-                  const active = setup.ceremonyTypes.includes(ceremony);
-                  return (
-                    <button
-                      key={ceremony}
-                      type="button"
-                      onClick={() =>
-                        onUpdate({
-                          ceremonyTypes: active
-                            ? setup.ceremonyTypes.filter((item) => item !== ceremony)
-                            : [...setup.ceremonyTypes, ceremony],
-                        })
-                      }
-                      className={`rounded-full border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
-                      aria-pressed={active}
-                    >
-                      {ceremony}
-                    </button>
-                  );
-                })}
+        {mode === "blank" && (
+          <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-white p-5 sm:p-6">
+            <div>
+              <div className="text-sm font-medium text-foreground">
+                Start with your wedding details
               </div>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Optional for now, but these details help personalize your workspace and budget plan.
+              </p>
             </div>
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium">Status venue</span>
-              <select
-                value={setup.venueStatus}
-                onChange={(event) =>
-                  onUpdate({ venueStatus: event.target.value as SetupState["venueStatus"] })
-                }
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              >
-                <option value="not_decided">Belum menentukan</option>
-                <option value="shortlisted">Sudah shortlist</option>
-                <option value="booked">Sudah booking</option>
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium">Budget utama dibayar oleh</span>
-              <select
-                value={setup.budgetPayer}
-                onChange={(event) =>
-                  onUpdate({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
-                }
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              >
-                {Object.entries(payerLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block sm:col-span-2">
-              <span className="mb-2 block text-sm font-medium">Nama venue (opsional)</span>
-              <input
-                value={setup.venueName}
-                onChange={(event) => onUpdate({ venueName: event.target.value })}
-                placeholder="Contoh: Gedung Serbaguna Jakarta"
-                className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
-              />
-            </label>
+            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium">Nama mempelai 1 *</span>
+                <input
+                  type="text"
+                  name="partner-one-name"
+                  autoComplete="off"
+                  value={setup.partnerOneName}
+                  onChange={(event) => onUpdate({ partnerOneName: event.target.value })}
+                  placeholder="Contoh: Andra"
+                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium">Nama mempelai 2 *</span>
+                <input
+                  type="text"
+                  name="partner-two-name"
+                  autoComplete="off"
+                  value={setup.partnerTwoName}
+                  onChange={(event) => onUpdate({ partnerTwoName: event.target.value })}
+                  placeholder="Contoh: Kirana"
+                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium">Tanggal akad / pernikahan *</span>
+                <input
+                  type="date"
+                  name="wedding-date"
+                  value={setup.weddingDate}
+                  onChange={(event) => onUpdate({ weddingDate: event.target.value })}
+                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                />
+              </label>
+              <div className="sm:col-span-2">
+                <span className="mb-2 block text-sm font-medium">Acara yang akan direncanakan</span>
+                <div className="flex flex-wrap gap-2">
+                  {ceremonyOptions.map((ceremony) => {
+                    const active = setup.ceremonyTypes.includes(ceremony);
+                    return (
+                      <button
+                        key={ceremony}
+                        type="button"
+                        onClick={() =>
+                          onUpdate({
+                            ceremonyTypes: active
+                              ? setup.ceremonyTypes.filter((item) => item !== ceremony)
+                              : [...setup.ceremonyTypes, ceremony],
+                          })
+                        }
+                        className={`rounded-full border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
+                        aria-pressed={active}
+                      >
+                        {ceremony}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium">Status venue</span>
+                <select
+                  value={setup.venueStatus}
+                  onChange={(event) =>
+                    onUpdate({ venueStatus: event.target.value as SetupState["venueStatus"] })
+                  }
+                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                >
+                  <option value="not_decided">Belum menentukan</option>
+                  <option value="shortlisted">Sudah shortlist</option>
+                  <option value="booked">Sudah booking</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium">Budget utama dibayar oleh</span>
+                <select
+                  value={setup.budgetPayer}
+                  onChange={(event) =>
+                    onUpdate({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
+                  }
+                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                >
+                  {Object.entries(payerLabels).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block sm:col-span-2">
+                <span className="mb-2 block text-sm font-medium">Nama venue (opsional)</span>
+                <input
+                  type="text"
+                  name="venue-name"
+                  autoComplete="off"
+                  value={setup.venueName}
+                  onChange={(event) => onUpdate({ venueName: event.target.value })}
+                  placeholder="Contoh: Gedung Serbaguna Jakarta"
+                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                />
+              </label>
+            </div>
           </div>
-        </div>
+        )}
+        {mode === "smart" && (
+          <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-[#fafafa] p-5 text-sm text-muted-foreground sm:p-6">
+            Smart Wedding Setup akan memandu kamu melalui lokasi, jumlah tamu, budget, tipe wedding,
+            adat, dan Wedding Organizer sampai preview plan siap.
+          </div>
+        )}
         <div className="mx-auto mt-8 flex max-w-5xl items-center justify-between gap-4 border-t border-[#e9e9e9] pt-5">
           <p className="hidden text-xs text-muted-foreground sm:block">
-            Select a setup to continue.
+            {mode === "blank"
+              ? "Isi detail wajib untuk membuka workspace kosong."
+              : "Pilih Smart Wedding Setup untuk mulai wizard."}
           </p>
           <button
             type="button"
@@ -265,7 +285,7 @@ export function DashboardOnboarding({
             disabled={!mode}
             className="ml-auto rounded-[14px] bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-35"
           >
-            Continue
+            {mode === "blank" ? "Finish and open workspace" : "Start smart setup"}
           </button>
         </div>
         {startError && (
