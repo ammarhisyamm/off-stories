@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useDeferredValue, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layout";
 import { AddGuestModal } from "@/components/add-guest-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
+import { createRsvpLink, revokeRsvpLink } from "@/lib/rsvp.functions";
+import { showToast } from "@/components/toast";
 import type { Guest } from "@/lib/types";
-import { Check, MagnifyingGlass, Users } from "@phosphor-icons/react";
+import { Check, ClipboardText, LinkSimple, LinkBreak, MagnifyingGlass, Users } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
@@ -31,6 +34,10 @@ function Guests() {
   const [rsvpFilter, setRsvpFilter] = useState<"All" | Guest["rsvp"]>("All");
   const [invitationFilter, setInvitationFilter] = useState<"All" | "sent" | "draft">("All");
   const deferredQuery = useDeferredValue(query);
+  const [links, setLinks] = useState<Record<string, { url: string; checkInUrl: string }>>({});
+  const [generating, setGenerating] = useState<Record<string, boolean>>({});
+  const createLink = useServerFn(createRsvpLink);
+  const revokeLinkFn = useServerFn(revokeRsvpLink);
   const totalInvited = guests.filter((g) => g.invited).reduce((s, g) => s + g.pax, 0);
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const pending = guests.filter((g) => g.rsvp === "pending").reduce((s, g) => s + g.pax, 0);
@@ -87,6 +94,47 @@ function Guests() {
       { success: null },
     );
   }
+
+  async function handleGenerateLink(guest: Guest) {
+    setGenerating((prev) => ({ ...prev, [guest.id]: true }));
+    try {
+      const created = await createLink({ data: { guestId: guest.id } });
+      setLinks((prev) => ({ ...prev, [guest.id]: created }));
+      showToast("RSVP link created");
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "Couldn't create RSVP link", "error");
+    } finally {
+      setGenerating((prev) => ({ ...prev, [guest.id]: false }));
+    }
+  }
+
+  async function handleRevokeLink(guest: Guest) {
+    setGenerating((prev) => ({ ...prev, [guest.id]: true }));
+    try {
+      await revokeLinkFn({ data: { guestId: guest.id } });
+      setLinks((prev) => {
+        const next = { ...prev };
+        delete next[guest.id];
+        return next;
+      });
+      showToast("RSVP link revoked");
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "Couldn't revoke RSVP link", "error");
+    } finally {
+      setGenerating((prev) => ({ ...prev, [guest.id]: false }));
+    }
+  }
+
+  async function copyLink(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("Link copied");
+    } catch {
+      showToast("Couldn't copy link", "error");
+    }
+  }
+
+  const guestLinks = viewing ? links[viewing.id] : undefined;
 
   return (
     <AppLayout
@@ -214,13 +262,18 @@ function Guests() {
                   </td>
                 </tr>
               ))}
+              {filteredGuests.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-5 py-8 text-center text-sm text-muted-foreground"
+                  >
+                    No guest groups match these filters.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-          {filteredGuests.length === 0 && (
-            <p className="px-5 py-8 text-sm text-muted-foreground">
-              No guest groups match these filters.
-            </p>
-          )}
         )}
       </div>
       {viewing && (
@@ -261,6 +314,69 @@ function Guests() {
           <Detail label="Contact" value={viewing.phone ?? viewing.email ?? "Not set"} />
           <Detail label="Table" value={viewing.table ?? "Not assigned"} />
           <Detail label="Check-in" value={viewing.checkedIn ? "Checked in" : "Not checked in"} />
+          <div className="rounded-[16px] border border-border bg-surface-2/50 p-4">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div>
+                <div className="text-sm font-medium text-foreground">RSVP & check-in link</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
+                  Share this link with the guest so they can RSVP and check in online.
+                </div>
+              </div>
+              <LinkSimple size={18} className="shrink-0 text-muted-foreground" />
+            </div>
+            {guestLinks ? (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => copyLink(guestLinks.url)}
+                  className="group flex w-full items-center gap-2.5 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition duration-150 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]"
+                >
+                  <ClipboardText size={15} className="shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs text-muted-foreground">RSVP</span>
+                    <span className="block truncate text-sm text-foreground">{guestLinks.url}</span>
+                  </span>
+                  <span className="shrink-0 text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Copy
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => copyLink(guestLinks.checkInUrl)}
+                  className="group flex w-full items-center gap-2.5 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition duration-150 hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]"
+                >
+                  <ClipboardText size={15} className="shrink-0 text-muted-foreground" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs text-muted-foreground">Check-in</span>
+                    <span className="block truncate text-sm text-foreground">
+                      {guestLinks.checkInUrl}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Copy
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRevokeLink(viewing)}
+                  disabled={generating[viewing.id]}
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <LinkBreak size={13} />
+                  {generating[viewing.id] ? "Revoking…" : "Revoke links"}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleGenerateLink(viewing)}
+                disabled={generating[viewing.id]}
+                className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-primary/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {generating[viewing.id] ? "Creating…" : "Create RSVP link"}
+              </button>
+            )}
+          </div>
         </ViewModal>
       )}
       {isModalOpen && (

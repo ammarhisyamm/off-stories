@@ -230,7 +230,7 @@ export function DashboardOnboarding({
                             key={ceremony}
                             type="button"
                             onClick={() =>
-                              onUpdate({
+                              update({
                                 ceremonyTypes: active
                                   ? setup.ceremonyTypes.filter((item) => item !== ceremony)
                                   : [...setup.ceremonyTypes, ceremony],
@@ -250,7 +250,7 @@ export function DashboardOnboarding({
                     <select
                       value={setup.venueStatus}
                       onChange={(event) =>
-                        onUpdate({ venueStatus: event.target.value as SetupState["venueStatus"] })
+                        update({ venueStatus: event.target.value as SetupState["venueStatus"] })
                       }
                       className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                     >
@@ -266,7 +266,7 @@ export function DashboardOnboarding({
                     <select
                       value={setup.budgetPayer}
                       onChange={(event) =>
-                        onUpdate({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
+                        update({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
                       }
                       className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                     >
@@ -284,7 +284,7 @@ export function DashboardOnboarding({
                       name="venue-name"
                       autoComplete="off"
                       value={setup.venueName}
-                      onChange={(event) => onUpdate({ venueName: event.target.value })}
+                      onChange={(event) => update({ venueName: event.target.value })}
                       placeholder="Contoh: Gedung Serbaguna Jakarta"
                       className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
                     />

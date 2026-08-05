@@ -95,6 +95,19 @@ function Checklist() {
     setViewing(task);
   }, []);
 
+  const overview = useMemo(() => {
+    const byCategory = new Map<string, { total: number; done: number }>();
+    for (const t of tasks) {
+      const entry = byCategory.get(t.category) ?? { total: 0, done: 0 };
+      entry.total += 1;
+      if (t.status === "done") entry.done += 1;
+      byCategory.set(t.category, entry);
+    }
+    return Array.from(byCategory.entries());
+  }, [tasks]);
+  const overallTotal = overview.reduce((s, [, v]) => s + v.total, 0);
+  const overallDone = overview.reduce((s, [, v]) => s + v.done, 0);
+
   return (
     <AppLayout
       eyebrow="Operational"
@@ -170,6 +183,52 @@ function Checklist() {
         >
           Kanban
         </button>
+      </div>
+
+      <div className="panel p-5 mb-6">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <div className="eyebrow">Progress overview</div>
+            <h2 className="serif mt-1 text-xl">
+              {overallDone} of {overallTotal} tasks
+            </h2>
+          </div>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {overallTotal ? Math.round((overallDone / overallTotal) * 100) : 0}% complete
+          </span>
+        </div>
+        <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full bg-sage transition-[width] duration-500"
+            style={{ width: `${overallTotal ? (overallDone / overallTotal) * 100 : 0}%` }}
+          />
+        </div>
+        {overview.length > 0 && (
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {overview.map(([cat, stats]) => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`rounded-xl border p-3 text-left transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
+                  filter === cat ? "border-primary/60 bg-surface-2" : "border-border bg-surface"
+                }`}
+              >
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="truncate text-xs font-medium text-foreground">{cat}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                    {stats.done}/{stats.total}
+                  </span>
+                </div>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+                  <div
+                    className="h-full rounded-full bg-sage transition-[width] duration-500"
+                    style={{ width: `${stats.total ? (stats.done / stats.total) * 100 : 0}%` }}
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {view === "list" ? (

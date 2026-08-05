@@ -444,14 +444,41 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
   const [targetInput, setTargetInput] = useState(formatIDRInput(event.savingsTarget));
   const [savedInput, setSavedInput] = useState(formatIDRInput(event.savingsSaved));
   const progress = target ? Math.min(100, Math.round((saved / target) * 100)) : 0;
+  const weddingDate = event.date ? new Date(event.date) : null;
+  const [startMonth, setStartMonth] = useState(
+    event.savingsStartMonth ?? (weddingDate ? weddingMonth(weddingDate) : ""),
+  );
+  const [splitInput, setSplitInput] = useState(
+    String(Math.round((event.savingsMonthlySplit ?? 0.5) * 100)),
+  );
+  const brideName = event.brideName || "Bride";
+  const groomName = event.groomName || "Groom";
+  const split = clampSplit(splitInput);
+  const months = useMemo(() => {
+    if (!weddingDate || !startMonth) return [];
+    const start = new Date(`${startMonth}-01T00:00:00`);
+    const end = new Date(weddingDate.getFullYear(), weddingDate.getMonth(), 1);
+    if (!isNaN(+start) && start <= end) return listMonths(start, end);
+    return [];
+  }, [startMonth, weddingDate]);
+  const perMonth = target && months.length ? target / months.length : 0;
+  const brideMonthly = Math.round(perMonth * split * 0.01);
+  const groomMonthly = Math.round(perMonth * (100 - split) * 0.01);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const nextTarget = Math.max(0, parseIDRInput(targetInput));
     const nextSaved = Math.max(0, parseIDRInput(savedInput));
+    const nextSplit = clampSplit(splitInput);
     setTarget(nextTarget);
     setSaved(nextSaved);
-    onSave({ ...event, savingsTarget: nextTarget, savingsSaved: nextSaved });
+    onSave({
+      ...event,
+      savingsTarget: nextTarget,
+      savingsSaved: nextSaved,
+      savingsStartMonth: startMonth,
+      savingsMonthlySplit: nextSplit / 100,
+    });
   }
 
   return (
@@ -505,6 +532,46 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
             />
           </label>
+          {weddingDate && (
+            <>
+              <label className="block sm:col-span-2">
+                <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  Monthly deposit plan
+                </span>
+                <span className="block text-xs leading-5 text-muted-foreground/70">
+                  {months.length
+                    ? `Saving from ${months[0].label} to ${months[months.length - 1].label}: ${formatIDR(perMonth)} per month, split ${split}% ${brideName} / ${100 - split}% ${groomName}.`
+                    : "Pick a start month before the wedding to build a monthly deposit plan."}
+                </span>
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  Start month
+                </span>
+                <input
+                  name="savingsStartMonth"
+                  type="month"
+                  value={startMonth}
+                  onChange={(e) => setStartMonth(e.target.value)}
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                  {brideName} share (%)
+                </span>
+                <input
+                  name="savingsSplit"
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={splitInput}
+                  onChange={(e) => setSplitInput(e.target.value)}
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                />
+              </label>
+            </>
+          )}
           <div className="sm:col-span-2 sm:flex sm:justify-end">
             <QuietButton variant="primary" type="submit">
               Save savings target
@@ -512,6 +579,64 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
           </div>
         </form>
       </div>
+
+      {months.length > 0 && (
+        <div className="mt-6 border-t border-border pt-6">
+          <div className="flex flex-wrap items-baseline gap-3">
+            <div className="eyebrow">Monthly plan</div>
+            <span className="text-xs text-muted-foreground">
+              {formatIDR(perMonth)} / month · {formatIDR(brideMonthly)} from {brideName} ·{" "}
+              {formatIDR(groomMonthly)} from {groomName}
+            </span>
+          </div>
+          <div className="overflow-x-auto mt-3">
+            <table className="w-full text-sm min-w-[440px]">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground bg-surface-2">
+                  <th className="px-3 py-2 font-medium">Month</th>
+                  <th className="px-3 py-2 font-medium">{brideName}</th>
+                  <th className="px-3 py-2 font-medium">{groomName}</th>
+                  <th className="px-3 py-2 font-medium text-right">Combined</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {months.map((m) => (
+                  <tr key={m.key}>
+                    <td className="px-3 py-2 tabular-nums">{m.label}</td>
+                    <td className="px-3 py-2 tabular-nums">{formatIDR(brideMonthly)}</td>
+                    <td className="px-3 py-2 tabular-nums">{formatIDR(groomMonthly)}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">
+                      {formatIDR(brideMonthly + groomMonthly)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </section>
   );
+}
+
+function clampSplit(input: string) {
+  const n = Math.round(Number(input) || 0);
+  return Math.max(0, Math.min(100, n));
+}
+
+function weddingMonth(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function listMonths(start: Date, end: Date) {
+  const months: { key: string; label: string }[] = [];
+  const cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+  while (cursor <= end && months.length < 120) {
+    months.push({
+      key: `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}`,
+      label: cursor.toLocaleDateString("en-GB", { month: "long", year: "numeric" }),
+    });
+    cursor.setMonth(cursor.getMonth() + 1);
+  }
+  return months;
 }
