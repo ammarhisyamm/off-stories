@@ -5,7 +5,7 @@ import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { daysUntil, type Task } from "@/lib/types";
-import { ArrowSquareOut } from "@phosphor-icons/react";
+import { ArrowSquareOut, BellRinging, WarningCircle } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
@@ -36,6 +36,20 @@ function Checklist() {
     () => (filter === "All" ? tasks : tasks.filter((t) => t.category === filter)),
     [filter, tasks],
   );
+  const reminders = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    return tasks
+      .filter((task) => task.status !== "done")
+      .filter((task) => {
+        const due = new Date(`${task.due}T00:00:00`);
+        return due <= nextWeek;
+      })
+      .sort((a, b) => +new Date(a.due) - +new Date(b.due));
+  }, [tasks]);
 
   const persist = useCallback(
     (next: Task[], opts?: { success?: string | null }) => {
@@ -106,6 +120,40 @@ function Checklist() {
           </button>
         ))}
       </div>
+
+      {reminders.length > 0 && (
+        <section className="panel mb-6 overflow-hidden">
+          <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+            <BellRinging size={20} className="text-[color:var(--taupe)]" weight="duotone" />
+            <div>
+              <div className="eyebrow">Deadline reminders</div>
+              <h2 className="serif mt-1 text-lg">
+                {reminders.length} task{reminders.length === 1 ? "" : "s"} need attention
+              </h2>
+            </div>
+          </div>
+          <div className="divide-y divide-border">
+            {reminders.slice(0, 5).map((task) => (
+              <button
+                key={task.id}
+                type="button"
+                onClick={() => openView(task)}
+                className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+              >
+                <WarningCircle
+                  size={16}
+                  className="shrink-0 text-destructive"
+                  weight="fill"
+                />
+                <span className="min-w-0 flex-1 truncate text-sm text-foreground">
+                  {task.title}
+                </span>
+                <Pill tone="warn">{deadlineLabel(task.due)}</Pill>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="mb-6 inline-flex rounded-md border border-border bg-surface p-0.5">
         <button
@@ -236,7 +284,6 @@ const TaskRow = memo(function TaskRow({
   onEdit: (task: Task) => void;
 }) {
   const done = task.status === "done";
-  const d = daysUntil(task.due);
   return (
     <div
       role="button"
@@ -298,8 +345,20 @@ const TaskRow = memo(function TaskRow({
         {task.priority}
       </Pill>
       <div className="text-xs text-muted-foreground w-20 text-right tabular-nums">
-        {done ? "—" : `in ${d}d`}
+        {done ? "—" : deadlineLabel(task.due)}
       </div>
     </div>
   );
 });
+
+function deadlineLabel(due: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dueDate = new Date(`${due}T00:00:00`);
+  const difference = Math.round((dueDate.getTime() - today.getTime()) / 86400000);
+
+  if (difference < 0) return `${Math.abs(difference)}d overdue`;
+  if (difference === 0) return "Today";
+  if (difference === 1) return "Tomorrow";
+  return `in ${difference}d`;
+}
