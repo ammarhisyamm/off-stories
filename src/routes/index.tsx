@@ -46,7 +46,7 @@ function CTAButton({
   return (
     <Link
       to={to}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-[14px] px-4 text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
         primary
           ? "bg-primary text-primary-foreground shadow-soft hover:opacity-90"
           : "border border-border bg-surface text-foreground hover:bg-surface-2"
@@ -217,7 +217,7 @@ function Hero({ hasSession }: { hasSession: boolean }) {
             </CTAButton>
             <a
               href="#features"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+              className="inline-flex h-11 items-center justify-center rounded-[14px] border border-border bg-surface px-4 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             >
               See the workspace
             </a>

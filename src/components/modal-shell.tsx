@@ -122,7 +122,7 @@ export function ConfirmDelete({
         <button
           type="button"
           onClick={onConfirm}
-          className="inline-flex items-center gap-2 rounded-md bg-destructive text-destructive-foreground px-3 py-1.5 text-sm font-medium hover:bg-destructive/90 transition duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] bg-destructive px-4 text-sm font-medium text-destructive-foreground transition duration-200 hover:bg-destructive/90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Trash size={15} /> Delete
         </button>

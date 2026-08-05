@@ -380,7 +380,7 @@ export function QuietButton({
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" }) {
   const base =
-    "inline-flex items-center gap-2 rounded-[14px] px-4 py-2.5 text-sm font-medium transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:-translate-y-px active:scale-[0.98]";
+    "inline-flex h-11 items-center justify-center gap-2 rounded-[14px] px-4 text-sm font-medium transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:-translate-y-px active:scale-[0.98]";
   const styles =
     variant === "primary"
       ? "bg-primary text-primary-foreground shadow-[0_4px_14px_rgb(91_14_32_/_0.14)] hover:bg-primary/90 active:bg-primary/85"
