@@ -18,14 +18,29 @@ export function AddTaskModal({
 }) {
   const [priority, setPriority] = useState<Priority | "">(initial?.priority ?? "");
   const [confirming, setConfirming] = useState(false);
+  const [category, setCategory] = useState<string>(
+    taskCategories.includes(initial?.category ?? "")
+      ? (initial?.category ?? "")
+      : initial?.category
+        ? "Other"
+        : "",
+  );
+  const [customCategory, setCustomCategory] = useState(
+    taskCategories.includes(initial?.category ?? "")
+      ? ""
+      : (initial?.category ?? ""),
+  );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    const resolvedCategory =
+      category === "Other" ? customCategory.trim() : category;
+    if (!resolvedCategory) return;
     onSave({
       id: initial?.id ?? `t${Date.now()}`,
       title: (form.get("title") as string).trim(),
-      category: (form.get("category") as string) || "Other",
+      category: resolvedCategory,
       due: (form.get("due") as string) || new Date().toISOString().split("T")[0],
       priority: (priority || "medium") as Priority,
       status: initial?.status ?? "todo",
@@ -62,8 +77,8 @@ export function AddTaskModal({
               <span className="block text-sm font-medium mb-1.5">Category</span>
               <select
                 name="category"
-                required
-                defaultValue={initial?.category ?? ""}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
                 className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
               >
                 <option value="" disabled>
@@ -95,6 +110,18 @@ export function AddTaskModal({
               </select>
             </label>
           </div>
+          {category === "Other" && (
+            <label className="block">
+              <span className="block text-sm font-medium mb-1.5">Custom category name</span>
+              <input
+                name="customCategory"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="e.g. Transportasi"
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              />
+            </label>
+          )}
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Shopping link (optional)</span>
             <input

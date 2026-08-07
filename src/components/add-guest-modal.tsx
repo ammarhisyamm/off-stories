@@ -19,6 +19,9 @@ export function AddGuestModal({
   const [rsvp, setRsvp] = useState<Guest["rsvp"] | "">(initial?.rsvp ?? "");
   const [invited, setInvited] = useState(initial?.invited ?? false);
   const [confirming, setConfirming] = useState(false);
+  const [mode, setMode] = useState<"single" | "group">(
+    (initial?.pax ?? 1) > 1 ? "group" : "single",
+  );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,7 +30,7 @@ export function AddGuestModal({
       id: initial?.id ?? `g${Date.now()}`,
       name: (form.get("name") as string).trim(),
       side: (side || "Bride") as Guest["side"],
-      pax: 1,
+      pax: mode === "group" ? Number(form.get("pax")) || 1 : 1,
       invited,
       rsvp: (rsvp || "pending") as Guest["rsvp"],
       phone: (form.get("phone") as string)?.trim() || undefined,
@@ -48,15 +51,41 @@ export function AddGuestModal({
         />
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 rounded-md border border-border bg-surface p-0.5">
+            <button
+              type="button"
+              onClick={() => setMode("single")}
+              aria-pressed={mode === "single"}
+              className={`px-3 py-1.5 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                mode === "single" ? "bg-secondary text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              Single guest
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("group")}
+              aria-pressed={mode === "group"}
+              className={`px-3 py-1.5 rounded-sm text-sm font-medium transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                mode === "group" ? "bg-secondary text-foreground" : "text-muted-foreground"
+              }`}
+            >
+              Family / group
+            </button>
+          </div>
           <label className="block">
-            <span className="block text-sm font-medium mb-1.5">Full name</span>
+            <span className="block text-sm font-medium mb-1.5">
+              {mode === "group" ? "Group name" : "Full name"}
+            </span>
             <input
               name="name"
               required
               autoFocus
               defaultValue={initial?.name}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-              placeholder="e.g. Nyi Hasanah"
+              placeholder={
+                mode === "group" ? "e.g. Keluarga Rahardjo" : "e.g. Nyi Hasanah"
+              }
             />
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -88,6 +117,18 @@ export function AddGuestModal({
               </select>
             </label>
           </div>
+          {mode === "group" && (
+            <label className="block">
+              <span className="block text-sm font-medium mb-1.5">Number of guests</span>
+              <input
+                name="pax"
+                type="number"
+                min={2}
+                defaultValue={initial?.pax ?? 2}
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              />
+            </label>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Invitation</span>
