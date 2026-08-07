@@ -27,22 +27,20 @@ export function AddGuestModal({
       id: initial?.id ?? `g${Date.now()}`,
       name: (form.get("name") as string).trim(),
       side: (side || "Bride") as Guest["side"],
-      pax: Number(form.get("pax")) || 1,
+      pax: 1,
       invited,
       rsvp: (rsvp || "pending") as Guest["rsvp"],
       phone: (form.get("phone") as string)?.trim() || undefined,
       email: (form.get("email") as string)?.trim() || undefined,
-      table: (form.get("table") as string)?.trim() || undefined,
-      dietaryNotes: (form.get("dietaryNotes") as string)?.trim() || undefined,
       checkedIn: initial?.checkedIn ?? false,
     });
   }
 
   return (
-    <ModalShell title={initial ? "Edit Guest Group" : "Add Guest Group"} onClose={onClose}>
+    <ModalShell title={initial ? "Edit Guest" : "Add Guest"} onClose={onClose}>
       {confirming ? (
         <ConfirmDelete
-          message="Delete this guest group? This can't be undone."
+          message="Delete this guest? This can't be undone."
           onCancel={() => setConfirming(false)}
           onConfirm={() => {
             if (initial) onDelete?.(initial.id);
@@ -51,17 +49,27 @@ export function AddGuestModal({
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
-            <span className="block text-sm font-medium mb-1.5">Group name</span>
+            <span className="block text-sm font-medium mb-1.5">Full name</span>
             <input
               name="name"
               required
               autoFocus
               defaultValue={initial?.name}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-              placeholder="e.g. Keluarga besar — Bride"
+              placeholder="e.g. Nyi Hasanah"
             />
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label className="block">
+              <span className="block text-sm font-medium mb-1.5">WhatsApp / phone (optional)</span>
+              <input
+                name="phone"
+                type="tel"
+                defaultValue={initial?.phone}
+                placeholder="e.g. 0812 3456 7890"
+                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              />
+            </label>
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Side</span>
               <select
@@ -79,50 +87,7 @@ export function AddGuestModal({
                 <option value="Both">Both</option>
               </select>
             </label>
-            <label className="block">
-              <span className="block text-sm font-medium mb-1.5">Pax</span>
-              <input
-                name="pax"
-                type="number"
-                required
-                min={1}
-                defaultValue={initial?.pax}
-                placeholder="e.g. 4"
-                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-              />
-            </label>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="block text-sm font-medium mb-1.5">WhatsApp / phone (optional)</span>
-              <input
-                name="phone"
-                type="tel"
-                defaultValue={initial?.phone}
-                placeholder="e.g. 0812 3456 7890"
-                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-              />
-            </label>
-            <label className="block">
-              <span className="block text-sm font-medium mb-1.5">Table (optional)</span>
-              <input
-                name="table"
-                defaultValue={initial?.table}
-                placeholder="e.g. Table 4"
-                className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-              />
-            </label>
-          </div>
-          <label className="block">
-            <span className="block text-sm font-medium mb-1.5">Dietary notes (optional)</span>
-            <input
-              name="dietaryNotes"
-              defaultValue={initial?.dietaryNotes}
-              maxLength={240}
-              placeholder="e.g. vegetarian, no peanuts"
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-            />
-          </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-medium mb-1.5">Invitation</span>
@@ -179,7 +144,7 @@ export function AddGuestModal({
                 Cancel
               </QuietButton>
               <QuietButton variant="primary" type="submit">
-                {initial ? "Save Guest Group" : "Add Guest Group"}
+                {initial ? "Save Guest" : "Add Guest"}
               </QuietButton>
             </div>
           </div>

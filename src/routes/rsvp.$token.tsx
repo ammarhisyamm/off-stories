@@ -113,21 +113,6 @@ function RsvpPage() {
                 </div>
               </fieldset>
               <label className="block text-sm font-medium">
-                Number of guests
-                <input
-                  type="number"
-                  min={1}
-                  max={Math.max(1, guest.pax)}
-                  value={pax}
-                  onChange={(e) =>
-                    setPax(
-                      Math.min(Math.max(1, Number(e.target.value) || 1), Math.max(1, guest.pax)),
-                    )
-                  }
-                  className="mt-2 w-full rounded-md border border-border bg-surface-2 px-3 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </label>
-              <label className="block text-sm font-medium">
                 Note <span className="font-normal text-muted-foreground">(optional)</span>
                 <textarea
                   value={note}
@@ -135,7 +120,7 @@ function RsvpPage() {
                   rows={3}
                   maxLength={500}
                   className="mt-2 w-full resize-none rounded-md border border-border bg-surface-2 px-3 py-2.5 text-base focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="Dietary note or message for the couple"
+                  placeholder="Message for the couple"
                 />
               </label>
               {error && (

@@ -47,7 +47,7 @@ function Guests() {
     return guests.filter((guest) => {
       const matchesQuery =
         !normalizedQuery ||
-        [guest.name, guest.phone, guest.email, guest.table].some((value) =>
+        [guest.name, guest.phone, guest.email, guest.side].some((value) =>
           value?.toLocaleLowerCase().includes(normalizedQuery),
         );
       const matchesSide = sideFilter === "All" || guest.side === sideFilter;
@@ -142,7 +142,7 @@ function Guests() {
       title="Guest list"
       actions={
         <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-          Add guest group
+          Add guest
         </QuietButton>
       }
     >
@@ -164,7 +164,7 @@ function Guests() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name, contact, or table"
+              placeholder="Search name, contact, or side"
               className="w-full rounded-md border border-border bg-surface-2 py-2 pl-9 pr-3 text-base sm:text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </label>
@@ -192,21 +192,20 @@ function Guests() {
         {guests.length === 0 ? (
           <EmptyState
             icon={<Users size={20} weight="duotone" />}
-            title="No guest groups yet"
-            description="Group guests by household or friend circle, mark who's invited, and track RSVPs as replies come in."
+            title="No guests yet"
+            description="Add your first guest and track RSVPs and check-ins as replies come in."
             action={
               <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-                Add guest group
+                Add guest
               </QuietButton>
             }
           />
         ) : (
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[680px] text-sm">
             <thead>
               <tr className="text-left text-xs text-muted-foreground bg-surface-2">
-                <th className="px-5 py-3 font-medium">Group</th>
+                <th className="px-5 py-3 font-medium">Guest</th>
                 <th className="px-5 py-3 font-medium">Side</th>
-                <th className="px-5 py-3 font-medium text-right">Pax</th>
                 <th className="px-5 py-3 font-medium">Invitation</th>
                 <th className="px-5 py-3 font-medium">RSVP</th>
                 <th className="px-5 py-3 font-medium">Check-in</th>
@@ -229,7 +228,6 @@ function Guests() {
                 >
                   <td className="px-5 py-3 text-foreground">{g.name}</td>
                   <td className="px-5 py-3 text-muted-foreground">{g.side}</td>
-                  <td className="px-5 py-3 text-right tabular-nums">{g.pax}</td>
                   <td className="px-5 py-3">
                     <Pill tone={g.invited ? "sage" : "neutral"}>
                       {g.invited ? "Sent" : "Draft"}
@@ -265,10 +263,10 @@ function Guests() {
               {filteredGuests.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={5}
                     className="px-5 py-8 text-center text-sm text-muted-foreground"
                   >
-                    No guest groups match these filters.
+                    No guests match these filters.
                   </td>
                 </tr>
               )}
@@ -278,7 +276,7 @@ function Guests() {
       </div>
       {viewing && (
         <ViewModal
-          title="Guest group details"
+          title="Guest details"
           onClose={() => setViewing(null)}
           onDelete={() => handleDelete(viewing.id)}
           onEdit={() => {
@@ -302,17 +300,15 @@ function Guests() {
             </Pill>
           }
         >
-          <Detail label="Group name" value={viewing.name} />
+          <Detail label="Guest" value={viewing.name} />
           <DetailGrid>
             <Detail label="Side" value={viewing.side} />
-            <Detail label="Pax" value={viewing.pax} />
           </DetailGrid>
           <Detail
             label="Invitation"
             value={viewing.invited ? "Invitation sent" : "Draft — not yet sent"}
           />
           <Detail label="Contact" value={viewing.phone ?? viewing.email ?? "Not set"} />
-          <Detail label="Table" value={viewing.table ?? "Not assigned"} />
           <Detail label="Check-in" value={viewing.checkedIn ? "Checked in" : "Not checked in"} />
           <div className="rounded-[16px] border border-border bg-surface-2/50 p-4">
             <div className="flex items-center justify-between gap-3 mb-3">
