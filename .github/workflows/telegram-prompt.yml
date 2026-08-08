@@ -88,7 +88,6 @@ jobs:
           {
             echo "build_log<<EOF"
             tail -c 3000 /tmp/build_clean.txt
-            echo
             echo EOF
           } >> "$GITHUB_OUTPUT"
           if [ "$BUILD_EXIT" != "0" ]; then
@@ -116,8 +115,7 @@ jobs:
             --base main \
             --head "${{ steps.agent.outputs.branch }}" \
             --title "Telegram prompt: ${{ github.event.inputs.prompt }}" \
-            --body "Prompt dari Telegram:
-          ${{ github.event.inputs.prompt }}" > /tmp/pr_url.txt
+            --body "Prompt dari Telegram: ${{ github.event.inputs.prompt }}" > /tmp/pr_url.txt
           echo "pr_url=$(cat /tmp/pr_url.txt)" >> "$GITHUB_OUTPUT"
 
       - name: Kirim hasil ke Telegram
@@ -128,12 +126,15 @@ jobs:
           BUILD_LOG: ${{ steps.build.outputs.build_log }}
         run: |
           set -euo pipefail
-          if [ "${{ steps.build.outputs.build_failed }}" = "true" ]; then
+          BUILD_FAILED="${{ steps.build.outputs.build_failed }}"
+          OC_EXIT="${{ steps.agent.outputs.oc_exit }}"
+          NO_CHANGES="${{ steps.build.outputs.no_changes }}"
+          if [ "$BUILD_FAILED" = "true" ]; then
             MSG="Build gagal setelah agent mengubah kode. Log error:
-        ${BUILD_LOG}"
-          elif [ "${{ steps.agent.outputs.oc_exit }}" != "0" ]; then
+          ${BUILD_LOG}"
+          elif [ "$OC_EXIT" != "0" ]; then
             MSG="Agent error. Log: https://github.com/ammarhisyamm/off-stories/actions"
-          elif [ "${{ steps.build.outputs.no_changes }}" = "true" ]; then
+          elif [ "$NO_CHANGES" = "true" ]; then
             MSG="${AGENT_RESPONSE}"
           elif [ -n "${PR_URL}" ]; then
             MSG="Selesai! PR: ${PR_URL}"
