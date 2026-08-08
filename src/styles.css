@@ -193,12 +193,12 @@
   input::placeholder,
   textarea::placeholder {
     color: var(--color-muted-foreground);
-    opacity: 0.65;
+    opacity: 0.7;
     transition: opacity 180ms ease-out;
   }
   input:focus::placeholder,
   textarea:focus::placeholder {
-    opacity: 0.35;
+    opacity: 0.5;
   }
   label:has(> input[required]) > span:first-child::after,
   label:has(> select[required]) > span:first-child::after,
@@ -243,6 +243,52 @@
   }
   select::-ms-expand {
     display: none;
+  }
+  /* Forms: transparent surfaces so fields never look disabled.
+     Empty state reads as muted placeholder; filled text turns "full". */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: transparent !important;
+    color: var(--color-foreground);
+    caret-color: var(--color-primary);
+  }
+  input:placeholder-shown,
+  textarea:placeholder-shown {
+    color: var(--color-muted-foreground);
+  }
+  input:placeholder-shown:focus::placeholder,
+  textarea:placeholder-shown:focus::placeholder {
+    color: var(--color-muted-foreground);
+  }
+  select:valid:not(:focus) {
+    color: var(--color-foreground);
+  }
+  input[type="date"],
+  input[type="month"] {
+    color: var(--color-muted-foreground);
+  }
+  input[type="date"]:not([value=""]),
+  input[type="date"]:focus,
+  input[type="month"]:not([value=""]),
+  input[type="month"]:focus {
+    color: var(--color-foreground);
+  }
+  select {
+    background-color: transparent !important;
+  }
+  select:invalid {
+    color: var(--color-muted-foreground);
+  }
+  input:hover:not(:focus):not(:disabled),
+  textarea:hover:not(:focus):not(:disabled),
+  select:hover:not(:focus):not(:disabled) {
+    border-color: color-mix(in oklch, var(--color-border) 60%, var(--color-foreground) 40%);
+  }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    background-color: transparent !important;
   }
 }
 
