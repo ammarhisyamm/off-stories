@@ -104,14 +104,41 @@ export async function resolveWorkspace(
   return ws?.id ?? null;
 }
 
+export async function resolveMemberRole(
+  supabase: SupabaseClient<Database>,
+  workspaceId: string,
+  userId: string,
+): Promise<string | null> {
+  if (!workspaceId) return null;
+  const { data: owner } = await supabase
+    .from("workspaces")
+    .select("id")
+    .eq("id", workspaceId)
+    .eq("owner_id", userId)
+    .maybeSingle();
+  if (owner) return "owner";
+  const { data: member } = await supabase
+    .from("workspace_members")
+    .select("role")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return member?.role ?? null;
+}
+
 export const loadWorkspaceData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const workspaceId = await resolveWorkspace(supabase, userId);
     if (!workspaceId) {
-      return { workspaceId: null as string | null, data: emptyWorkspaceData() };
+      return {
+        workspaceId: null as string | null,
+        role: null as string | null,
+        data: emptyWorkspaceData(),
+      };
     }
+    const role = await resolveMemberRole(supabase, workspaceId, userId);
     const { data: rows } = await supabase
       .from("workspace_data")
       .select("kind,payload")
@@ -122,7 +149,7 @@ export const loadWorkspaceData = createServerFn({ method: "GET" })
       const value = map.get(kind);
       if (value !== undefined) (data as Record<string, unknown>)[kind] = value;
     }
-    return { workspaceId, data };
+    return { workspaceId, role, data };
   });
 
 export const saveWorkspaceData = createServerFn({ method: "POST" })
@@ -132,6 +159,12 @@ export const saveWorkspaceData = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const workspaceId = await resolveWorkspace(supabase, userId);
     if (!workspaceId) throw new Error("No workspace found");
+    const role = await resolveMemberRole(supabase, workspaceId, userId);
+    if (role === "viewer") {
+      throw new Error(
+        "You have read-only access to this workspace. Ask the owner to change your role if you need to make edits.",
+      );
+    }
     const { error } = await supabase
       .from("workspace_data")
       .upsert(

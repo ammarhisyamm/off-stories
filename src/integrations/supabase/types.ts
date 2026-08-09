@@ -253,6 +253,10 @@ export type Database = {
         Args: { p_workspace: string; p_partner: string };
         Returns: undefined;
       };
+      update_member_role: {
+        Args: { p_workspace: string; p_role: "owner" | "editor" | "viewer"; p_user: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       member_role: "owner" | "editor" | "viewer";

@@ -6,15 +6,17 @@ import { useWorkspaceData, resetWorkspaceDataCache } from "@/lib/use-workspace-d
 import {
   listInvites,
   invitePartner,
+  createLinkInvite,
   revokeInvite,
   listMembers,
   removePartner,
   leaveWorkspace,
+  updateMemberRole,
 } from "@/lib/invites.functions";
 import { getBrowserStorage } from "@/lib/browser-storage";
 import { formatIDRInput, parseIDRInput } from "@/lib/types";
 import { showToast } from "@/components/toast";
-import { ArrowRight, Check, MagicWand, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRight, Check, LinkSimple, MagicWand, WarningCircle } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -61,7 +63,7 @@ function Settings() {
 
 function EventDetailsPanel() {
   const navigate = useNavigate();
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const eventData = data.event;
   const [isSaving, setIsSaving] = useState(false);
 
@@ -104,6 +106,12 @@ function EventDetailsPanel() {
           <h2 className="serif text-2xl text-balance">{eventData.name}</h2>
         </div>
       </div>
+      {!canEdit && (
+        <p className="mb-5 rounded-md border border-[color:var(--taupe)]/30 bg-[color:var(--taupe)]/10 px-3 py-2.5 text-xs text-muted-foreground">
+          You have read-only access to this workspace, so event details are shown but can't be
+          edited.
+        </p>
+      )}
       <form onSubmit={handleSave}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <Field
@@ -112,6 +120,7 @@ function EventDetailsPanel() {
             type="text"
             defaultValue={eventData.name}
             placeholder="e.g. Andra & Kirana"
+            disabled={!canEdit}
           />
           <Field
             label="Event type"
@@ -119,14 +128,22 @@ function EventDetailsPanel() {
             type="text"
             defaultValue={eventData.type}
             placeholder="e.g. Akad + Resepsi"
+            disabled={!canEdit}
           />
-          <Field label="Date" name="date" type="date" defaultValue={eventData.date} />
+          <Field
+            label="Date"
+            name="date"
+            type="date"
+            defaultValue={eventData.date}
+            disabled={!canEdit}
+          />
           <Field
             label="Location"
             name="location"
             type="text"
             defaultValue={eventData.location}
-            placeholder="e.g. Bandung, ID"
+            placeholder="e.g. Rumah Adat Pontianak"
+            disabled={!canEdit}
           />
           <Field
             label="Estimated guests"
@@ -134,6 +151,7 @@ function EventDetailsPanel() {
             type="number"
             defaultValue={String(eventData.guestEstimate)}
             placeholder="e.g. 320"
+            disabled={!canEdit}
           />
           <Field
             label="Estimated budget (Rp)"
@@ -142,35 +160,40 @@ function EventDetailsPanel() {
             defaultValue={String(eventData.budget)}
             placeholder="e.g. 425.000.000"
             formatCurrency
+            disabled={!canEdit}
           />
         </div>
-        <div className="mt-6 flex justify-end">
-          <QuietButton variant="primary" type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save changes"}
-          </QuietButton>
-        </div>
-      </form>
-      <div className="mt-8 flex flex-col gap-4 rounded-[20px] border border-[#e8e8e8] bg-[#fafafa] p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#444444] shadow-[0_1px_2px_rgb(15_23_42_/_0.04)]">
-            <MagicWand size={18} />
-          </span>
-          <div className="min-w-0">
-            <div className="text-sm font-medium text-foreground">Try the onboarding flow</div>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              Preview the template selection and smart wedding setup without deleting your current
-              workspace.
-            </p>
+        {canEdit && (
+          <div className="mt-6 flex justify-end">
+            <QuietButton variant="primary" type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save changes"}
+            </QuietButton>
           </div>
+        )}
+      </form>
+      {canEdit && (
+        <div className="mt-8 flex flex-col gap-4 rounded-[20px] border border-[#e8e8e8] bg-[#fafafa] p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#444444] shadow-[0_1px_2px_rgb(15_23_42_/_0.04)]">
+              <MagicWand size={18} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-foreground">Try the onboarding flow</div>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                Preview the template selection and smart wedding setup without deleting your current
+                workspace.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={previewOnboarding}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] border border-[#e2e2e2] bg-white px-4 py-2.5 text-sm font-medium text-[#333333] transition duration-200 hover:bg-[#f6f6f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+          >
+            Choose a template <ArrowRight size={16} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={previewOnboarding}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] border border-[#e2e2e2] bg-white px-4 py-2.5 text-sm font-medium text-[#333333] transition duration-200 hover:bg-[#f6f6f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
-        >
-          Choose a template <ArrowRight size={16} />
-        </button>
-      </div>
+      )}
     </div>
   );
 }
@@ -182,6 +205,7 @@ function Field({
   defaultValue,
   placeholder,
   formatCurrency,
+  disabled,
 }: {
   label: string;
   name: string;
@@ -189,6 +213,7 @@ function Field({
   defaultValue: string;
   placeholder?: string;
   formatCurrency?: boolean;
+  disabled?: boolean;
 }) {
   const [value, setValue] = useState(formatCurrency ? formatIDRInput(defaultValue) : defaultValue);
   return (
@@ -203,7 +228,8 @@ function Field({
           setValue(formatCurrency ? formatIDRInput(event.target.value) : event.target.value)
         }
         placeholder={placeholder}
-        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+        disabled={disabled}
+        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
       />
     </label>
   );
@@ -246,19 +272,26 @@ function CollaboratorsPanel() {
   const navigate = useNavigate();
   const list = useServerFn(listInvites);
   const create = useServerFn(invitePartner);
+  const createLink = useServerFn(createLinkInvite);
   const revoke = useServerFn(revokeInvite);
   const members = useServerFn(listMembers);
   const remove = useServerFn(removePartner);
   const leave = useServerFn(leaveWorkspace);
+  const setRole = useServerFn(updateMemberRole);
   const [invites, setInvites] = useState<Invite[]>([]);
   const [memberList, setMemberList] = useState<Member[]>([]);
-  const [role, setRole] = useState<"owner" | "editor" | null>(null);
+  const [role, setRoleState] = useState<"owner" | "editor" | "viewer" | null>(null);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [workspaceName, setWorkspaceName] = useState<string | null>(null);
   const [myId, setMyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
+  const [inviteMode, setInviteMode] = useState<"email" | "link">("email");
+  const [link, setLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [creatingLink, setCreatingLink] = useState(false);
+  const [changingRole, setChangingRole] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -269,7 +302,7 @@ function CollaboratorsPanel() {
     const [inv, mem] = await Promise.all([list(), members()]);
     setInvites(inv.invites as Invite[]);
     setMemberList((mem.members ?? []) as Member[]);
-    setRole((mem.role as "owner" | "editor" | null) ?? null);
+    setRoleState((mem.role as "owner" | "editor" | "viewer" | null) ?? null);
     setWorkspaceId(mem.workspaceId ?? null);
     setWorkspaceName(mem.workspaceName ?? null);
     setMyId(mem.myId ?? null);
@@ -329,10 +362,58 @@ function CollaboratorsPanel() {
       setInvites((prev) =>
         prev.map((i) => (i.id === id ? { ...i, revoked_at: new Date().toISOString() } : i)),
       );
+      const target = invites.find((i) => i.id === id);
+      if (target && !target.email) setLink(null);
       showToast("Invitation cancelled");
       fetchState().catch(() => {});
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function handleCreateLink() {
+    setCreatingLink(true);
+    setError(null);
+    try {
+      const created = (await createLink()) as {
+        token: string;
+        url: string;
+        email: string | null;
+      };
+      setLink(created.url);
+      setCopied(false);
+      showToast("Invite link created");
+      fetchState().catch(() => {});
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCreatingLink(false);
+    }
+  }
+
+  async function handleCopyLink(url: string) {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Couldn't copy the link. Select and copy it manually below.");
+    }
+  }
+
+  async function handleRoleChange(member: Member, next: "viewer" | "editor") {
+    setChangingRole(true);
+    setError(null);
+    try {
+      await setRole({ data: { userId: member.user_id, role: next } });
+      setMemberList((prev) =>
+        prev.map((m) => (m.user_id === member.user_id ? { ...m, role: next } : m)),
+      );
+      showToast(next === "viewer" ? "Partner now has read-only access" : "Partner can now edit");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setChangingRole(false);
     }
   }
 
@@ -372,6 +453,11 @@ function CollaboratorsPanel() {
   const active = invites.filter((i) => !i.revoked_at && !i.accepted_at);
   const partner = memberList.find((m) => m.role !== "owner");
 
+  const inviteUrl = (token: string) => {
+    if (link) return link;
+    return `${window.location.origin}/invite/${token}`;
+  };
+
   const memberRow = (m: Member) => {
     const name = m.profiles?.display_name ?? m.profiles?.email ?? "Member";
     return (
@@ -392,8 +478,8 @@ function CollaboratorsPanel() {
             })}
           </div>
         </div>
-        <Pill tone={m.role === "owner" ? "neutral" : "sage"}>
-          {m.role === "owner" ? "Owner" : "Editor"}
+        <Pill tone={m.role === "owner" ? "neutral" : m.role === "viewer" ? "warn" : "sage"}>
+          {m.role === "owner" ? "Owner" : m.role === "viewer" ? "Viewer" : "Editor"}
         </Pill>
       </li>
     );
@@ -401,13 +487,14 @@ function CollaboratorsPanel() {
 
   return (
     <div className="space-y-6">
-      {role === "editor" ? (
+      {role === "editor" || role === "viewer" ? (
         <div className="panel p-7">
           <div className="eyebrow mb-1">Collaborators</div>
           <h2 className="serif text-xl mb-2">{workspaceName ?? "Your workspace"}</h2>
           <p className="text-sm text-muted-foreground mb-6">
-            You're an editor in this workspace. You can leave at any time, or the owner can remove
-            you.
+            {role === "viewer"
+              ? "You have read-only access to this workspace. You can leave at any time, or the owner can remove or upgrade you."
+              : "You're an editor in this workspace. You can leave at any time, or the owner can remove you."}
           </p>
           <ul className="divide-y divide-border">{memberList.map(memberRow)}</ul>
           <div className="mt-6 border-t border-border pt-5">
@@ -440,8 +527,8 @@ function CollaboratorsPanel() {
             <div className="eyebrow mb-1">Collaborators</div>
             <h2 className="serif text-xl mb-2">Your partner</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Invite your partner by email so you can plan together. They'll join as an editor —
-              only one partner per workspace.
+              Invite your partner by email or with a shareable link so you can plan together.
+              They'll join as an editor — only one partner per workspace.
             </p>
 
             {partner ? (
@@ -471,7 +558,19 @@ function CollaboratorsPanel() {
                     })}
                   </div>
                 </div>
-                <Pill tone="sage">Editor</Pill>
+                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <select
+                    value={partner.role}
+                    disabled={changingRole}
+                    onChange={(e) =>
+                      handleRoleChange(partner, e.target.value as "viewer" | "editor")
+                    }
+                    className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:opacity-60"
+                  >
+                    <option value="editor">Editor</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                </label>
                 {confirmRemove?.user_id === partner.user_id ? (
                   <div className="flex items-center gap-2">
                     <QuietButton onClick={() => setConfirmRemove(null)}>Cancel</QuietButton>
@@ -484,41 +583,167 @@ function CollaboratorsPanel() {
                 )}
               </div>
             ) : active.length > 0 ? (
-              <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface-2/50 p-4">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-[color:var(--taupe)]/15 text-[color:var(--taupe)]">
-                  <WarningCircle size={20} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-foreground">
-                    Invitation sent to {active[0].email}
+              active[0].email ? (
+                <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-2/50 p-4">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[color:var(--taupe)]/15 text-[color:var(--taupe)]">
+                    <WarningCircle size={20} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-medium text-foreground">
+                      Invitation sent to {active[0].email}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Waiting for them to accept by signing in with that email.
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Waiting for them to accept by signing in with that email.
+                  <QuietButton onClick={() => handleRevoke(active[0].id)}>Cancel</QuietButton>
+                </div>
+              ) : (
+                <div className="space-y-3 rounded-lg border border-border bg-surface-2/50 p-4">
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-full bg-[color:var(--taupe)]/15 text-[color:var(--taupe)]">
+                      <WarningCircle size={20} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-foreground">Invite link created</div>
+                      <div className="text-xs text-muted-foreground">
+                        Anyone with the link can join — you can change their level of access later.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={inviteUrl(active[0].token)}
+                      onFocus={(e) => e.currentTarget.select()}
+                      className="w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    />
+                    <QuietButton
+                      variant="primary"
+                      onClick={() => handleCopyLink(inviteUrl(active[0].token))}
+                    >
+                      {copied ? "Copied" : "Copy link"}
+                    </QuietButton>
+                  </div>
+                  <div>
+                    <QuietButton onClick={() => handleRevoke(active[0].id)}>Cancel</QuietButton>
                   </div>
                 </div>
-                <QuietButton onClick={() => handleRevoke(active[0].id)}>Cancel</QuietButton>
-              </div>
+              )
             ) : (
-              <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3">
-                <label className="block min-w-0 flex-1">
-                  <span className="block text-sm font-medium mb-1.5">Partner's email</span>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") e.preventDefault();
-                    }}
-                    placeholder="e.g. partner@example.com"
-                    required
-                    autoComplete="off"
-                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-                  />
-                </label>
-                <QuietButton variant="primary" type="submit" disabled={creating || !email.trim()}>
-                  {creating ? "Sending…" : "Invite your partner"}
-                </QuietButton>
-              </form>
+              <div className="space-y-5">
+                <div
+                  className="flex gap-2 rounded-lg border border-border bg-surface-2/50 p-1 text-sm"
+                  role="tablist"
+                  aria-label="Invite method"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={inviteMode === "email"}
+                    onClick={() => setInviteMode("email")}
+                    className={`flex-1 rounded-md px-3 py-2 transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
+                      inviteMode === "email"
+                        ? "bg-secondary text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Invite by email
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={inviteMode === "link"}
+                    onClick={() => setInviteMode("link")}
+                    className={`flex-1 rounded-md px-3 py-2 transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] ${
+                      inviteMode === "link"
+                        ? "bg-secondary text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Invite by link
+                  </button>
+                </div>
+
+                {inviteMode === "email" ? (
+                  <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-3">
+                    <label className="block min-w-0 flex-1">
+                      <span className="block text-sm font-medium mb-1.5">Partner's email</span>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") e.preventDefault();
+                        }}
+                        placeholder="e.g. partner@example.com"
+                        required
+                        autoComplete="off"
+                        className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                      />
+                    </label>
+                    <QuietButton
+                      variant="primary"
+                      type="submit"
+                      disabled={creating || !email.trim()}
+                    >
+                      {creating ? "Sending…" : "Invite your partner"}
+                    </QuietButton>
+                  </form>
+                ) : link ? (
+                  <div className="space-y-3">
+                    <label className="block">
+                      <span className="block text-sm font-medium mb-1.5">
+                        Share this link with your partner
+                      </span>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          readOnly
+                          value={link}
+                          onFocus={(e) => e.currentTarget.select()}
+                          className="w-full min-w-0 flex-1 rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                        />
+                        <QuietButton variant="primary" onClick={() => link && handleCopyLink(link)}>
+                          {copied ? "Copied" : "Copy link"}
+                        </QuietButton>
+                      </div>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const id = active[0]?.id;
+                        if (id) handleRevoke(id);
+                      }}
+                      className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                    >
+                      Cancel this invite
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[color:var(--taupe)]/15 text-[color:var(--taupe)]">
+                      <LinkSimple size={18} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium text-foreground">
+                        Create a shareable invite link
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Anyone with the link can join — you can change their level of access later.
+                      </p>
+                    </div>
+                    <QuietButton
+                      variant="primary"
+                      onClick={handleCreateLink}
+                      disabled={creatingLink}
+                    >
+                      {creatingLink ? "Creating…" : "Create link"}
+                    </QuietButton>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -526,8 +751,9 @@ function CollaboratorsPanel() {
             <div className="panel p-7">
               <h3 className="serif text-lg mb-2">How it works</h3>
               <p className="text-sm text-muted-foreground">
-                You'll get a shareable link for your partner's email. They create an account with
-                that same email, confirm it, and open the link — then you're planning together.
+                Invite your partner by email or share an invite link. They create an account (or
+                sign in), open the invite, and you're planning together — only one partner per
+                workspace. You can set their access to editor or viewer at any time.
               </p>
             </div>
           )}

@@ -23,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/checklist")({
 function Checklist() {
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filter, setFilter] = useState<string>("All");
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const tasks = data.tasks as Task[];
   const [editing, setEditing] = useState<Task | null>(null);
   const [viewing, setViewing] = useState<Task | null>(null);
@@ -230,7 +230,13 @@ function Checklist() {
       {view === "list" ? (
         <div className="panel divide-y divide-border">
           {filtered.map((t) => (
-            <TaskRow key={t.id} task={t} onToggle={handleToggle} onEdit={openView} />
+            <TaskRow
+              key={t.id}
+              task={t}
+              onToggle={handleToggle}
+              onEdit={openView}
+              canEdit={canEdit}
+            />
           ))}
           {filtered.length === 0 && (
             <p className="px-5 py-8 text-sm text-muted-foreground">
@@ -333,10 +339,12 @@ const TaskRow = memo(function TaskRow({
   task,
   onToggle,
   onEdit,
+  canEdit = true,
 }: {
   task: Task;
   onToggle: (id: string) => void;
   onEdit: (task: Task) => void;
+  canEdit?: boolean;
 }) {
   const done = task.status === "done";
   return (
@@ -358,7 +366,8 @@ const TaskRow = memo(function TaskRow({
           onToggle(task.id);
         }}
         aria-label={done ? "Mark as not done" : "Mark as done"}
-        className={`-m-2 p-2 rounded-md transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90`}
+        disabled={!canEdit}
+        className={`-m-2 p-2 rounded-md transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 ${canEdit ? "" : "cursor-not-allowed opacity-50"}`}
       >
         <span
           className={`h-4 w-4 grid place-items-center rounded-sm border ${

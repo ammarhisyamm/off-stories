@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { X, Trash, PencilSimple } from "@phosphor-icons/react";
 import { QuietButton } from "@/components/app-layout";
+import { useWorkspaceData } from "@/lib/use-workspace-data";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -147,6 +148,7 @@ export function ViewModal({
   children: ReactNode;
 }) {
   const [confirming, setConfirming] = useState(false);
+  const { canEdit } = useWorkspaceData();
 
   if (confirming) {
     return (
@@ -167,20 +169,26 @@ export function ViewModal({
         {children}
       </div>
       <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
-        <button
-          type="button"
-          onClick={() => setConfirming(true)}
-          className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
-        >
-          <Trash size={16} /> Delete
-        </button>
+        {canEdit ? (
+          <button
+            type="button"
+            onClick={() => setConfirming(true)}
+            className="inline-flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md transition-colors"
+          >
+            <Trash size={16} /> Delete
+          </button>
+        ) : (
+          <span />
+        )}
         <div className="flex items-center gap-2">
           <QuietButton type="button" onClick={onClose}>
             Close
           </QuietButton>
-          <QuietButton type="button" variant="primary" onClick={onEdit}>
-            <PencilSimple size={15} /> Edit
-          </QuietButton>
+          {canEdit && (
+            <QuietButton type="button" variant="primary" onClick={onEdit}>
+              <PencilSimple size={15} /> Edit
+            </QuietButton>
+          )}
         </div>
       </div>
     </ModalShell>

@@ -215,7 +215,7 @@ export function AppLayout({
   actions?: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { data } = useWorkspaceData();
+  const { data, canEdit } = useWorkspaceData();
   const event = data.event;
   const hasEvent = Boolean(event.date && event.name);
   const days = daysUntil(event.date);
@@ -374,7 +374,9 @@ export function AppLayout({
                 {title}
               </h1>
             </div>
-            {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+            {canEdit && actions && (
+              <div className="flex items-center gap-2 shrink-0">{actions}</div>
+            )}
           </div>
         </header>
         <div className="editorial-page max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-14">

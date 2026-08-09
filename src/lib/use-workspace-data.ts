@@ -14,6 +14,7 @@ type Listener = () => void;
 const listeners = new Set<Listener>();
 let cache: WorkspaceData = emptyWorkspaceData();
 let workspaceId: string | null = null;
+let myRole: string | null = null;
 let loaded = false;
 let loadError: string | null = null;
 let boundLoad: (() => Promise<unknown>) | null = null;
@@ -55,8 +56,13 @@ async function pollRefresh() {
   pollInFlight = true;
   try {
     const res = await boundLoad();
-    const result = res as { workspaceId?: string | null; data: WorkspaceData };
+    const result = res as {
+      workspaceId?: string | null;
+      role?: string | null;
+      data: WorkspaceData;
+    };
     workspaceId = result.workspaceId ?? workspaceId;
+    if (result.role != null) myRole = result.role;
     cache = result.data;
     loaded = true;
     loadError = null;
@@ -86,6 +92,7 @@ function stopPolling() {
 export function resetWorkspaceDataCache() {
   cache = emptyWorkspaceData();
   workspaceId = null;
+  myRole = null;
   loaded = false;
   loadError = null;
   stopPolling();
@@ -124,8 +131,13 @@ export function useWorkspaceData() {
       loadFn()
         .then((res) => {
           if (cancelled) return;
-          const result = res as { workspaceId?: string | null; data: WorkspaceData };
+          const result = res as {
+            workspaceId?: string | null;
+            role?: string | null;
+            data: WorkspaceData;
+          };
           workspaceId = result.workspaceId ?? workspaceId;
+          if (result.role != null) myRole = result.role;
           cache = result.data;
           loaded = true;
           loadError = null;
@@ -179,8 +191,13 @@ export function useWorkspaceData() {
     if (!boundLoad) return;
     try {
       const res = await boundLoad();
-      const result = res as { workspaceId?: string | null; data: WorkspaceData };
+      const result = res as {
+        workspaceId?: string | null;
+        role?: string | null;
+        data: WorkspaceData;
+      };
       workspaceId = result.workspaceId ?? workspaceId;
+      if (result.role != null) myRole = result.role;
       cache = result.data;
       loaded = true;
       loadError = null;
@@ -194,6 +211,8 @@ export function useWorkspaceData() {
   return {
     data: cache,
     workspaceId,
+    role: myRole,
+    canEdit: myRole !== "viewer",
     loading: state.loading,
     error: state.error,
     setKind,

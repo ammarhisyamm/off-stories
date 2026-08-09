@@ -100,6 +100,84 @@ export const invitePartner = createServerFn({ method: "POST" })
     return invite;
   });
 
+export const createLinkInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("id")
+      .eq("owner_id", userId)
+      .limit(1)
+      .maybeSingle();
+    if (!ws) throw new Error("No workspace found");
+
+    // Reject if a partner already joined.
+    const { data: partners } = await supabase
+      .from("workspace_members")
+      .select("user_id")
+      .eq("workspace_id", ws.id)
+      .neq("user_id", userId);
+    if ((partners ?? []).length > 0) {
+      throw new Error("Your partner already joined this workspace.");
+    }
+
+    // Reject if there's still an active invite.
+    const { data: active } = await supabase
+      .from("workspace_invites")
+      .select("id, token, email")
+      .eq("workspace_id", ws.id)
+      .is("accepted_at", null)
+      .is("revoked_at", null);
+    if ((active ?? []).length > 0) {
+      const existing = active?.[0];
+      throw new Error(
+        existing?.email
+          ? `An invitation is still pending for ${existing.email}. Cancel it first.`
+          : "An invitation is still pending. Cancel it first.",
+      );
+    }
+
+    const expires = new Date(Date.now() + 14 * 86400_000).toISOString();
+    const { data: invite, error } = await supabase
+      .from("workspace_invites")
+      .insert({
+        workspace_id: ws.id,
+        email: null,
+        role: "editor",
+        created_by: userId,
+        expires_at: expires,
+      })
+      .select("id, token, email, role, expires_at, created_at")
+      .single();
+    if (error) throw new Error(error.message);
+
+    return { ...invite, url: `${appOrigin()}/invite/${invite.token}` };
+  });
+
+export const updateMemberRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ userId: z.string().uuid(), role: z.enum(["viewer", "editor"]) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: ws } = await supabase
+      .from("workspaces")
+      .select("id")
+      .eq("owner_id", userId)
+      .limit(1)
+      .maybeSingle();
+    if (!ws) throw new Error("No workspace found");
+    const { error } = await supabase.rpc("update_member_role", {
+      p_workspace: ws.id,
+      p_user: data.userId,
+      p_role: data.role,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const revokeInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
