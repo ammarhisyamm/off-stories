@@ -74,34 +74,21 @@ export const getInvitationPageStatus = createServerFn({ method: "GET" })
 export const getPublicInvitation = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: page, error: pageError } = await supabaseAdmin
-      .from("invitation_pages")
-      .select("workspace_id, revoked_at")
-      .eq("token", data.token)
-      .maybeSingle();
-    if (pageError) throw new Error(pageError.message);
-    if (!page) throw new Error("This invitation link is not available.");
-    if (page.revoked_at) throw new Error("This invitation page has been turned off.");
-
-    const { data: rows, error } = await supabaseAdmin
-      .from("workspace_data")
-      .select("kind,payload")
-      .eq("workspace_id", page.workspace_id);
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data: payload, error } = await supabase.rpc("get_invitation_page", {
+      p_token: data.token,
+    });
     if (error) throw new Error(error.message);
+    if (!payload) throw new Error("This invitation link is not available.");
+    if (typeof payload === "object" && "revoked" in payload && payload.revoked) {
+      throw new Error("This invitation page has been turned off.");
+    }
 
-    const { data: ws, error: wsError } = await supabaseAdmin
-      .from("workspaces")
-      .select("name")
-      .eq("id", page.workspace_id)
-      .maybeSingle();
-    if (wsError) throw new Error(wsError.message);
-
-    const event = ((rows ?? []).find((row) => (row as { kind: string }).kind === "event")
-      ?.payload ?? {}) as EventData;
+    const event = ((payload as { event?: Record<string, unknown> })?.event ?? {}) as EventData;
+    const workspaceName = (payload as { workspaceName?: string | null }).workspaceName ?? null;
 
     return {
-      workspaceName: ws?.name ?? null,
+      workspaceName,
       event: {
         name: event.name,
         type: event.type,

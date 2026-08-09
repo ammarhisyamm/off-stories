@@ -3,7 +3,6 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { resolveWorkspace } from "@/lib/data.functions";
-import type { EventData } from "@/lib/data.functions";
 import type { Guest } from "@/lib/types";
 
 const tokenSchema = z.string().uuid();
@@ -42,8 +41,7 @@ export const createRsvpLink = createServerFn({ method: "POST" })
     if (!asGuests(guestsRow?.payload).some((guest) => guest.id === data.guestId)) {
       throw new Error("Guest group not found");
     }
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: link, error } = await supabaseAdmin
+    const { data: link, error } = await supabase
       .from("rsvp_links")
       .upsert(
         { workspace_id: workspaceId, guest_id: data.guestId, revoked_at: null },
@@ -65,8 +63,7 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const workspaceId = await resolveWorkspace(context.supabase, context.userId);
     if (!workspaceId) throw new Error("No workspace found");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
+    const { error } = await context.supabase
       .from("rsvp_links")
       .update({ revoked_at: new Date().toISOString() })
       .eq("workspace_id", workspaceId)
@@ -75,106 +72,78 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+function asRpcRecord(value: unknown): Record<string, unknown> {
+  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function asNumber(value: unknown): number {
+  return typeof value === "number" ? value : 1;
+}
+
 export const getPublicRsvp = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: link, error: linkError } = await supabaseAdmin
-      .from("rsvp_links")
-      .select("workspace_id, guest_id, revoked_at")
-      .eq("token", data.token)
-      .maybeSingle();
-    if (linkError) throw new Error(linkError.message);
-    if (!link || link.revoked_at) throw new Error("This RSVP link is no longer active.");
-    const { data: rows, error } = await supabaseAdmin
-      .from("workspace_data")
-      .select("kind,payload")
-      .eq("workspace_id", link.workspace_id)
-      .in("kind", ["event", "guests"]);
-    if (error) throw new Error(error.message);
-    const event = ((rows ?? []).find((row) => row.kind === "event")?.payload ?? {}) as EventData;
-    const guest = asGuests((rows ?? []).find((row) => row.kind === "guests")?.payload).find(
-      (item) => item.id === link.guest_id,
-    );
-    if (!guest) throw new Error("This RSVP guest could not be found.");
-    return {
-      event: { name: event.name, date: event.date, location: event.location },
-      guest: { name: guest.name, pax: guest.pax, rsvp: guest.rsvp },
-    };
-  });
+  .handler(
+    async ({
+      data,
+    }): Promise<{
+      event: { name: string; date: string; location: string };
+      guest: { name: string; pax: number; rsvp: string };
+    }> => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: payload, error } = await supabase.rpc("get_public_rsvp", {
+        p_token: data.token,
+      });
+      if (error) throw new Error(error.message);
+      if (!payload) throw new Error("This RSVP link is no longer active.");
+
+      const record = asRpcRecord(payload);
+      const event = asRpcRecord(record.event);
+      const guest = asRpcRecord(record.guest);
+      if (!guest.name) throw new Error("This RSVP guest could not be found.");
+
+      return {
+        event: {
+          name: asString(event.name),
+          date: asString(event.date),
+          location: asString(event.location),
+        },
+        guest: {
+          name: asString(guest.name),
+          pax: asNumber(guest.pax),
+          rsvp: typeof guest.rsvp === "string" ? guest.rsvp : "yes",
+        },
+      };
+    },
+  );
 
 export const submitPublicRsvp = createServerFn({ method: "POST" })
   .inputValidator((input) => responseSchema.parse(input))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: link, error: linkError } = await supabaseAdmin
-      .from("rsvp_links")
-      .select("workspace_id, guest_id, revoked_at")
-      .eq("token", data.token)
-      .maybeSingle();
-    if (linkError) throw new Error(linkError.message);
-    if (!link || link.revoked_at) throw new Error("This RSVP link is no longer active.");
-    const { data: guestRow, error: guestError } = await supabaseAdmin
-      .from("workspace_data")
-      .select("payload")
-      .eq("workspace_id", link.workspace_id)
-      .eq("kind", "guests")
-      .maybeSingle();
-    if (guestError) throw new Error(guestError.message);
-    const guests = asGuests(guestRow?.payload);
-    if (!guests.some((guest) => guest.id === link.guest_id)) {
-      throw new Error("This RSVP guest could not be found.");
-    }
-    const next = guests.map((guest) =>
-      guest.id === link.guest_id
-        ? {
-            ...guest,
-            rsvp: data.rsvp,
-            pax: data.pax,
-            dietaryNotes: data.note || guest.dietaryNotes,
-          }
-        : guest,
-    );
-    const { error } = await supabaseAdmin
-      .from("workspace_data")
-      .upsert(
-        { workspace_id: link.workspace_id, kind: "guests", payload: next },
-        { onConflict: "workspace_id,kind" },
-      );
+  .handler(async ({ data }): Promise<{ ok: true }> => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data: result, error } = await supabase.rpc("submit_public_rsvp", {
+      p_token: data.token,
+      p_rsvp: data.rsvp,
+      p_pax: data.pax,
+      p_note: data.note ?? null,
+    });
     if (error) throw new Error(error.message);
+    if (!asRpcRecord(result).ok) throw new Error("This RSVP link is no longer active.");
     return { ok: true };
   });
 
 export const submitPublicCheckIn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: link, error: linkError } = await supabaseAdmin
-      .from("rsvp_links")
-      .select("workspace_id, guest_id, revoked_at")
-      .eq("token", data.token)
-      .maybeSingle();
-    if (linkError) throw new Error(linkError.message);
-    if (!link || link.revoked_at) throw new Error("This check-in link is no longer active.");
-    const { data: guestRow, error: guestError } = await supabaseAdmin
-      .from("workspace_data")
-      .select("payload")
-      .eq("workspace_id", link.workspace_id)
-      .eq("kind", "guests")
-      .maybeSingle();
-    if (guestError) throw new Error(guestError.message);
-    const guests = asGuests(guestRow?.payload);
-    const guest = guests.find((item) => item.id === link.guest_id);
-    if (!guest) throw new Error("This guest could not be found.");
-    const next = guests.map((item) =>
-      item.id === link.guest_id ? { ...item, checkedIn: true } : item,
-    );
-    const { error } = await supabaseAdmin
-      .from("workspace_data")
-      .upsert(
-        { workspace_id: link.workspace_id, kind: "guests", payload: next },
-        { onConflict: "workspace_id,kind" },
-      );
+  .handler(async ({ data }): Promise<{ guestName: string }> => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data: result, error } = await supabase.rpc("submit_public_check_in", {
+      p_token: data.token,
+    });
     if (error) throw new Error(error.message);
-    return { guestName: guest.name };
+    const record = asRpcRecord(result);
+    if (!record.ok) throw new Error("This check-in link is no longer active.");
+    return { guestName: asString(record.guestName) };
   });

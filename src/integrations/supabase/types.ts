@@ -273,6 +273,22 @@ export type Database = {
         Args: { p_token: string };
         Returns: string;
       };
+      get_invitation_page: {
+        Args: { p_token: string };
+        Returns: Record<string, unknown>;
+      };
+      get_public_rsvp: {
+        Args: { p_token: string };
+        Returns: Record<string, unknown> | null;
+      };
+      submit_public_check_in: {
+        Args: { p_token: string };
+        Returns: Record<string, unknown>;
+      };
+      submit_public_rsvp: {
+        Args: { p_note?: string | null; p_pax: number; p_rsvp: string; p_token: string };
+        Returns: Record<string, unknown>;
+      };
       is_workspace_member: {
         Args: { _user: string; _workspace: string };
         Returns: boolean;
