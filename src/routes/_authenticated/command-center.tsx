@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/command-center")({
 });
 
 function CommandCenter() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const rundown = (data.rundown ?? []) as RundownItem[];
   const vendors = (data.vendors ?? []) as Vendor[];
   const contacts = (data.command?.contacts ?? []) as CommandContact[];
@@ -131,6 +131,7 @@ function CommandCenter() {
             <button
               type="button"
               onClick={openNewContact}
+              disabled={!canEdit}
               className="rounded-md p-2 text-muted-foreground transition hover:bg-surface-2 hover:text-foreground print:hidden"
               aria-label="Add contact"
             >
@@ -175,7 +176,7 @@ function CommandCenter() {
                   >
                     <Phone size={16} />
                   </a>
-                  {contact.id.startsWith("vendor-") ? null : (
+                  {contact.id.startsWith("vendor-") || !canEdit ? null : (
                     <button
                       type="button"
                       onClick={() => {

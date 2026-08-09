@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/guests")({
 });
 
 function Guests() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const guests = data.guests as Guest[];
   const [editing, setEditing] = useState<Guest | null>(null);
   const [viewing, setViewing] = useState<Guest | null>(null);
@@ -202,9 +202,11 @@ function Guests() {
             title="No guests yet"
             description="Add your first guest and track RSVPs and check-ins as replies come in."
             action={
-              <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-                Add guest
-              </QuietButton>
+              canEdit ? (
+                <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                  Add guest
+                </QuietButton>
+              ) : undefined
             }
           />
         ) : (
@@ -259,7 +261,8 @@ function Guests() {
                     <button
                       type="button"
                       onClick={() => toggleCheckIn(g)}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition ${g.checkedIn ? "border-[color:var(--sage)] bg-[color:var(--sage)]/10 text-[color:var(--sage)]" : "border-border text-muted-foreground hover:border-primary"}`}
+                      disabled={!canEdit}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition ${g.checkedIn ? "border-[color:var(--sage)] bg-[color:var(--sage)]/10 text-[color:var(--sage)]" : "border-border text-muted-foreground hover:border-primary"} ${canEdit ? "" : "cursor-not-allowed opacity-50"}`}
                     >
                       {g.checkedIn && <Check size={13} weight="bold" />}
                       {g.checkedIn ? "Checked in" : "Not checked in"}
@@ -356,17 +359,19 @@ function Guests() {
                     Copy
                   </span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleRevokeLink(viewing)}
-                  disabled={generating[viewing.id]}
-                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <LinkBreak size={13} />
-                  {generating[viewing.id] ? "Revoking…" : "Revoke links"}
-                </button>
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={() => handleRevokeLink(viewing)}
+                    disabled={generating[viewing.id]}
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <LinkBreak size={13} />
+                    {generating[viewing.id] ? "Revoking…" : "Revoke links"}
+                  </button>
+                )}
               </div>
-            ) : (
+            ) : canEdit ? (
               <button
                 type="button"
                 onClick={() => handleGenerateLink(viewing)}
@@ -375,6 +380,10 @@ function Guests() {
               >
                 {generating[viewing.id] ? "Creating…" : "Create RSVP link"}
               </button>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No RSVP link has been created for this guest yet.
+              </p>
             )}
           </div>
         </ViewModal>

@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/budget")({
 });
 
 function Budget() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const items = data.budget as BudgetItem[];
   const wedding = data.event;
   const [editing, setEditing] = useState<BudgetItem | null>(null);
@@ -133,7 +133,7 @@ function Budget() {
         />
       </div>
 
-      <SavingsPanel event={wedding} onSave={(next) => setKind("event", next)} />
+      <SavingsPanel event={wedding} onSave={(next) => setKind("event", next)} canEdit={canEdit} />
 
       <div className="panel p-6 mb-8">
         <div className="flex items-baseline justify-between mb-4">
@@ -215,9 +215,11 @@ function Budget() {
             title="No expenses yet"
             description="Start by adding your first line item — a venue deposit, catering quote, or whatever comes next."
             action={
-              <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-                Add expense
-              </QuietButton>
+              canEdit ? (
+                <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                  Add expense
+                </QuietButton>
+              ) : undefined
             }
           />
         ) : (
@@ -340,7 +342,7 @@ function Budget() {
                   {viewing.payments?.length ?? 0} recorded payments
                 </div>
               </div>
-              {viewing.paid < viewing.amount && (
+              {viewing.paid < viewing.amount && canEdit && (
                 <QuietButton
                   variant="primary"
                   type="button"
@@ -441,7 +443,15 @@ function Legend({ color, label }: { color: string; label: string }) {
   );
 }
 
-function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: EventData) => void }) {
+function SavingsPanel({
+  event,
+  onSave,
+  canEdit,
+}: {
+  event: EventData;
+  onSave: (event: EventData) => void;
+  canEdit?: boolean;
+}) {
   const [target, setTarget] = useState(event.savingsTarget ?? 0);
   const [saved, setSaved] = useState(event.savingsSaved ?? 0);
   const [targetInput, setTargetInput] = useState(formatIDRInput(event.savingsTarget));
@@ -494,6 +504,11 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
             Set a savings target separately from your wedding budget and keep track of progress as
             you go.
           </p>
+          {!canEdit && (
+            <p className="mt-3 rounded-md border border-[color:var(--taupe)]/30 bg-[color:var(--taupe)]/10 px-3 py-2 text-xs text-muted-foreground">
+              Read-only — the owner can set or change savings targets.
+            </p>
+          )}
           {target > 0 && (
             <div className="mt-5">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -518,7 +533,8 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
               value={targetInput}
               onChange={(event) => setTargetInput(formatIDRInput(event.target.value))}
               placeholder="e.g. 50.000.000"
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              disabled={!canEdit}
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
           <label className="block">
@@ -532,7 +548,8 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
               value={savedInput}
               onChange={(event) => setSavedInput(formatIDRInput(event.target.value))}
               placeholder="e.g. 10.000.000"
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              disabled={!canEdit}
+              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
           {weddingDate && (
@@ -556,7 +573,8 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
                   type="month"
                   value={startMonth}
                   onChange={(e) => setStartMonth(e.target.value)}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  disabled={!canEdit}
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                 />
               </label>
               <label className="block">
@@ -570,15 +588,18 @@ function SavingsPanel({ event, onSave }: { event: EventData; onSave: (event: Eve
                   max={100}
                   value={splitInput}
                   onChange={(e) => setSplitInput(e.target.value)}
-                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  disabled={!canEdit}
+                  className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
                 />
               </label>
             </>
           )}
           <div className="sm:col-span-2 sm:flex sm:justify-end">
-            <QuietButton variant="primary" type="submit">
-              Save savings target
-            </QuietButton>
+            {canEdit && (
+              <QuietButton variant="primary" type="submit">
+                Save savings target
+              </QuietButton>
+            )}
           </div>
         </form>
       </div>

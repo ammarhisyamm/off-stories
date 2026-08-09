@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/rundown")({
 });
 
 function Rundown() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const items = data.rundown as RundownItem[];
   const [editing, setEditing] = useState<RundownItem | null>(null);
   const [viewing, setViewing] = useState<RundownItem | null>(null);
@@ -91,9 +91,11 @@ function Rundown() {
           title="Your wedding-day rundown is empty"
           description="Add the ceremony, family cues, vendor arrivals, and reception moments in the order they happen."
           action={
-            <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-              Add first agenda
-            </QuietButton>
+            canEdit ? (
+              <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                Add first agenda
+              </QuietButton>
+            ) : undefined
           }
         />
       ) : (
@@ -104,7 +106,8 @@ function Rundown() {
                 type="button"
                 onClick={() => toggleItem(item.id)}
                 aria-label={item.status === "done" ? "Mark as planned" : "Mark as ready"}
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-md border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 ${item.status === "done" ? "border-sage bg-sage text-white" : "border-border text-transparent hover:border-muted-foreground"}`}
+                disabled={!canEdit}
+                className={`grid h-7 w-7 shrink-0 place-items-center rounded-md border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${item.status === "done" ? "border-sage bg-sage text-white" : "border-border text-transparent hover:border-muted-foreground"} ${canEdit ? "active:scale-90" : "cursor-not-allowed opacity-50"}`}
               >
                 <Check size={14} weight="bold" />
               </button>

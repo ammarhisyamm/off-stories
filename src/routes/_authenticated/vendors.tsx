@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/vendors")({
 
 function Vendors() {
   const [compareCat, setCompareCat] = useState<string>("Dekorasi");
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const vendors = data.vendors as Vendor[];
   const [editing, setEditing] = useState<Vendor | null>(null);
   const [viewing, setViewing] = useState<Vendor | null>(null);
@@ -80,9 +80,11 @@ function Vendors() {
               title="No vendors yet"
               description="Add venues, caterers, photographers and the rest so you can compare quotes side by side."
               action={
-                <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-                  Add vendor
-                </QuietButton>
+                canEdit ? (
+                  <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                    Add vendor
+                  </QuietButton>
+                ) : undefined
               }
             />
           ) : (

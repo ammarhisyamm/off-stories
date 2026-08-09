@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/notes")({
 });
 
 function Notes() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const notes = data.notes as Note[];
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [viewingNote, setViewingNote] = useState<Note | null>(null);
@@ -95,9 +95,11 @@ function Notes() {
               title="No notes yet"
               description="Keep the small but important things here — a decision you made, a request from family, or notes from a vendor meeting."
               action={
-                <QuietButton variant="primary" onClick={handleOpenNew}>
-                  New note
-                </QuietButton>
+                canEdit ? (
+                  <QuietButton variant="primary" onClick={handleOpenNew}>
+                    New note
+                  </QuietButton>
+                ) : undefined
               }
             />
           </div>

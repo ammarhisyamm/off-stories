@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/timeline")({
 });
 
 function Timeline() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const milestones = data.milestones as Milestone[];
   const [view, setView] = useState<"list" | "calendar">("list");
   const [editing, setEditing] = useState<Milestone | null>(null);
@@ -91,9 +91,11 @@ function Timeline() {
           title="No milestones yet"
           description="Map the journey from venue booking to the big day — fitting, deposits, legal docs and final reviews."
           action={
-            <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-              Add milestone
-            </QuietButton>
+            canEdit ? (
+              <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
+                Add milestone
+              </QuietButton>
+            ) : undefined
           }
         />
       ) : (
@@ -167,6 +169,7 @@ function Timeline() {
               milestones={milestones}
               onOpen={(m) => openView(m)}
               onAdd={() => setIsModalOpen(true)}
+              canEdit={canEdit}
             />
           )}
         </>
@@ -217,10 +220,12 @@ function MilestoneCalendar({
   milestones,
   onOpen,
   onAdd,
+  canEdit,
 }: {
   milestones: Milestone[];
   onOpen: (m: Milestone) => void;
   onAdd: () => void;
+  canEdit?: boolean;
 }) {
   const today = new Date();
   const [cursor, setCursor] = useState<{ month: number; year: number }>({
@@ -369,7 +374,7 @@ function MilestoneCalendar({
           <span className="h-2.5 w-2.5 rounded-full bg-sage/40" />
           Done
         </span>
-        {milestones.length > 0 && (
+        {milestones.length > 0 && canEdit && (
           <button
             onClick={onAdd}
             className="ml-auto rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]"

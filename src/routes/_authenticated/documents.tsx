@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/documents")({
 });
 
 function Documents() {
-  const { data, setKind, workspaceId } = useWorkspaceData();
+  const { data, setKind, workspaceId, canEdit } = useWorkspaceData();
   const docs = data.documents as DocRef[];
   const [editingDoc, setEditingDoc] = useState<DocRef | null>(null);
   const [viewingDoc, setViewingDoc] = useState<DocRef | null>(null);
@@ -194,9 +194,11 @@ function Documents() {
             title="No documents yet"
             description="Save links to contracts, invoices, moodboards and floor plans so everything lives in one vault."
             action={
-              <QuietButton variant="primary" onClick={handleOpenNew}>
-                Add document
-              </QuietButton>
+              canEdit ? (
+                <QuietButton variant="primary" onClick={handleOpenNew}>
+                  Add document
+                </QuietButton>
+              ) : undefined
             }
           />
         ) : (

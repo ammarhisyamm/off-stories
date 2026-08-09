@@ -44,7 +44,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
-  const { data, setKind, loading, error, refresh } = useWorkspaceData();
+  const { data, setKind, loading, error, refresh, canEdit } = useWorkspaceData();
   const tasks = data.tasks as Task[];
   const budgetItems = data.budget as BudgetItem[];
   const vendors = data.vendors as Vendor[];
@@ -72,7 +72,8 @@ function Dashboard() {
   }, []);
 
   const hasEvent = Boolean(event.date && event.name);
-  const showOnboarding = !loading && ((!hasEvent && !onboardingComplete) || onboardingPreview);
+  const showOnboarding =
+    canEdit && !loading && ((!hasEvent && !onboardingComplete) || onboardingPreview);
   const days = hasEvent ? daysUntil(event.date) : null;
   const eventDatePassed = hasEvent && new Date(`${event.date}T23:59:59`) < new Date();
   const done = tasks.filter((t) => t.status === "done").length;
@@ -272,7 +273,8 @@ function Dashboard() {
                             setKind("tasks", next, { success: null });
                           }}
                           aria-label={`Mark ${t.title} as done`}
-                          className="group -m-1 grid h-7 w-7 shrink-0 place-items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90"
+                          disabled={!canEdit}
+                          className={`group -m-1 grid h-7 w-7 shrink-0 place-items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${canEdit ? "active:scale-90" : "cursor-not-allowed opacity-50"}`}
                         >
                           <span className="grid h-4 w-4 place-items-center rounded-sm border border-border transition-colors group-hover:border-muted-foreground">
                             <Check

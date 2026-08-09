@@ -33,7 +33,7 @@ const statusLabels: Record<SeserahanStatus, string> = {
 };
 
 function Seserahan() {
-  const { data, setKind } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
   const items = data.seserahan;
   const [editing, setEditing] = useState<SeserahanItem | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -95,7 +95,11 @@ function Seserahan() {
               purchases visible in your main budget.
             </p>
           </div>
-          <QuietButton type="button" onClick={syncToBudget} disabled={items.length === 0}>
+          <QuietButton
+            type="button"
+            onClick={syncToBudget}
+            disabled={items.length === 0 || !canEdit}
+          >
             Sync actual to budget
           </QuietButton>
         </div>
@@ -108,9 +112,11 @@ function Seserahan() {
             title="No seserahan items yet"
             description="Start with a common item, then customize the list for your family tradition."
             action={
-              <QuietButton variant="primary" onClick={() => setModalOpen(true)}>
-                Add first item
-              </QuietButton>
+              canEdit ? (
+                <QuietButton variant="primary" onClick={() => setModalOpen(true)}>
+                  Add first item
+                </QuietButton>
+              ) : undefined
             }
           />
         ) : (
@@ -125,7 +131,8 @@ function Seserahan() {
                     <button
                       type="button"
                       onClick={() => saveItem({ ...item, status: nextStatus(item.status) })}
-                      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-xs transition-colors ${item.status === "ready" ? "border-sage bg-sage text-white" : "border-border text-muted-foreground hover:border-primary hover:text-primary"}`}
+                      disabled={!canEdit}
+                      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-xs transition-colors ${item.status === "ready" ? "border-sage bg-sage text-white" : "border-border text-muted-foreground hover:border-primary hover:text-primary"} ${canEdit ? "" : "disabled:cursor-not-allowed disabled:opacity-50"}`}
                       aria-label={`Update status for ${item.name}`}
                     >
                       {item.status === "ready" ? "✓" : item.quantity}
@@ -136,7 +143,8 @@ function Seserahan() {
                         setEditing(item);
                         setModalOpen(true);
                       }}
-                      className="truncate text-left text-sm font-medium text-foreground hover:text-primary"
+                      disabled={!canEdit}
+                      className="truncate text-left text-sm font-medium text-foreground hover:text-primary disabled:cursor-not-allowed"
                     >
                       {item.name}
                     </button>
@@ -165,15 +173,17 @@ function Seserahan() {
                       Shop <ArrowSquareOut size={12} />
                     </a>
                   )}
-                  <QuietButton
-                    type="button"
-                    onClick={() => {
-                      setEditing(item);
-                      setModalOpen(true);
-                    }}
-                  >
-                    Edit
-                  </QuietButton>
+                  {canEdit && (
+                    <QuietButton
+                      type="button"
+                      onClick={() => {
+                        setEditing(item);
+                        setModalOpen(true);
+                      }}
+                    >
+                      Edit
+                    </QuietButton>
+                  )}
                 </div>
               </div>
             ))}
