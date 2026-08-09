@@ -83,9 +83,7 @@ export function AddGuestModal({
               autoFocus
               defaultValue={initial?.name}
               className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-              placeholder={
-                mode === "group" ? "e.g. Keluarga Rahardjo" : "e.g. Nyi Hasanah"
-              }
+              placeholder={mode === "group" ? "e.g. Keluarga Rahardjo" : "e.g. Nyi Hasanah"}
             />
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

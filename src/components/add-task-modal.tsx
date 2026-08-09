@@ -26,16 +26,13 @@ export function AddTaskModal({
         : "",
   );
   const [customCategory, setCustomCategory] = useState(
-    taskCategories.includes(initial?.category ?? "")
-      ? ""
-      : (initial?.category ?? ""),
+    taskCategories.includes(initial?.category ?? "") ? "" : (initial?.category ?? ""),
   );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    const resolvedCategory =
-      category === "Other" ? customCategory.trim() : category;
+    const resolvedCategory = category === "Other" ? customCategory.trim() : category;
     if (!resolvedCategory) return;
     onSave({
       id: initial?.id ?? `t${Date.now()}`,

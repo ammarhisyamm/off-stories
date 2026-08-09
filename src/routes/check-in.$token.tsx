@@ -61,9 +61,7 @@ function CheckInPage() {
             <>
               <div className="eyebrow">Guest check-in</div>
               <h1 className="serif mt-2 text-3xl text-foreground">{name}</h1>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Confirm this guest has arrived.
-              </p>
+              <p className="mt-3 text-sm text-muted-foreground">Confirm this guest has arrived.</p>
               <button
                 type="button"
                 onClick={handleCheckIn}

@@ -301,7 +301,9 @@ function MilestoneCalendar({
           ))}
           {cells.map((day, i) => {
             if (day === null) {
-              return <div key={`blank-${i}`} className="min-h-20 border-b border-r border-border" />;
+              return (
+                <div key={`blank-${i}`} className="min-h-20 border-b border-r border-border" />
+              );
             }
             const dateStr = `${cursor.year}-${String(cursor.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             const dayMilestones = byDate[dateStr] ?? [];
@@ -316,7 +318,9 @@ function MilestoneCalendar({
                   if (dayMilestones.length > 0) onOpen(dayMilestones[0]);
                 }}
                 className={`min-h-20 border-b border-r border-border p-2 text-left align-top transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
-                  dayMilestones.length > 0 ? "bg-surface-2/60 cursor-pointer hover:bg-surface-2" : "cursor-default"
+                  dayMilestones.length > 0
+                    ? "bg-surface-2/60 cursor-pointer hover:bg-surface-2"
+                    : "cursor-default"
                 }`}
               >
                 <div className="flex items-center justify-between">

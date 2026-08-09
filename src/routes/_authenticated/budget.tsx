@@ -189,7 +189,10 @@ function Budget() {
                     </div>
                   </div>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
-                    <div className="h-full rounded-full bg-sage" style={{ width: `${progress}%` }} />
+                    <div
+                      className="h-full rounded-full bg-sage"
+                      style={{ width: `${progress}%` }}
+                    />
                   </div>
                   <div className="mt-1.5 text-right text-xs tabular-nums text-muted-foreground">
                     {formatIDR(summary.remaining)} remaining

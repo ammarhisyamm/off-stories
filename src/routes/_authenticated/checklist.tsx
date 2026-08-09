@@ -153,11 +153,7 @@ function Checklist() {
                 onClick={() => openView(task)}
                 className="flex w-full items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
-                <WarningCircle
-                  size={16}
-                  className="shrink-0 text-destructive"
-                  weight="fill"
-                />
+                <WarningCircle size={16} className="shrink-0 text-destructive" weight="fill" />
                 <span className="min-w-0 flex-1 truncate text-sm text-foreground">
                   {task.title}
                 </span>

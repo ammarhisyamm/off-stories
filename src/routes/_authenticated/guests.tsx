@@ -8,7 +8,14 @@ import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { createRsvpLink, revokeRsvpLink } from "@/lib/rsvp.functions";
 import { showToast } from "@/components/toast";
 import type { Guest } from "@/lib/types";
-import { Check, ClipboardText, LinkSimple, LinkBreak, MagnifyingGlass, Users } from "@phosphor-icons/react";
+import {
+  Check,
+  ClipboardText,
+  LinkSimple,
+  LinkBreak,
+  MagnifyingGlass,
+  Users,
+} from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/guests")({
   head: () => ({
@@ -262,10 +269,7 @@ function Guests() {
               ))}
               {filteredGuests.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-5 py-8 text-center text-sm text-muted-foreground"
-                  >
+                  <td colSpan={5} className="px-5 py-8 text-center text-sm text-muted-foreground">
                     No guests match these filters.
                   </td>
                 </tr>
