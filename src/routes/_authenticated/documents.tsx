@@ -4,7 +4,7 @@ import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { DocRef } from "@/lib/types";
 import { useRef, useState } from "react";
-import { X, Trash, ArrowSquareOut, FolderOpen } from "@phosphor-icons/react";
+import { X, Trash, ArrowSquareOut, FileText, FolderOpen } from "@phosphor-icons/react";
 import { supabase } from "@/integrations/supabase/client";
 import { showToast } from "@/components/toast";
 
@@ -32,6 +32,7 @@ function Documents() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedKind, setSelectedKind] = useState<DocRef["kind"] | "all">("all");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const saveDocs = (newDocs: DocRef[], opts?: { success?: string | null }) => {
@@ -172,10 +173,9 @@ function Documents() {
     setIsModalOpen(false);
   };
 
-  const byKind = docs.reduce<Record<string, typeof docs>>((acc, d) => {
-    (acc[d.kind] ||= []).push(d);
-    return acc;
-  }, {});
+  const kinds = Array.from(new Set(docs.map((doc) => doc.kind)));
+  const visibleDocs =
+    selectedKind === "all" ? docs : docs.filter((doc) => doc.kind === selectedKind);
 
   return (
     <AppLayout
@@ -187,7 +187,7 @@ function Documents() {
         </QuietButton>
       }
     >
-      <div className="space-y-8">
+      <div className="space-y-7">
         {docs.length === 0 ? (
           <EmptyState
             icon={<FolderOpen size={20} weight="duotone" />}
@@ -202,58 +202,82 @@ function Documents() {
             }
           />
         ) : (
-          Object.entries(byKind).map(([kind, list]) => (
-            <section key={kind}>
-              <div className="flex items-baseline justify-between mb-3">
-                <h2 className="serif text-lg">{kind}</h2>
-                <span className="text-xs text-muted-foreground">{list.length}</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {list.map((d) => (
-                  <div
-                    key={d.id}
-                    onClick={() => handleOpenView(d)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleOpenView(d);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    className="panel p-5 hover:bg-surface-2 transition-colors flex flex-col group cursor-pointer hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <Pill tone="taupe">{d.kind}</Pill>
-                      <span className="text-xs text-muted-foreground">
+          <>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+              <CategoryCard
+                active={selectedKind === "all"}
+                label="All Documents"
+                count={docs.length}
+                onClick={() => setSelectedKind("all")}
+              />
+              {kinds.map((kind) => (
+                <CategoryCard
+                  key={kind}
+                  active={selectedKind === kind}
+                  label={documentKindLabel(kind)}
+                  count={docs.filter((doc) => doc.kind === kind).length}
+                  onClick={() => setSelectedKind(kind)}
+                />
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {visibleDocs.map((d) => (
+                <div
+                  key={d.id}
+                  onClick={() => handleOpenView(d)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleOpenView(d);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="group flex min-h-[180px] cursor-pointer flex-col rounded-[20px] border border-border bg-surface p-5 transition duration-200 hover:-translate-y-px hover:border-primary/45 hover:shadow-[0_8px_30px_rgb(15_23_42_/_0.07)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <div className="flex items-start gap-4">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/8 text-primary">
+                      <FileText size={24} weight="regular" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="min-w-0 truncate text-base font-medium text-foreground">
+                          {d.title}
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void openDocument(d);
+                          }}
+                          className="shrink-0 text-muted-foreground transition-colors hover:text-primary"
+                          title="Open document"
+                          aria-label={`Open ${d.title}`}
+                        >
+                          <ArrowSquareOut size={18} />
+                        </button>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {formatDocumentSize(d.size)} <span aria-hidden="true">•</span>{" "}
                         {new Date(d.addedAt).toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
+                          year: "numeric",
                         })}
-                      </span>
+                      </p>
                     </div>
-                    <div className="text-sm text-foreground pr-6 relative">
-                      {d.title}
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          void openDocument(d);
-                        }}
-                        className="absolute right-0 top-0.5 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Open document"
-                      >
-                        <ArrowSquareOut size={16} />
-                      </button>
-                    </div>
-                    {d.vendor && (
-                      <div className="text-xs text-muted-foreground mt-1">{d.vendor}</div>
-                    )}
                   </div>
-                ))}
-              </div>
-            </section>
-          ))
+                  {d.vendor && (
+                    <p className="mt-4 truncate text-sm text-muted-foreground">{d.vendor}</p>
+                  )}
+                  <div className="mt-auto pt-5">
+                    <Pill tone="taupe">{documentKindLabel(d.kind)}</Pill>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
@@ -440,5 +464,64 @@ function Documents() {
         </div>
       )}
     </AppLayout>
+  );
+}
+
+function documentKindLabel(kind: DocRef["kind"]) {
+  const labels: Record<DocRef["kind"], string> = {
+    Contract: "Contracts",
+    Invoice: "Invoices",
+    Moodboard: "Moodboards",
+    Reference: "References",
+    Rundown: "Rundowns",
+    "Floor plan": "Floor plans",
+  };
+  return labels[kind];
+}
+
+function formatDocumentSize(size?: number) {
+  if (!size) return "Link";
+  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function CategoryCard({
+  active,
+  label,
+  count,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`flex min-h-[112px] items-center gap-3 rounded-[20px] border p-4 text-left transition duration-200 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-5 ${
+        active
+          ? "border-primary bg-primary/5 shadow-[0_6px_20px_rgb(91_14_32_/_0.08)]"
+          : "border-border bg-surface hover:border-primary/35 hover:shadow-[0_6px_20px_rgb(15_23_42_/_0.05)]"
+      }`}
+    >
+      <span
+        className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${
+          active ? "bg-primary text-primary-foreground" : "bg-surface-2 text-muted-foreground"
+        }`}
+      >
+        <FolderOpen size={22} weight="regular" />
+      </span>
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-medium text-foreground sm:text-base">
+          {label}
+        </span>
+        <span className="mt-1 block text-xs text-muted-foreground">
+          {count} {count === 1 ? "file" : "files"}
+        </span>
+      </span>
+    </button>
   );
 }

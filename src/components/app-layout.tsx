@@ -76,7 +76,7 @@ function NavList({
       "sidebar-nav-link flex items-center gap-3 rounded-[14px] border py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       collapsed ? "justify-center px-2" : nested ? "ml-7 px-3" : "px-3",
       active
-        ? "is-active border-sidebar-border bg-surface font-medium text-sidebar-foreground shadow-[0_1px_2px_rgb(91_14_32_/_0.04),0_4px_12px_rgb(91_14_32_/_0.05)]"
+        ? "is-active border-transparent bg-sidebar-accent font-medium text-sidebar-foreground shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_4px_12px_rgb(15_23_42_/_0.035)]"
         : "border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-surface/75 hover:text-foreground",
     ].join(" ");
 
@@ -366,7 +366,7 @@ export function AppLayout({
           </div>
         </div>
 
-        <header className="border-b border-border bg-background/95 backdrop-blur-md md:sticky md:top-0 z-10">
+        <header className="border-b border-border bg-white/85 backdrop-blur-md md:sticky md:top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-5 sm:flex sm:flex-wrap sm:justify-between">
             <div className="min-w-0">
               {eyebrow && <div className="eyebrow mb-2 truncate">{eyebrow}</div>}
@@ -455,7 +455,7 @@ export function QuietButton({
     "inline-flex h-11 items-center justify-center gap-2 rounded-[14px] px-4 text-sm font-medium transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring hover:-translate-y-px active:scale-[0.98]";
   const styles =
     variant === "primary"
-      ? "bg-primary text-primary-foreground shadow-[0_4px_14px_rgb(91_14_32_/_0.14)] hover:bg-primary/90 active:bg-primary/85"
+      ? "bg-primary text-primary-foreground shadow-[0_1px_2px_rgb(91_14_32_/_0.12),0_6px_16px_rgb(91_14_32_/_0.08)] hover:bg-primary/90 active:bg-primary/85"
       : "border border-border bg-surface text-foreground hover:border-primary/30 hover:bg-surface-2 active:bg-surface-2";
   return (
     <button {...props} className={`${base} ${styles} ${props.className ?? ""}`}>
