@@ -85,6 +85,13 @@ export interface Guest {
   table?: string;
   dietaryNotes?: string;
   checkedIn?: boolean;
+  gift?: GuestGift | null;
+}
+
+export interface GuestGift {
+  status: "received" | "thanked" | "estimated";
+  amount: number;
+  note?: string;
 }
 
 export interface CommandContact {

@@ -14,6 +14,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UndanganTokenRouteImport } from './routes/undangan.$token'
 import { Route as RsvpTokenRouteImport } from './routes/rsvp.$token'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CheckInTokenRouteImport } from './routes/check-in.$token'
@@ -53,6 +54,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UndanganTokenRoute = UndanganTokenRouteImport.update({
+  id: '/undangan/$token',
+  path: '/undangan/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RsvpTokenRoute = RsvpTokenRouteImport.update({
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
+  '/undangan/$token': typeof UndanganTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
+  '/undangan/$token': typeof UndanganTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
+  '/undangan/$token': typeof UndanganTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/check-in/$token'
     | '/invite/$token'
     | '/rsvp/$token'
+    | '/undangan/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/check-in/$token'
     | '/invite/$token'
     | '/rsvp/$token'
+    | '/undangan/$token'
   id:
     | '__root__'
     | '/'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/check-in/$token'
     | '/invite/$token'
     | '/rsvp/$token'
+    | '/undangan/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   CheckInTokenRoute: typeof CheckInTokenRoute
   InviteTokenRoute: typeof InviteTokenRoute
   RsvpTokenRoute: typeof RsvpTokenRoute
+  UndanganTokenRoute: typeof UndanganTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -322,6 +335,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/undangan/$token': {
+      id: '/undangan/$token'
+      path: '/undangan/$token'
+      fullPath: '/undangan/$token'
+      preLoaderRoute: typeof UndanganTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rsvp/$token': {
@@ -482,6 +502,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckInTokenRoute: CheckInTokenRoute,
   InviteTokenRoute: InviteTokenRoute,
   RsvpTokenRoute: RsvpTokenRoute,
+  UndanganTokenRoute: UndanganTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

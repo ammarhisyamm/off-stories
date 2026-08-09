@@ -8,9 +8,11 @@ import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { createRsvpLink, revokeRsvpLink } from "@/lib/rsvp.functions";
 import { showToast } from "@/components/toast";
 import type { Guest } from "@/lib/types";
+import { formatIDR } from "@/lib/types";
 import {
   Check,
   ClipboardText,
+  Gift,
   LinkSimple,
   LinkBreak,
   MagnifyingGlass,
@@ -49,6 +51,9 @@ function Guests() {
   const confirmed = guests.filter((g) => g.rsvp === "yes").reduce((s, g) => s + g.pax, 0);
   const pending = guests.filter((g) => g.rsvp === "pending").reduce((s, g) => s + g.pax, 0);
   const declined = guests.filter((g) => g.rsvp === "no").reduce((s, g) => s + g.pax, 0);
+  const gifts = guests.filter((g) => g.gift);
+  const giftCount = gifts.length;
+  const giftTotal = gifts.reduce((sum, g) => sum + (g.gift?.amount ?? 0), 0);
   const filteredGuests = useMemo(() => {
     const normalizedQuery = deferredQuery.trim().toLocaleLowerCase();
     return guests.filter((guest) => {
@@ -153,11 +158,18 @@ function Guests() {
         </QuietButton>
       }
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <Stat label="Invited" value={totalInvited} />
         <Stat label="Confirmed" value={confirmed} tone="sage" />
         <Stat label="Pending" value={pending} tone="taupe" />
         <Stat label="Declined" value={declined} tone="warn" />
+      </div>
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-[color:var(--sage)]/5 px-4 py-3 mb-6">
+        <Gift size={17} className="text-[color:var(--sage)]" weight="duotone" />
+        <div className="text-sm text-foreground">
+          <span className="font-medium">Gift tracking:</span> {giftCount} records · total{" "}
+          <span className="tabular-nums">{giftTotal ? formatIDR(giftTotal) : "—"}</span>
+        </div>
       </div>
       <div className="panel p-4 mb-4">
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_repeat(3,auto)]">
@@ -217,6 +229,7 @@ function Guests() {
                 <th className="px-5 py-3 font-medium">Side</th>
                 <th className="px-5 py-3 font-medium">Invitation</th>
                 <th className="px-5 py-3 font-medium">RSVP</th>
+                <th className="px-5 py-3 font-medium">Gift</th>
                 <th className="px-5 py-3 font-medium">Check-in</th>
               </tr>
             </thead>
@@ -257,6 +270,26 @@ function Guests() {
                       {g.rsvp}
                     </Pill>
                   </td>
+                  <td className="px-5 py-3">
+                    {g.gift ? (
+                      <Pill
+                        tone={
+                          g.gift.status === "received"
+                            ? "sage"
+                            : g.gift.status === "thanked"
+                              ? "neutral"
+                              : "taupe"
+                        }
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          <Gift size={12} />
+                          {g.gift.status}
+                        </span>
+                      </Pill>
+                    ) : (
+                      <span className="text-muted-foreground/60">—</span>
+                    )}
+                  </td>
                   <td className="px-5 py-3" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
@@ -272,7 +305,7 @@ function Guests() {
               ))}
               {filteredGuests.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-5 py-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-muted-foreground">
                     No guests match these filters.
                   </td>
                 </tr>
@@ -317,6 +350,26 @@ function Guests() {
           />
           <Detail label="Contact" value={viewing.phone ?? viewing.email ?? "Not set"} />
           <Detail label="Check-in" value={viewing.checkedIn ? "Checked in" : "Not checked in"} />
+          {viewing.gift && (
+            <div className="rounded-[16px] border border-border bg-surface-2/50 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Gift size={16} className="text-[color:var(--sage)]" weight="duotone" />
+                <div className="text-sm font-medium text-foreground capitalize">
+                  {viewing.gift.status === "received"
+                    ? "Received"
+                    : viewing.gift.status === "thanked"
+                      ? "Received & thanked"
+                      : "Estimated / expected"}
+                </div>
+              </div>
+              <div className="text-sm tabular-nums text-foreground">
+                {formatIDR(viewing.gift.amount)}
+              </div>
+              {viewing.gift.note && (
+                <div className="mt-1.5 text-xs text-muted-foreground">{viewing.gift.note}</div>
+              )}
+            </div>
+          )}
           <div className="rounded-[16px] border border-border bg-surface-2/50 p-4">
             <div className="flex items-center justify-between gap-3 mb-3">
               <div>

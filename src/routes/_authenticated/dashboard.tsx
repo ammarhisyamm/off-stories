@@ -8,6 +8,7 @@ import {
   WarningCircle,
 } from "@phosphor-icons/react";
 import { AppLayout, Pill, QuietButton } from "@/components/app-layout";
+import { Countdown } from "@/components/countdown";
 import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
@@ -190,6 +191,29 @@ function Dashboard() {
         <BlankWorkspaceState />
       ) : (
         <>
+          {hasEvent && !eventDatePassed && (
+            <section className="panel editorial-panel p-6 sm:p-8 mb-10">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="eyebrow">Counting down</div>
+                  <h2 className="serif text-2xl mt-1 text-balance">{event.name}</h2>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {new Date(`${event.date}T00:00:00`).toLocaleDateString("en-GB", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                    {event.location ? ` · ${event.location}` : ""}
+                  </p>
+                </div>
+                <div className="w-full shrink-0 sm:w-auto">
+                  <Countdown target={event.date} />
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Top summary */}
           <section className="dashboard-metrics grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             <SummaryCard

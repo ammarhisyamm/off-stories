@@ -14,9 +14,22 @@ import {
   updateMemberRole,
 } from "@/lib/invites.functions";
 import { getBrowserStorage } from "@/lib/browser-storage";
-import { formatIDRInput, parseIDRInput } from "@/lib/types";
+import { formatIDRInput, formatIDR, parseIDRInput } from "@/lib/types";
 import { showToast } from "@/components/toast";
-import { ArrowRight, Check, LinkSimple, MagicWand, WarningCircle } from "@phosphor-icons/react";
+import {
+  getInvitationPageStatus,
+  getOrCreateInvitationLink,
+  revokeInvitationLink,
+} from "@/lib/invitation-page.functions";
+import {
+  ArrowRight,
+  Check,
+  DownloadSimple,
+  LinkSimple,
+  MagicWand,
+  ShareNetwork,
+  WarningCircle,
+} from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({
@@ -28,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/settings")({
   component: Settings,
 });
 
-type Section = "Event" | "Collaborators";
+type Section = "Event" | "Invitation" | "Collaborators";
 
 function Settings() {
   const [section, setSection] = useState<Section>("Event");
@@ -36,7 +49,7 @@ function Settings() {
     <AppLayout eyebrow="Workspace" title="Settings">
       <div className="mx-auto max-w-3xl">
         <nav className="panel p-1 flex gap-1 text-sm" role="tablist" aria-label="Settings sections">
-          {(["Event", "Collaborators"] as Section[]).map((s) => (
+          {(["Event", "Invitation", "Collaborators"] as Section[]).map((s) => (
             <button
               key={s}
               role="tab"
@@ -54,6 +67,7 @@ function Settings() {
         </nav>
         <section key={section} className="mt-6 animate-in fade-in duration-200 ease-out">
           {section === "Event" && <EventDetailsPanel />}
+          {section === "Invitation" && <InvitationPanel />}
           {section === "Collaborators" && <CollaboratorsPanel />}
         </section>
       </div>
@@ -193,6 +207,190 @@ function EventDetailsPanel() {
             Choose a template <ArrowRight size={16} />
           </button>
         </div>
+      )}
+      <DataBackupCard />
+    </div>
+  );
+}
+
+function DataBackupCard() {
+  const { data, workspaceId } = useWorkspaceData();
+
+  function handleExport() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      workspaceId,
+      kind: "offstories-workspace-backup",
+      version: 1,
+      data,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `offstories-backup-${workspaceId ? workspaceId.slice(0, 8) : "none"}-${new Date()
+      .toISOString()
+      .slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("Backup exported");
+  }
+
+  return (
+    <div className="mt-8 flex flex-col gap-4 rounded-[20px] border border-[#e8e8e8] bg-[#fafafa] p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-start gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-[#444444] shadow-[0_1px_2px_rgb(15_23_42_/_0.04)]">
+          <DownloadSimple size={18} />
+        </span>
+        <div className="min-w-0">
+          <div className="text-sm font-medium text-foreground">Backup your workspace</div>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Download everything — checklist, budget, vendors, guests, notes and more — as a single
+            JSON file you can keep or restore later.
+          </p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={handleExport}
+        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] border border-[#e2e2e2] bg-white px-4 py-2.5 text-sm font-medium text-[#333333] transition duration-200 hover:bg-[#f6f6f6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+      >
+        <DownloadSimple size={16} />
+        Export JSON
+      </button>
+    </div>
+  );
+}
+
+function InvitationPanel() {
+  const statusFn = useServerFn(getInvitationPageStatus);
+  const createFn = useServerFn(getOrCreateInvitationLink);
+  const revokeFn = useServerFn(revokeInvitationLink);
+  const [status, setStatus] = useState<"loading" | "ready">("loading");
+  const [link, setLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    statusFn().then((res) => {
+      if (cancelled) return;
+      setLink(res.exists ? res.url : null);
+      setStatus("ready");
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const { canEdit } = useWorkspaceData();
+
+  return (
+    <div className="panel p-7">
+      <div className="flex items-center gap-3 mb-6">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[color:var(--rose)]/15 text-[color:var(--rose)]">
+          <ShareNetwork size={20} weight="duotone" />
+        </span>
+        <div>
+          <div className="eyebrow mb-1">Undangan page</div>
+          <h2 className="serif text-xl">A public page for your guests</h2>
+        </div>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Publish a simple invitation page — couples' names, date, venue, and a live countdown — so
+        guests and family can check the details without an account.
+      </p>
+
+      {!canEdit && (
+        <p className="mt-4 rounded-md border border-[color:var(--taupe)]/30 bg-[color:var(--taupe)]/10 px-3 py-2.5 text-xs text-muted-foreground">
+          You have read-only access, so you can view the link but can't create or turn off the page.
+        </p>
+      )}
+
+      {status === "loading" ? (
+        <p className="mt-6 text-sm text-muted-foreground">Loading…</p>
+      ) : link ? (
+        <div className="mt-6 space-y-3 rounded-lg border border-border bg-surface-2/50 p-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Check size={16} className="text-[color:var(--sage)]" weight="bold" />
+            Your undangan page is live
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              readOnly
+              value={link}
+              onFocus={(e) => e.currentTarget.select()}
+              className="w-full min-w-0 flex-1 rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            />
+            <QuietButton
+              variant="primary"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(link)
+                  .then(() => setCopied(true))
+                  .catch(() => setError("Couldn't copy the link."));
+                setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? "Copied" : "Copy link"}
+            </QuietButton>
+          </div>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={async () => {
+                setBusy(true);
+                setError(null);
+                try {
+                  await revokeFn();
+                  setLink(null);
+                } catch (e) {
+                  setError(e instanceof Error ? e.message : "Couldn't turn off the page");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              disabled={busy}
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground disabled:opacity-60"
+            >
+              {busy ? "Turning off…" : "Turn off this page"}
+            </button>
+          )}
+        </div>
+      ) : canEdit ? (
+        <div className="mt-6 flex items-center gap-3">
+          <QuietButton
+            variant="primary"
+            onClick={async () => {
+              setBusy(true);
+              setError(null);
+              try {
+                const created = await createFn();
+                setLink(created.url);
+              } catch (e) {
+                setError(e instanceof Error ? e.message : "Couldn't create the page");
+              } finally {
+                setBusy(false);
+              }
+            }}
+            disabled={busy}
+          >
+            {busy ? "Creating…" : "Create invitation page"}
+          </QuietButton>
+        </div>
+      ) : (
+        <p className="mt-6 text-sm text-muted-foreground">No undangan page has been created yet.</p>
+      )}
+
+      {error && (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          {error}
+        </p>
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ModalShell, ConfirmDelete } from "@/components/modal-shell";
 import { QuietButton } from "@/components/app-layout";
 import { Trash } from "@phosphor-icons/react";
-import type { Guest } from "@/lib/types";
+import type { Guest, GuestGift } from "@/lib/types";
 
 export function AddGuestModal({
   initial,
@@ -19,6 +19,14 @@ export function AddGuestModal({
   const [rsvp, setRsvp] = useState<Guest["rsvp"] | "">(initial?.rsvp ?? "");
   const [invited, setInvited] = useState(initial?.invited ?? false);
   const [confirming, setConfirming] = useState(false);
+  const [giftEnabled, setGiftEnabled] = useState(Boolean(initial?.gift));
+  const [giftStatus, setGiftStatus] = useState<GuestGift["status"]>(
+    initial?.gift?.status ?? "received",
+  );
+  const [giftAmount, setGiftAmount] = useState<string>(
+    initial?.gift?.amount ? String(initial.gift.amount) : "",
+  );
+  const [giftNote, setGiftNote] = useState(initial?.gift?.note ?? "");
   const [mode, setMode] = useState<"single" | "group">(
     (initial?.pax ?? 1) > 1 ? "group" : "single",
   );
@@ -26,6 +34,14 @@ export function AddGuestModal({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
+    let gift: GuestGift | null = null;
+    if (giftEnabled) {
+      gift = {
+        status: giftStatus,
+        amount: Number(giftAmount) || 0,
+        note: giftNote.trim() || undefined,
+      };
+    }
     onSave({
       id: initial?.id ?? `g${Date.now()}`,
       name: (form.get("name") as string).trim(),
@@ -36,6 +52,7 @@ export function AddGuestModal({
       phone: (form.get("phone") as string)?.trim() || undefined,
       email: (form.get("email") as string)?.trim() || undefined,
       checkedIn: initial?.checkedIn ?? false,
+      gift,
     });
   }
 
@@ -165,6 +182,61 @@ export function AddGuestModal({
                 <option value="maybe">Maybe</option>
               </select>
             </label>
+          </div>
+          <div className="rounded-md border border-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setGiftEnabled((v) => !v)}
+              className="w-full px-3 py-2.5 flex items-center justify-between bg-surface text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="text-sm font-medium">Track gift</span>
+              <span
+                className={`h-4 w-4 rounded-sm border grid place-items-center ${giftEnabled ? "bg-sage border-sage" : "border-border"}`}
+              >
+                {giftEnabled && (
+                  <svg viewBox="0 0 16 16" className="text-primary-foreground">
+                    <path fill="currentColor" d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1z" />
+                  </svg>
+                )}
+              </span>
+            </button>
+            {giftEnabled && (
+              <div className="space-y-3 border-t border-border p-3 bg-surface-2">
+                <label className="block">
+                  <span className="block text-sm font-medium mb-1.5">Status</span>
+                  <select
+                    value={giftStatus}
+                    onChange={(e) => setGiftStatus(e.target.value as GuestGift["status"])}
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  >
+                    <option value="received">Received</option>
+                    <option value="thanked">Received & thanked</option>
+                    <option value="estimated">Estimated / expected</option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="block text-sm font-medium mb-1.5">Est. value (Rp)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={giftAmount}
+                    onChange={(e) => setGiftAmount(e.target.value)}
+                    placeholder="e.g. 500000"
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  />
+                </label>
+                <label className="block">
+                  <span className="block text-sm font-medium mb-1.5">Note</span>
+                  <input
+                    type="text"
+                    value={giftNote}
+                    onChange={(e) => setGiftNote(e.target.value)}
+                    placeholder="e.g. angpao from Tante Mira"
+                    className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                  />
+                </label>
+              </div>
+            )}
           </div>
           <div className="flex items-center justify-between pt-2">
             {initial && onDelete ? (

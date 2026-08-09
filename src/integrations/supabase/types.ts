@@ -8,6 +8,38 @@ export type Database = {
   };
   public: {
     Tables: {
+      invitation_pages: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          token: string;
+          created_at: string;
+          revoked_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          workspace_id: string;
+          token?: string;
+          created_at?: string;
+          revoked_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          workspace_id?: string;
+          token?: string;
+          created_at?: string;
+          revoked_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invitation_pages_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       calendar_sync_log: {
         Row: {
           event_date: string | null;
