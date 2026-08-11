@@ -289,14 +289,6 @@ export type Database = {
         Args: { p_note?: string | null; p_pax: number; p_rsvp: string; p_token: string };
         Returns: Record<string, unknown>;
       };
-      is_workspace_member: {
-        Args: { _user: string; _workspace: string };
-        Returns: boolean;
-      };
-      is_workspace_owner: {
-        Args: { _user: string; _workspace: string };
-        Returns: boolean;
-      };
       remove_workspace_partner: {
         Args: { p_workspace: string; p_partner: string };
         Returns: undefined;
