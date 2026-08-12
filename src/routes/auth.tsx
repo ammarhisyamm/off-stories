@@ -139,7 +139,7 @@ function AuthPage() {
             </div>
           </label>
           {mode === "signup" && (
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
+            <div className="flex flex-col gap-1.5 text-xs">
               <PasswordRequirment ok={passwordLengthOk} label="8+ characters" />
               <PasswordRequirment ok={passwordLowercaseOk} label="lowercase" />
               <PasswordRequirment ok={passwordUppercaseOk} label="uppercase" />
