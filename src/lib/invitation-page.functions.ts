@@ -6,7 +6,22 @@ import { randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace, type EventData } from "@/lib/data.functions";
 
-const tokenSchema = z.string().uuid();
+const tokenSchema = z.string().min(1).max(80);
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40);
+}
+
+function randomSuffix(length = 4) {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, (byte) => "abcdefghijklmnopqrstuvwxyz0123456789"[byte % 36]).join("");
+}
 
 function appOrigin() {
   const request = getRequest();
@@ -33,7 +48,16 @@ export const getOrCreateInvitationLink = createServerFn({ method: "POST" })
       await database.prepare("UPDATE invitation_pages SET revoked_at = NULL WHERE workspace_id = ?").bind(workspaceId).run();
       return { token: existing.token, url: `${appOrigin()}/undangan/${existing.token}` };
     }
-    const token = randomId();
+
+    const eventRow = await database
+      .prepare("SELECT payload FROM workspace_data WHERE workspace_id = ? AND kind = 'event'")
+      .bind(workspaceId)
+      .first<{ payload: string }>();
+    const event = eventRow ? parseEvent(eventRow.payload) : null;
+    const base = [event?.brideName, event?.groomName].filter(Boolean).join("-") || event?.name || "undangan";
+    const slug = slugify(base) || "undangan";
+    const token = `${slug}-${randomSuffix()}`;
+
     await database.prepare("INSERT INTO invitation_pages (id, workspace_id, token) VALUES (?, ?, ?)").bind(randomId(), workspaceId, token).run();
     return { token, url: `${appOrigin()}/undangan/${token}` };
   });
