@@ -1,7 +1,9 @@
 import { getCookie, getRequest, setCookie, deleteCookie } from "@tanstack/react-start/server";
+import { env } from "cloudflare:workers";
 import { getDatabase } from "@/lib/cloudflare.server";
 
 const SESSION_COOKIE = "offstories_session";
+const GOOGLE_STATE_COOKIE = "offstories_google_state";
 const SESSION_DAYS = 30;
 const PASSWORD_ITERATIONS = 250_000;
 
@@ -88,6 +90,114 @@ function sessionCookieOptions() {
     path: "/",
     maxAge: SESSION_DAYS * 24 * 60 * 60,
   };
+}
+
+function googleStateCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: new URL(getRequest().url).protocol === "https:",
+    path: "/",
+    maxAge: 10 * 60,
+  };
+}
+
+function googleConfig() {
+  const runtimeEnv = env as unknown as {
+    GOOGLE_CLIENT_ID?: string;
+    GOOGLE_CLIENT_SECRET?: string;
+  };
+  if (!runtimeEnv.GOOGLE_CLIENT_ID || !runtimeEnv.GOOGLE_CLIENT_SECRET) {
+    throw new Error("Google sign-in is not configured yet.");
+  }
+  return runtimeEnv;
+}
+
+function googleCallbackUrl() {
+  return new URL("/auth/callback", getRequest().url).toString();
+}
+
+export function createGoogleAuthorizationUrl() {
+  const { GOOGLE_CLIENT_ID } = googleConfig();
+  const state = toBase64(crypto.getRandomValues(new Uint8Array(32)))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+  setCookie(GOOGLE_STATE_COOKIE, state, googleStateCookieOptions());
+  const params = new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID,
+    redirect_uri: googleCallbackUrl(),
+    response_type: "code",
+    scope: "openid email profile",
+    state,
+    prompt: "select_account",
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
+export async function completeGoogleAuthorization(code: string, state: string) {
+  const expectedState = getCookie(GOOGLE_STATE_COOKIE);
+  deleteCookie(GOOGLE_STATE_COOKIE, { path: "/" });
+  if (!expectedState || expectedState !== state) throw new Error("Google sign-in session expired. Please try again.");
+
+  const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = googleConfig();
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      code,
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      redirect_uri: googleCallbackUrl(),
+      grant_type: "authorization_code",
+    }),
+  });
+  if (!tokenResponse.ok) throw new Error("Google sign-in could not be completed.");
+  const tokenPayload = await tokenResponse.json() as { access_token?: string };
+  if (!tokenPayload.access_token) throw new Error("Google did not return an access token.");
+
+  const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
+    headers: { authorization: `Bearer ${tokenPayload.access_token}` },
+  });
+  if (!profileResponse.ok) throw new Error("Google profile could not be verified.");
+  const profile = await profileResponse.json() as {
+    email?: string;
+    email_verified?: boolean;
+    name?: string;
+    picture?: string;
+  };
+  if (!profile.email || !profile.email_verified) throw new Error("Google account email is not verified.");
+
+  const database = getDatabase();
+  const email = profile.email.toLowerCase();
+  const existing = await database
+    .prepare("SELECT id FROM users WHERE email = ?")
+    .bind(email)
+    .first<{ id: string }>();
+  if (existing) {
+    await database
+      .prepare("UPDATE users SET display_name = ?, avatar_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+      .bind(profile.name?.trim() || email.split("@")[0] || "You", profile.picture ?? null, existing.id)
+      .run();
+    await createSession(existing.id);
+    return { id: existing.id, email };
+  }
+
+  const userId = randomId();
+  const workspaceId = randomId();
+  await database.batch([
+    database
+      .prepare("INSERT INTO users (id, email, display_name, avatar_url) VALUES (?, ?, ?, ?)")
+      .bind(userId, email, profile.name?.trim() || email.split("@")[0] || "You", profile.picture ?? null),
+    database
+      .prepare("INSERT INTO workspaces (id, name, owner_id) VALUES (?, ?, ?)")
+      .bind(workspaceId, "My Wedding", userId),
+    database
+      .prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'owner')")
+      .bind(workspaceId, userId),
+  ]);
+  await createSession(userId);
+  return { id: userId, email };
 }
 
 export async function createSession(userId: string) {

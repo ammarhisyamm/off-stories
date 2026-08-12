@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { WarningCircle } from "@phosphor-icons/react";
+import { GoogleLogo, WarningCircle } from "@phosphor-icons/react";
 import { useServerFn } from "@tanstack/react-start";
 import { BrandLogo } from "@/components/brand-logo";
-import { getSessionUser, signIn, signUp } from "@/lib/auth.functions";
+import { getSessionUser, signIn, signUp, startGoogleSignIn } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -20,6 +20,7 @@ function AuthPage() {
   const sessionUser = useServerFn(getSessionUser);
   const signInFn = useServerFn(signIn);
   const signUpFn = useServerFn(signUp);
+  const startGoogleFn = useServerFn(startGoogleSignIn);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +44,18 @@ function AuthPage() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "We couldn't sign you in. Please try again.");
     } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    setLoading(true);
+    try {
+      const { url } = await startGoogleFn();
+      window.location.assign(url);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Google sign-in is unavailable.");
       setLoading(false);
     }
   }
@@ -75,6 +88,16 @@ function AuthPage() {
             {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
+
+        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" aria-hidden />
+          or
+          <span className="h-px flex-1 bg-border" aria-hidden />
+        </div>
+        <button type="button" onClick={handleGoogleSignIn} disabled={loading} className="w-full inline-flex items-center justify-center gap-3 rounded-md border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground hover:bg-surface-2 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60">
+          <GoogleLogo size={18} weight="bold" />
+          Continue with Google
+        </button>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {mode === "signin" ? "New here? " : "Already have an account? "}

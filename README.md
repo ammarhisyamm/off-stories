@@ -53,6 +53,10 @@ Create `.dev.vars` for local Cloudflare Pages development:
 ```bash
 # Optional: used for email-related functionality
 RESEND_API_KEY=your-resend-api-key
+
+# Required for Google sign-in
+GOOGLE_CLIENT_ID=your-google-web-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
 
 Never commit `.env`, `.env.local`, service-role keys, or other secrets. The repository ignores environment files by default.
@@ -124,7 +128,9 @@ The app is configured for Cloudflare Pages in `vite.config.ts` (Nitro `cloudflar
 2. Set the build command to `npm run build` and build output directory to `dist`.
 3. Add the D1 binding `DB` and R2 bucket binding `DOCUMENTS` in Settings > Bindings. Use the database `off-stories` and bucket `off-stories-documents`.
 4. Add `RESEND_API_KEY` only if email invites are enabled.
-5. Deploy the `main` branch. Every push can trigger a new deployment when Git integration is enabled.
+5. Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` as encrypted Cloudflare Pages secrets.
+6. In Google Cloud Console, add `https://offstories.fun/auth/callback` as an authorized redirect URI.
+7. Deploy the `main` branch. Every push can trigger a new deployment when Git integration is enabled.
 
 ### Wrangler CLI (alternative)
 

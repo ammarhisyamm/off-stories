@@ -7,6 +7,8 @@ import {
   hashPassword,
   randomId,
   verifyPassword,
+  completeGoogleAuthorization,
+  createGoogleAuthorizationUrl,
 } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 
@@ -16,6 +18,14 @@ const credentialsSchema = z.object({
 });
 
 export const getSessionUser = createServerFn({ method: "GET" }).handler(() => getCurrentUser());
+
+export const startGoogleSignIn = createServerFn({ method: "GET" }).handler(() => ({
+  url: createGoogleAuthorizationUrl(),
+}));
+
+export const completeGoogleSignIn = createServerFn({ method: "GET" })
+  .inputValidator((data) => z.object({ code: z.string().min(1).max(4096), state: z.string().min(1).max(4096) }).parse(data))
+  .handler(({ data }) => completeGoogleAuthorization(data.code, data.state));
 
 export const signUp = createServerFn({ method: "POST" })
   .inputValidator((data) => credentialsSchema.parse(data))
