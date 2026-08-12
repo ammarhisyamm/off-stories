@@ -12,9 +12,22 @@ import {
 } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+
 const credentialsSchema = z.object({
-  email: z.string().trim().email().max(254).transform((value) => value.toLowerCase()),
-  password: z.string().min(8).max(128),
+  email: z
+    .string()
+    .trim()
+    .email()
+    .max(254)
+    .transform((value) => value.toLowerCase()),
+  password: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`)
+    .max(PASSWORD_MAX_LENGTH)
+    .regex(PASSWORD_PATTERN, "Password must include uppercase and lowercase letters and a number"),
 });
 
 export const getSessionUser = createServerFn({ method: "GET" }).handler(() => getCurrentUser());
@@ -24,7 +37,9 @@ export const startGoogleSignIn = createServerFn({ method: "GET" }).handler(() =>
 }));
 
 export const completeGoogleSignIn = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ code: z.string().min(1).max(4096), state: z.string().min(1).max(4096) }).parse(data))
+  .inputValidator((data) =>
+    z.object({ code: z.string().min(1).max(4096), state: z.string().min(1).max(4096) }).parse(data),
+  )
   .handler(({ data }) => completeGoogleAuthorization(data.code, data.state));
 
 export const signUp = createServerFn({ method: "POST" })
@@ -35,7 +50,8 @@ export const signUp = createServerFn({ method: "POST" })
       .prepare("SELECT id FROM users WHERE email = ?")
       .bind(data.email)
       .first<{ id: string }>();
-    if (existing) throw new Error("An account already exists for this email. Please sign in instead.");
+    if (existing)
+      throw new Error("An account already exists for this email. Please sign in instead.");
 
     const userId = randomId();
     const workspaceId = randomId();
@@ -48,7 +64,9 @@ export const signUp = createServerFn({ method: "POST" })
         .prepare("INSERT INTO workspaces (id, name, owner_id) VALUES (?, ?, ?)")
         .bind(workspaceId, "My Wedding", userId),
       database
-        .prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'owner')")
+        .prepare(
+          "INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, 'owner')",
+        )
         .bind(workspaceId, userId),
     ]);
     await createSession(userId);
