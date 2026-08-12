@@ -6,12 +6,15 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// This app is deployed on Vercel, not Cloudflare Workers. The Lovable config
-// skips nitro entirely on self-deploys and targets Cloudflare inside the
-// Lovable build, so we force nitro on with the Vercel preset here. Vercel's
-// SSR adapter emits the .vercel/output/functions layout Vercel needs.
+// This app is deployed on Cloudflare Pages with Workers for SSR. The Lovable
+// config skips nitro entirely on self-deploys, so we force nitro on with the
+// cloudflare-pages preset here. It emits static assets to dist/ plus a single
+// _worker.js (Pages Functions) that runs the TanStack Start server on Workers.
 export default defineConfig({
-  nitro: { preset: "vercel" },
+  nitro: {
+    preset: "cloudflare-pages",
+    compatibilityDate: { cloudflare: "2026-08-11" },
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

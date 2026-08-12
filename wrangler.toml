@@ -1,0 +1,18 @@
+# Cloudflare Pages project configuration.
+#
+# Build:            npm run build   (emits static assets to dist/ + a single
+#                                    dist/_worker.js Pages Function for SSR)
+# Preview locally:  wrangler pages dev dist
+# Deploy:           wrangler pages deploy dist
+#
+# Runtime env vars (SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, RESEND_API_KEY)
+# must be set in the Cloudflare dashboard: your Pages project > Settings >
+# Environment variables. Add SUPABASE_SERVICE_ROLE_KEY only if you re-enable
+# the admin client in src/integrations/supabase/client.server.ts.
+#
+# For local `wrangler pages dev`, create a .dev.vars file next to this one
+# (it is gitignored) with the same keys.
+name = "off-stories"
+
+compatibility_date = "2026-08-11"
+compatibility_flags = ["nodejs_compat"]

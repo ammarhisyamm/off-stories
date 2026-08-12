@@ -28,7 +28,7 @@ Live app: [offstories.fun](https://offstories.fun)
 - Tailwind CSS 4
 - Supabase Auth and Postgres
 - Phosphor Icons
-- Vercel deployment
+- Cloudflare Pages + Workers deployment
 
 ## Getting started
 
@@ -123,14 +123,30 @@ Database migrations live in `supabase/migrations/`. Apply them through the Supab
 
 ## Deployment
 
-The app is configured for Vercel through the Vercel Nitro preset in `vite.config.ts`.
+The app is configured for Cloudflare Pages in `vite.config.ts` (Nitro `cloudflare-pages` preset). The build emits static assets to `dist/` plus a single `dist/_worker.js` Pages Function that runs the TanStack Start server on Cloudflare Workers.
 
-1. Import the repository into Vercel.
-2. Add the Supabase and optional email environment variables.
-3. Set the build command to `npm run build`.
-4. Deploy the `main` branch.
+### Cloudflare Pages (dashboard / Git integration)
 
-Every push to `main` can trigger a new deployment when Git integration is enabled.
+1. In the Cloudflare dashboard, create a new Pages project linked to this repo (or use Direct Upload).
+2. Set the build command to `npm run build` and build output directory to `dist`.
+3. Add the environment variables (Settings > Environment variables):
+   - `SUPABASE_URL`
+   - `SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `RESEND_API_KEY` (if email invites are enabled)
+4. Deploy the `main` branch. Every push can trigger a new deployment when Git integration is enabled.
+
+### Wrangler CLI (alternative)
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name off-stories
+```
+
+Environment variables (including `RESEND_API_KEY`) must be set for the Pages project — either in the dashboard or as a local `.dev.vars` file (gitignored) for `wrangler pages dev`.
+
+Note: `SUPABASE_SERVICE_ROLE_KEY` is not required at runtime since the public invitation/RSVP server functions use RLS-safe RPCs. Only add it if you re-enable the admin client in `src/integrations/supabase/client.server.ts`.
 
 ## Contributing
 
