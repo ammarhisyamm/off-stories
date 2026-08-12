@@ -11,6 +11,13 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // cloudflare-pages preset here. It emits static assets to dist/ plus a single
 // _worker.js (Pages Functions) that runs the TanStack Start server on Workers.
 export default defineConfig({
+  vite: {
+    build: {
+      rolldownOptions: {
+        external: ["cloudflare:workers"],
+      },
+    },
+  },
   nitro: {
     preset: "cloudflare-pages",
     compatibilityDate: { cloudflare: "2026-08-11" },

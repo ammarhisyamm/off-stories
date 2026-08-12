@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { getSessionUser } from "@/lib/auth.functions";
 import { DashboardPreview } from "@/components/landing/previews";
 import {
   BudgetDemo,
@@ -648,12 +649,10 @@ function FinalCTA({ hasSession }: { hasSession: boolean }) {
 
 function Landing() {
   const [hasSession, setHasSession] = useState(false);
+  const sessionUser = useServerFn(getSessionUser);
   useEffect(() => {
-    void supabase.auth
-      .getSession()
-      .then(({ data }) => setHasSession(Boolean(data.session)))
-      .catch((error) => console.error("[Supabase] Session lookup unavailable", error));
-  }, []);
+    void sessionUser().then((user) => setHasSession(Boolean(user))).catch(() => {});
+  }, [sessionUser]);
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background text-foreground">

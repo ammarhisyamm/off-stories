@@ -26,7 +26,7 @@ Live app: [offstories.fun](https://offstories.fun)
 - TypeScript
 - Vite 8
 - Tailwind CSS 4
-- Supabase Auth and Postgres
+- Cloudflare D1 and R2
 - Phosphor Icons
 - Cloudflare Pages + Workers deployment
 
@@ -36,7 +36,7 @@ Live app: [offstories.fun](https://offstories.fun)
 
 - Node.js 20 or newer
 - npm 10+ or Bun
-- A Supabase project
+- A Cloudflare account with Pages, D1, and R2 enabled
 
 ### Install
 
@@ -48,16 +48,9 @@ npm install
 
 ### Configure environment variables
 
-Create `.env.local` in the project root:
+Create `.dev.vars` for local Cloudflare Pages development:
 
 ```bash
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
-
-# Used by server-side functions
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_PUBLISHABLE_KEY=your-publishable-key
-
 # Optional: used for email-related functionality
 RESEND_API_KEY=your-resend-api-key
 ```
@@ -89,14 +82,14 @@ The development server is available at `http://localhost:3000` unless Vite selec
 src/
 ├── components/             Shared UI and dashboard components
 ├── hooks/                  Browser and interaction hooks
-├── integrations/supabase/  Supabase clients, auth, and database types
+├── integrations/cloudflare/ Cloudflare auth middleware and bindings
 ├── lib/                    Data functions, stores, helpers, and mock data
 ├── routes/                 TanStack file-based routes
 ├── start.ts                TanStack Start middleware setup
 └── styles.css              Global tokens and application styles
 
-supabase/
-└── migrations/             Database schema and RPC migrations
+cloudflare/
+└── migrations/             D1 database schema migrations
 ```
 
 ## Application routes
@@ -117,9 +110,9 @@ supabase/
 
 ## Data and authentication
 
-Supabase handles authentication and workspace persistence. Authenticated server functions resolve the active workspace and read or write the `workspace_data` records for each planning category.
+Cloudflare D1 handles authentication, workspace persistence, invitations, RSVP links, and planning data. Cloudflare R2 stores uploaded PDF/DOCX documents. Authenticated server functions resolve the active workspace and read or write the `workspace_data` records for each planning category.
 
-Database migrations live in `supabase/migrations/`. Apply them through the Supabase CLI or your Supabase project workflow before using authenticated workspace features in a fresh environment.
+Database migrations live in `cloudflare/migrations/`. Apply them with `npx wrangler d1 migrations apply off-stories --remote` before using authenticated workspace features in a fresh environment.
 
 ## Deployment
 
@@ -129,13 +122,9 @@ The app is configured for Cloudflare Pages in `vite.config.ts` (Nitro `cloudflar
 
 1. In the Cloudflare dashboard, create a new Pages project linked to this repo (or use Direct Upload).
 2. Set the build command to `npm run build` and build output directory to `dist`.
-3. Add the environment variables (Settings > Environment variables):
-   - `SUPABASE_URL`
-   - `SUPABASE_PUBLISHABLE_KEY`
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`
-   - `RESEND_API_KEY` (if email invites are enabled)
-4. Deploy the `main` branch. Every push can trigger a new deployment when Git integration is enabled.
+3. Add the D1 binding `DB` and R2 bucket binding `DOCUMENTS` in Settings > Bindings. Use the database `off-stories` and bucket `off-stories-documents`.
+4. Add `RESEND_API_KEY` only if email invites are enabled.
+5. Deploy the `main` branch. Every push can trigger a new deployment when Git integration is enabled.
 
 ### Wrangler CLI (alternative)
 
@@ -145,8 +134,6 @@ npx wrangler pages deploy dist --project-name off-stories
 ```
 
 Environment variables (including `RESEND_API_KEY`) must be set for the Pages project — either in the dashboard or as a local `.dev.vars` file (gitignored) for `wrangler pages dev`.
-
-Note: `SUPABASE_SERVICE_ROLE_KEY` is not required at runtime since the public invitation/RSVP server functions use RLS-safe RPCs. Only add it if you re-enable the admin client in `src/integrations/supabase/client.server.ts`.
 
 ## Contributing
 

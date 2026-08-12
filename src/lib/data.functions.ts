@@ -1,8 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
+import { getDatabase } from "@/lib/cloudflare.server";
 import type {
   Task,
   BudgetItem,
@@ -85,52 +84,27 @@ export function emptyWorkspaceData(): WorkspaceData {
   };
 }
 
-export async function resolveWorkspace(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-): Promise<string | null> {
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("active_workspace_id")
-    .eq("id", userId)
-    .maybeSingle();
-  if (profile?.active_workspace_id) return profile.active_workspace_id;
-  const { data: ws } = await supabase
-    .from("workspaces")
-    .select("id")
-    .eq("owner_id", userId)
-    .limit(1)
-    .maybeSingle();
-  return ws?.id ?? null;
+export async function resolveWorkspace(userId: string): Promise<string | null> {
+  const workspace = await getDatabase()
+    .prepare("SELECT id FROM workspaces WHERE owner_id = ? ORDER BY created_at ASC LIMIT 1")
+    .bind(userId)
+    .first<{ id: string }>();
+  return workspace?.id ?? null;
 }
 
-export async function resolveMemberRole(
-  supabase: SupabaseClient<Database>,
-  workspaceId: string,
-  userId: string,
-): Promise<string | null> {
-  if (!workspaceId) return null;
-  const { data: owner } = await supabase
-    .from("workspaces")
-    .select("id")
-    .eq("id", workspaceId)
-    .eq("owner_id", userId)
-    .maybeSingle();
-  if (owner) return "owner";
-  const { data: member } = await supabase
-    .from("workspace_members")
-    .select("role")
-    .eq("workspace_id", workspaceId)
-    .eq("user_id", userId)
-    .maybeSingle();
+export async function resolveMemberRole(workspaceId: string, userId: string): Promise<string | null> {
+  const member = await getDatabase()
+    .prepare("SELECT role FROM workspace_members WHERE workspace_id = ? AND user_id = ?")
+    .bind(workspaceId, userId)
+    .first<{ role: string }>();
   return member?.role ?? null;
 }
 
 export const loadWorkspaceData = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const workspaceId = await resolveWorkspace(supabase, userId);
+    const { userId } = context;
+    const workspaceId = await resolveWorkspace(userId);
     if (!workspaceId) {
       return {
         workspaceId: null as string | null,
@@ -138,12 +112,14 @@ export const loadWorkspaceData = createServerFn({ method: "GET" })
         data: emptyWorkspaceData(),
       };
     }
-    const role = await resolveMemberRole(supabase, workspaceId, userId);
-    const { data: rows } = await supabase
-      .from("workspace_data")
-      .select("kind,payload")
-      .eq("workspace_id", workspaceId);
-    const map = new Map<string, unknown>((rows ?? []).map((r) => [r.kind, r.payload]));
+    const role = await resolveMemberRole(workspaceId, userId);
+    const rows = await getDatabase()
+      .prepare("SELECT kind, payload FROM workspace_data WHERE workspace_id = ?")
+      .bind(workspaceId)
+      .all<{ kind: string; payload: string }>();
+    const map = new Map<string, unknown>(
+      (rows.results ?? []).map((row) => [row.kind, JSON.parse(row.payload)]),
+    );
     const data = emptyWorkspaceData();
     for (const kind of KINDS) {
       const value = map.get(kind);
@@ -153,24 +129,25 @@ export const loadWorkspaceData = createServerFn({ method: "GET" })
   });
 
 export const saveWorkspaceData = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .inputValidator((d) => z.object({ kind: z.enum(KINDS), payload: z.unknown() }).parse(d))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const workspaceId = await resolveWorkspace(supabase, userId);
+    const { userId } = context;
+    const workspaceId = await resolveWorkspace(userId);
     if (!workspaceId) throw new Error("No workspace found");
-    const role = await resolveMemberRole(supabase, workspaceId, userId);
+    const role = await resolveMemberRole(workspaceId, userId);
     if (role === "viewer") {
       throw new Error(
         "You have read-only access to this workspace. Ask the owner to change your role if you need to make edits.",
       );
     }
-    const { error } = await supabase
-      .from("workspace_data")
-      .upsert(
-        { workspace_id: workspaceId, kind: data.kind, payload: data.payload },
-        { onConflict: "workspace_id,kind" },
-      );
-    if (error) throw new Error(error.message);
+    await getDatabase()
+      .prepare(
+        `INSERT INTO workspace_data (workspace_id, kind, payload, updated_at)
+         VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+         ON CONFLICT(workspace_id, kind) DO UPDATE SET payload = excluded.payload, updated_at = CURRENT_TIMESTAMP`,
+      )
+      .bind(workspaceId, data.kind, JSON.stringify(data.payload))
+      .run();
     return { ok: true };
   });

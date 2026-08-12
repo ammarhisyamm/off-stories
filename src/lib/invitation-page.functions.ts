@@ -1,9 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { resolveWorkspace } from "@/lib/data.functions";
-import type { EventData } from "@/lib/data.functions";
+import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
+import { randomId } from "@/lib/auth.server";
+import { getDatabase } from "@/lib/cloudflare.server";
+import { resolveWorkspace, type EventData } from "@/lib/data.functions";
 
 const tokenSchema = z.string().uuid();
 
@@ -13,82 +14,63 @@ function appOrigin() {
   return host ? (host.startsWith("http") ? host : `https://${host}`) : "https://offstories.fun";
 }
 
-export const getOrCreateInvitationLink = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const workspaceId = await resolveWorkspace(supabase, userId);
-    if (!workspaceId) throw new Error("No workspace found");
+function parseEvent(payload: string | null): EventData {
+  try {
+    return payload ? JSON.parse(payload) as EventData : { name: "", type: "", date: "", location: "", guestEstimate: 0, budget: 0 };
+  } catch {
+    return { name: "", type: "", date: "", location: "", guestEstimate: 0, budget: 0 };
+  }
+}
 
-    const { data: existing, error: existingError } = await supabase
-      .from("invitation_pages")
-      .select("token")
-      .eq("workspace_id", workspaceId)
-      .maybeSingle();
-    if (existingError) throw new Error(existingError.message);
-    if (existing && existing.token) {
+export const getOrCreateInvitationLink = createServerFn({ method: "POST" })
+  .middleware([requireCloudflareAuth])
+  .handler(async ({ context }) => {
+    const workspaceId = await resolveWorkspace(context.userId);
+    if (!workspaceId) throw new Error("No workspace found");
+    const database = getDatabase();
+    const existing = await database.prepare("SELECT token FROM invitation_pages WHERE workspace_id = ?").bind(workspaceId).first<{ token: string; revoked_at: string | null }>();
+    if (existing?.token) {
+      await database.prepare("UPDATE invitation_pages SET revoked_at = NULL WHERE workspace_id = ?").bind(workspaceId).run();
       return { token: existing.token, url: `${appOrigin()}/undangan/${existing.token}` };
     }
-
-    const { data: created, error } = await supabase
-      .from("invitation_pages")
-      .insert({ workspace_id: workspaceId })
-      .select("token")
-      .single();
-    if (error) throw new Error(error.message);
-    return { token: created.token, url: `${appOrigin()}/undangan/${created.token}` };
+    const token = randomId();
+    await database.prepare("INSERT INTO invitation_pages (id, workspace_id, token) VALUES (?, ?, ?)").bind(randomId(), workspaceId, token).run();
+    return { token, url: `${appOrigin()}/undangan/${token}` };
   });
 
 export const revokeInvitationLink = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
-    const workspaceId = await resolveWorkspace(context.supabase, context.userId);
+    const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
-    const { error } = await context.supabase
-      .from("invitation_pages")
-      .update({ revoked_at: new Date().toISOString() })
-      .eq("workspace_id", workspaceId);
-    if (error) throw new Error(error.message);
+    await getDatabase().prepare("UPDATE invitation_pages SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ?").bind(workspaceId).run();
     return { ok: true };
   });
 
 export const getInvitationPageStatus = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
-    const workspaceId = await resolveWorkspace(context.supabase, context.userId);
+    const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) return { exists: false as const };
-    const { data, error } = await context.supabase
-      .from("invitation_pages")
-      .select("token, revoked_at")
-      .eq("workspace_id", workspaceId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!data || data.revoked_at) return { exists: false };
-    return {
-      exists: true as const,
-      token: data.token,
-      url: `${appOrigin()}/undangan/${data.token}`,
-    };
+    const page = await getDatabase().prepare("SELECT token, revoked_at FROM invitation_pages WHERE workspace_id = ?").bind(workspaceId).first<{ token: string; revoked_at: string | null }>();
+    if (!page || page.revoked_at) return { exists: false as const };
+    return { exists: true as const, token: page.token, url: `${appOrigin()}/undangan/${page.token}` };
   });
 
 export const getPublicInvitation = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const { data: payload, error } = await supabase.rpc("get_invitation_page", {
-      p_token: data.token,
-    });
-    if (error) throw new Error(error.message);
-    if (!payload) throw new Error("This invitation link is not available.");
-    if (typeof payload === "object" && "revoked" in payload && payload.revoked) {
-      throw new Error("This invitation page has been turned off.");
-    }
-
-    const event = ((payload as { event?: Record<string, unknown> })?.event ?? {}) as EventData;
-    const workspaceName = (payload as { workspaceName?: string | null }).workspaceName ?? null;
-
+    const page = await getDatabase().prepare(
+      `SELECT invitation_pages.revoked_at, workspaces.name AS workspace_name, event.payload AS event_payload
+       FROM invitation_pages JOIN workspaces ON workspaces.id = invitation_pages.workspace_id
+       LEFT JOIN workspace_data AS event ON event.workspace_id = invitation_pages.workspace_id AND event.kind = 'event'
+       WHERE invitation_pages.token = ?`,
+    ).bind(data.token).first<{ revoked_at: string | null; workspace_name: string; event_payload: string | null }>();
+    if (!page) throw new Error("This invitation link is not available.");
+    if (page.revoked_at) throw new Error("This invitation page has been turned off.");
+    const event = parseEvent(page.event_payload);
     return {
-      workspaceName,
+      workspaceName: page.workspace_name ?? null,
       event: {
         name: event.name,
         type: event.type,

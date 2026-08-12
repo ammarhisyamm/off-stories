@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
 
 const reportSchema = z.object({
   source: z.string().max(120),
@@ -12,7 +12,7 @@ const reportSchema = z.object({
 });
 
 export const reportClientError = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .inputValidator((d) => reportSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { userId } = context;

@@ -1,348 +1,185 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { sendPartnerInviteEmail } from "@/lib/email";
+import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
+import { getCurrentUser, randomId } from "@/lib/auth.server";
+import { getDatabase } from "@/lib/cloudflare.server";
+import { resolveWorkspace } from "@/lib/data.functions";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const tokenSchema = z.string().uuid();
 
-function appOrigin(): string {
-  const req = getRequest();
-  const host = req?.headers?.get("host");
-  const forwarded = req?.headers?.get("x-forwarded-host");
-  if (host) return host.startsWith("http") ? host : `https://${host}`;
-  if (forwarded) return forwarded.startsWith("http") ? forwarded : `https://${forwarded}`;
-  return "https://offstories.fun";
+function appOrigin() {
+  const request = getRequest();
+  const host = request?.headers?.get("x-forwarded-host") ?? request?.headers?.get("host");
+  return host ? (host.startsWith("http") ? host : `https://${host}`) : "https://offstories.fun";
+}
+
+async function ownerWorkspace(userId: string) {
+  const workspaceId = await resolveWorkspace(userId);
+  if (!workspaceId) throw new Error("No workspace found");
+  return workspaceId;
+}
+
+async function activeInvite(workspaceId: string) {
+  return getDatabase()
+    .prepare(
+      `SELECT id, token, email, role, expires_at, created_at
+       FROM workspace_invites
+       WHERE workspace_id = ? AND accepted_at IS NULL AND revoked_at IS NULL
+       ORDER BY created_at DESC LIMIT 1`,
+    )
+    .bind(workspaceId)
+    .first<Record<string, string | null>>();
+}
+
+async function createInvite(userId: string, email: string | null) {
+  const workspaceId = await ownerWorkspace(userId);
+  const partner = await getDatabase()
+    .prepare("SELECT user_id FROM workspace_members WHERE workspace_id = ? AND user_id <> ? LIMIT 1")
+    .bind(workspaceId, userId)
+    .first();
+  if (partner) throw new Error("Your partner already joined this workspace.");
+  const existing = await activeInvite(workspaceId);
+  if (existing) throw new Error("An invitation is still pending. Cancel it first.");
+
+  const invite = {
+    id: randomId(),
+    token: randomId(),
+    expiresAt: new Date(Date.now() + 14 * 86400_000).toISOString(),
+  };
+  await getDatabase()
+    .prepare(
+      `INSERT INTO workspace_invites
+       (id, workspace_id, token, email, role, created_by, expires_at)
+       VALUES (?, ?, ?, ?, 'editor', ?, ?)`,
+    )
+    .bind(invite.id, workspaceId, invite.token, email, userId, invite.expiresAt)
+    .run();
+  return {
+    id: invite.id,
+    token: invite.token,
+    email,
+    role: "editor",
+    expires_at: invite.expiresAt,
+    created_at: new Date().toISOString(),
+    url: `${appOrigin()}/invite/${invite.token}`,
+  };
 }
 
 export const listInvites = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_id", userId)
-      .limit(1)
-      .maybeSingle();
-    if (!ws) return { invites: [], workspaceId: null as string | null };
-    const { data, error } = await supabase
-      .from("workspace_invites")
-      .select("id, token, email, role, created_at, expires_at, accepted_at, revoked_at")
-      .eq("workspace_id", ws.id)
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return { invites: data ?? [], workspaceId: ws.id };
+    const workspaceId = await ownerWorkspace(context.userId);
+    const rows = await getDatabase()
+      .prepare("SELECT id, token, email, role, created_at, expires_at, accepted_at, revoked_at FROM workspace_invites WHERE workspace_id = ? ORDER BY created_at DESC")
+      .bind(workspaceId)
+      .all();
+    return { invites: rows.results ?? [], workspaceId };
   });
 
 export const invitePartner = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ email: z.string() }).parse(d))
+  .middleware([requireCloudflareAuth])
+  .inputValidator((data) => z.object({ email: z.string().trim().email() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const email = data.email.trim().toLowerCase();
+    const email = data.email.toLowerCase();
     if (!EMAIL_RE.test(email)) throw new Error("Enter a valid email address.");
-
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id, name")
-      .eq("owner_id", userId)
-      .limit(1)
-      .maybeSingle();
-    if (!ws) throw new Error("No workspace found");
-
-    // Reject if a partner already joined.
-    const { data: partners } = await supabase
-      .from("workspace_members")
-      .select("user_id")
-      .eq("workspace_id", ws.id)
-      .neq("user_id", userId);
-    if ((partners ?? []).length > 0) {
-      throw new Error("Your partner already joined this workspace.");
-    }
-
-    // Reject if there's still an active invite.
-    const { data: active } = await supabase
-      .from("workspace_invites")
-      .select("id, email")
-      .eq("workspace_id", ws.id)
-      .is("accepted_at", null)
-      .is("revoked_at", null);
-    if ((active ?? []).length > 0) {
-      const existing = active?.[0];
-      throw new Error(
-        existing?.email
-          ? `An invitation is still pending for ${existing.email}. Cancel it first.`
-          : "An invitation is still pending. Cancel it first.",
-      );
-    }
-
-    const expires = new Date(Date.now() + 14 * 86400_000).toISOString();
-    const { data: invite, error } = await supabase
-      .from("workspace_invites")
-      .insert({
-        workspace_id: ws.id,
-        email,
-        role: "editor",
-        created_by: userId,
-        expires_at: expires,
-      })
-      .select("id, token, email, role, expires_at, created_at")
-      .single();
-    if (error) throw new Error(error.message);
-
-    await sendPartnerInviteEmail({
-      to: email,
-      workspaceName: ws.name,
-      inviteUrl: `${appOrigin()}/invite/${invite.token}`,
-    });
-
-    return invite;
+    return createInvite(context.userId, email);
   });
 
 export const createLinkInvite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_id", userId)
-      .limit(1)
-      .maybeSingle();
-    if (!ws) throw new Error("No workspace found");
-
-    // Reject if a partner already joined.
-    const { data: partners } = await supabase
-      .from("workspace_members")
-      .select("user_id")
-      .eq("workspace_id", ws.id)
-      .neq("user_id", userId);
-    if ((partners ?? []).length > 0) {
-      throw new Error("Your partner already joined this workspace.");
-    }
-
-    // Reject if there's still an active invite.
-    const { data: active } = await supabase
-      .from("workspace_invites")
-      .select("id, token, email")
-      .eq("workspace_id", ws.id)
-      .is("accepted_at", null)
-      .is("revoked_at", null);
-    if ((active ?? []).length > 0) {
-      const existing = active?.[0];
-      throw new Error(
-        existing?.email
-          ? `An invitation is still pending for ${existing.email}. Cancel it first.`
-          : "An invitation is still pending. Cancel it first.",
-      );
-    }
-
-    const expires = new Date(Date.now() + 14 * 86400_000).toISOString();
-    const { data: invite, error } = await supabase
-      .from("workspace_invites")
-      .insert({
-        workspace_id: ws.id,
-        email: null,
-        role: "editor",
-        created_by: userId,
-        expires_at: expires,
-      })
-      .select("id, token, email, role, expires_at, created_at")
-      .single();
-    if (error) throw new Error(error.message);
-
-    return { ...invite, url: `${appOrigin()}/invite/${invite.token}` };
-  });
+  .middleware([requireCloudflareAuth])
+  .handler(({ context }) => createInvite(context.userId, null));
 
 export const updateMemberRole = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
-    z.object({ userId: z.string().uuid(), role: z.enum(["viewer", "editor"]) }).parse(d),
-  )
+  .middleware([requireCloudflareAuth])
+  .inputValidator((data) => z.object({ userId: z.string().uuid(), role: z.enum(["viewer", "editor"]) }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_id", userId)
-      .limit(1)
-      .maybeSingle();
-    if (!ws) throw new Error("No workspace found");
-    const { error } = await supabase.rpc("update_member_role", {
-      p_workspace: ws.id,
-      p_user: data.userId,
-      p_role: data.role,
-    });
-    if (error) throw new Error(error.message);
+    const workspaceId = await ownerWorkspace(context.userId);
+    await getDatabase().prepare("UPDATE workspace_members SET role = ? WHERE workspace_id = ? AND user_id = ? AND user_id <> ?")
+      .bind(data.role, workspaceId, data.userId, context.userId).run();
     return { ok: true };
   });
 
 export const revokeInvite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .middleware([requireCloudflareAuth])
+  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("workspace_invites")
-      .update({ revoked_at: new Date().toISOString() })
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const workspaceId = await ownerWorkspace(context.userId);
+    await getDatabase().prepare("UPDATE workspace_invites SET revoked_at = CURRENT_TIMESTAMP WHERE id = ? AND workspace_id = ?")
+      .bind(data.id, workspaceId).run();
     return { ok: true };
   });
 
 export const getInvite = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ token: z.string().uuid() }).parse(d))
-  .handler(async ({ data: input, context }) => {
-    const { supabase, userId } = context;
-    const { data: inv, error } = await supabase
-      .from("workspace_invites")
-      .select("id, email, role, expires_at, accepted_at, revoked_at, workspace_id")
-      .eq("token", input.token)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!inv) throw new Error("Invite not found");
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("name")
-      .eq("id", inv.workspace_id)
-      .maybeSingle();
-    const { data: membership } = await supabase
-      .from("workspace_members")
-      .select("role")
-      .eq("workspace_id", inv.workspace_id)
-      .eq("user_id", userId)
-      .maybeSingle();
-    return {
-      ...inv,
-      workspaceName: ws?.name ?? "their wedding",
-      isMember: Boolean(membership),
-      memberRole: membership?.role ?? null,
-    };
-  });
-
-// The signed-in user (an invited editor, never the owner) drops their own
-// membership and points their active workspace back to their own account.
-export const leaveWorkspace = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ workspaceId: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("id", data.workspaceId)
-      .eq("owner_id", userId)
-      .maybeSingle();
-    if (ws) throw new Error("You own this workspace, so you can't leave it.");
-    const { error } = await supabase
-      .from("workspace_members")
-      .delete()
-      .eq("workspace_id", data.workspaceId)
-      .eq("user_id", userId);
-    if (error) throw new Error(error.message);
-    await supabase.from("profiles").update({ active_workspace_id: null }).eq("id", userId);
-    return { ok: true };
+  .inputValidator((data) => z.object({ token: tokenSchema }).parse(data))
+  .handler(async ({ data }) => {
+    const invite = await getDatabase().prepare(
+      `SELECT workspace_invites.id, workspace_invites.email, workspace_invites.role,
+              workspace_invites.expires_at, workspace_invites.accepted_at,
+              workspace_invites.revoked_at, workspace_invites.workspace_id,
+              workspaces.name AS workspace_name
+       FROM workspace_invites JOIN workspaces ON workspaces.id = workspace_invites.workspace_id
+       WHERE workspace_invites.token = ?`,
+    ).bind(data.token).first<Record<string, string | null>>();
+    if (!invite) throw new Error("Invite not found");
+    const user = await getCurrentUser();
+    const member = user ? await getDatabase().prepare("SELECT role FROM workspace_members WHERE workspace_id = ? AND user_id = ?")
+      .bind(invite.workspace_id, user.id).first<{ role: string }>() : null;
+    return { ...invite, workspaceName: invite.workspace_name ?? "their wedding", isMember: Boolean(member), memberRole: member?.role ?? null };
   });
 
 export const acceptInvite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ token: z.string().uuid() }).parse(d))
+  .middleware([requireCloudflareAuth])
+  .inputValidator((data) => z.object({ token: tokenSchema }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const { data: workspaceId, error } = await supabase.rpc("accept_workspace_invite", {
-      p_token: data.token,
-    });
-    if (error) throw new Error(error.message);
-    return { ok: true, workspaceId: workspaceId as string };
+    const database = getDatabase();
+    const invite = await database.prepare("SELECT id, workspace_id, role, email, expires_at, accepted_at, revoked_at FROM workspace_invites WHERE token = ?")
+      .bind(data.token).first<{ id: string; workspace_id: string; role: string; email: string | null; expires_at: string | null; accepted_at: string | null; revoked_at: string | null }>();
+    if (!invite || invite.revoked_at || invite.accepted_at || (invite.expires_at && new Date(invite.expires_at) <= new Date())) throw new Error("This invitation is no longer active.");
+    if (invite.email && invite.email.toLowerCase() !== context.user.email.toLowerCase()) throw new Error("This invitation was sent to a different email address.");
+    const owner = await database.prepare("SELECT owner_id FROM workspaces WHERE id = ?").bind(invite.workspace_id).first<{ owner_id: string }>();
+    if (owner?.owner_id === context.userId) throw new Error("You already own this workspace.");
+    await database.batch([
+      database.prepare("INSERT OR REPLACE INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)").bind(invite.workspace_id, context.userId, invite.role),
+      database.prepare("UPDATE workspace_invites SET accepted_at = CURRENT_TIMESTAMP, accepted_by = ? WHERE id = ?").bind(context.userId, invite.id),
+    ]);
+    return { ok: true, workspaceId: invite.workspace_id };
+  });
+
+export const leaveWorkspace = createServerFn({ method: "POST" })
+  .middleware([requireCloudflareAuth])
+  .inputValidator((data) => z.object({ workspaceId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const owner = await getDatabase().prepare("SELECT owner_id FROM workspaces WHERE id = ?").bind(data.workspaceId).first<{ owner_id: string }>();
+    if (owner?.owner_id === context.userId) throw new Error("You own this workspace, so you can't leave it.");
+    await getDatabase().prepare("DELETE FROM workspace_members WHERE workspace_id = ? AND user_id = ?").bind(data.workspaceId, context.userId).run();
+    return { ok: true };
   });
 
 export const removePartner = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .middleware([requireCloudflareAuth])
+  .inputValidator((data) => z.object({ userId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_id", userId)
-      .limit(1)
-      .maybeSingle();
-    if (!ws) throw new Error("No workspace found");
-    const { error } = await supabase.rpc("remove_workspace_partner", {
-      p_workspace: ws.id,
-      p_partner: data.userId,
-    });
-    if (error) throw new Error(error.message);
+    const workspaceId = await ownerWorkspace(context.userId);
+    await getDatabase().prepare("DELETE FROM workspace_members WHERE workspace_id = ? AND user_id = ?").bind(workspaceId, data.userId).run();
     return { ok: true };
   });
 
 export const listMembers = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data: owned } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_id", userId)
-      .limit(1)
-      .maybeSingle();
-    let workspaceId = owned?.id ?? null;
-    if (!workspaceId) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("active_workspace_id")
-        .eq("id", userId)
-        .maybeSingle();
-      workspaceId = profile?.active_workspace_id ?? null;
-    }
-    if (!workspaceId) {
-      return {
-        members: [],
-        role: null as string | null,
-        workspaceId: null as string | null,
-        workspaceName: null as string | null,
-        myId: userId,
-      };
-    }
-    const { data, error } = await supabase
-      .from("workspace_members")
-      .select(
-        "user_id, role, joined_at, profiles:profiles!workspace_members_user_id_fkey(display_name, email, avatar_url)",
-      )
-      .eq("workspace_id", workspaceId);
-    type MemberRow = {
-      user_id: string;
-      role: string;
-      joined_at: string;
-      profiles?: {
-        display_name: string | null;
-        email: string | null;
-        avatar_url: string | null;
-      } | null;
-    };
-    let members: MemberRow[] = (data ?? []) as unknown as MemberRow[];
-    if (error) {
-      // fallback: join manually
-      const { data: simple } = await supabase
-        .from("workspace_members")
-        .select("user_id, role, joined_at")
-        .eq("workspace_id", workspaceId);
-      members = (simple ?? []) as unknown as MemberRow[];
-    }
-    const my = (members as Array<{ user_id: string; role: string }>).find(
-      (m) => m.user_id === userId,
-    );
-    const { data: wsInfo } = await supabase
-      .from("workspaces")
-      .select("name")
-      .eq("id", workspaceId)
-      .maybeSingle();
-    return {
-      members,
-      role: my?.role ?? null,
-      workspaceId,
-      workspaceName: wsInfo?.name ?? null,
-      myId: userId,
-    };
+    let workspaceId = await resolveWorkspace(context.userId);
+    if (!workspaceId) workspaceId = (await getDatabase().prepare("SELECT workspace_id FROM workspace_members WHERE user_id = ? LIMIT 1").bind(context.userId).first<{ workspace_id: string }>())?.workspace_id ?? null;
+    if (!workspaceId) return { members: [], role: null, workspaceId: null, workspaceName: null, myId: context.userId };
+    const rows = await getDatabase().prepare(
+      `SELECT workspace_members.user_id, workspace_members.role, workspace_members.joined_at,
+              users.display_name, users.email, users.avatar_url
+       FROM workspace_members JOIN users ON users.id = workspace_members.user_id
+       WHERE workspace_members.workspace_id = ? ORDER BY workspace_members.joined_at`,
+    ).bind(workspaceId).all();
+    const members = (rows.results ?? []).map((row) => ({ ...row, profiles: { display_name: row.display_name, email: row.email, avatar_url: row.avatar_url } }));
+    const mine = members.find((member) => member.user_id === context.userId) as { role?: string } | undefined;
+    const workspace = await getDatabase().prepare("SELECT name FROM workspaces WHERE id = ?").bind(workspaceId).first<{ name: string }>();
+    return { members, role: mine?.role ?? null, workspaceId, workspaceName: workspace?.name ?? null, myId: context.userId };
   });

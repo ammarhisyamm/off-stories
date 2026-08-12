@@ -39,7 +39,7 @@ function Privacy() {
         <section>
           <h2 className="serif text-lg text-foreground mb-2">Where data lives</h2>
           <p>
-            Your data is stored securely with our hosting provider (Supabase). We do not sell your
+            Your data is stored securely with our Cloudflare-hosted services. We do not sell your
             data, and we do not use it for advertising.
           </p>
         </section>

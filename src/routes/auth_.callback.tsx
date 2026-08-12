@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getSessionUser } from "@/lib/auth.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { Sparkle } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/auth_/callback")({
@@ -9,26 +10,13 @@ export const Route = createFileRoute("/auth_/callback")({
 
 function AuthCallback() {
   const navigate = useNavigate();
+  const getSession = useServerFn(getSessionUser);
 
   useEffect(() => {
-    // Wait for Supabase to process the OAuth callback hash
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        navigate({ to: "/dashboard", replace: true });
-      }
+    getSession().then((user) => {
+      navigate({ to: user ? "/dashboard" : "/auth", replace: true });
     });
-
-    // Also check if we already have a session just in case the event fired before we mounted
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        navigate({ to: "/dashboard", replace: true });
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [navigate]);
+  }, [getSession, navigate]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">

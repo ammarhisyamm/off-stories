@@ -15,10 +15,11 @@ import {
 } from "@/components/sidebar-icons";
 import { BrandLogo } from "@/components/brand-logo";
 import { daysUntil } from "@/lib/types";
-import { supabase } from "@/integrations/supabase/client";
 import { getBrowserStorage } from "@/lib/browser-storage";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { ToastViewport } from "@/components/toast";
+import { getSessionUser, signOut as signOutFn } from "@/lib/auth.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 const primaryNav = [
   { to: "/dashboard", label: "Dashboard", Icon: SidebarHouse },
@@ -41,16 +42,15 @@ const weddingDayNav = [
 function useCurrentUser() {
   const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(null);
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        const meta = data.user.user_metadata ?? {};
+    getSessionUser().then((currentUser) => {
+      if (currentUser) {
         setUser({
-          name: meta.full_name || meta.name || data.user.email?.split("@")[0] || "You",
-          email: data.user.email ?? "",
-          avatar: meta.avatar_url,
+          name: currentUser.displayName,
+          email: currentUser.email,
+          avatar: currentUser.avatarUrl ?? undefined,
         });
       }
-    });
+    }).catch(() => {});
   }, []);
   return user;
 }
@@ -168,8 +168,9 @@ function UserFooter({
 }) {
   const user = useCurrentUser();
   const navigate = useNavigate();
+  const signOutRequest = useServerFn(signOutFn);
   async function signOut() {
-    await supabase.auth.signOut();
+    await signOutRequest();
     navigate({ to: "/auth", replace: true });
   }
   return (

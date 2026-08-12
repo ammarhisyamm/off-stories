@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 import { getBrowserStorage } from "@/lib/browser-storage";
 import { acceptInvite, getInvite, leaveWorkspace } from "@/lib/invites.functions";
+import { getSessionUser, signIn, signOut, signUp } from "@/lib/auth.functions";
 import { resetWorkspaceDataCache } from "@/lib/use-workspace-data";
 import { useServerFn } from "@tanstack/react-start";
-import { GoogleLogo, Envelope, WarningCircle, SignOut } from "@phosphor-icons/react";
+import { Envelope, WarningCircle, SignOut } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/invite/$token")({
   head: () => ({
@@ -17,7 +17,6 @@ export const Route = createFileRoute("/invite/$token")({
   component: InvitePage,
 });
 
-const OAUTH_TIMEOUT_MS = 30_000;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function InvitePage() {
@@ -26,6 +25,10 @@ function InvitePage() {
   const accept = useServerFn(acceptInvite);
   const get = useServerFn(getInvite);
   const leave = useServerFn(leaveWorkspace);
+  const sessionRequest = useServerFn(getSessionUser);
+  const signInRequest = useServerFn(signIn);
+  const signUpRequest = useServerFn(signUp);
+  const signOutRequest = useServerFn(signOut);
   const [status, setStatus] = useState<"idle" | "signing" | "accepting" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -35,7 +38,6 @@ function InvitePage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [workspaceName, setWorkspaceName] = useState<string | null>(null);
-  const [pendingSignupEmail, setPendingSignupEmail] = useState<string | null>(null);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [sessionName, setSessionName] = useState<string | null>(null);
   const [sessionAvatar, setSessionAvatar] = useState<string | null>(null);
@@ -45,41 +47,21 @@ function InvitePage() {
   const [inviteLoaded, setInviteLoaded] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
-
-  function clearOAuthTimer() {
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }
-
-  function applySession(
-    session: {
-      user: { email?: string | null; user_metadata?: Record<string, unknown> } | null;
-    } | null,
-  ) {
-    const u = session?.user;
-    const meta = (u?.user_metadata ?? {}) as {
-      full_name?: string | null;
-      name?: string | null;
-      avatar_url?: string | null;
-    };
-    setSessionEmail(u?.email ?? null);
-    setSessionName(meta.full_name || meta.name || u?.email?.split("@")[0] || null);
-    setSessionAvatar(meta.avatar_url ?? null);
+  function applySession(user: { email: string; displayName: string; avatarUrl: string | null } | null) {
+    setSessionEmail(user?.email ?? null);
+    setSessionName(user?.displayName ?? null);
+    setSessionAvatar(user?.avatarUrl ?? null);
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSignedIn(!!data.session);
-      applySession(data.session);
+    sessionRequest().then((user) => {
+      setSignedIn(Boolean(user));
+      applySession(user);
     });
-  }, []);
+  }, [sessionRequest]);
 
-  // Fetch invite metadata (addressed email + workspace name) when signed in.
+  // Invite metadata is public; account details are only used for membership actions.
   useEffect(() => {
-    if (!signedIn) return;
     let cancelled = false;
     get({ data: { token } })
       .then((inv) => {
@@ -99,47 +81,7 @@ function InvitePage() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signedIn, token]);
-
-  // Surface OAuth errors that land in the URL (e.g. cancelled consent).
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const oauthError = params.get("error") || params.get("error_description");
-    if (oauthError) setError(decodeURIComponent(oauthError));
-  }, []);
-
-  // When sign-in completes, this fires on the opener tab and lets the
-  // accept flow below run automatically. Signing out returns to the form.
-  useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        clearOAuthTimer();
-        setStatus("idle");
-        setError(null);
-        setSignedIn(true);
-        applySession(session);
-      } else if (event === "SIGNED_OUT") {
-        clearOAuthTimer();
-        setStatus("idle");
-        setError(null);
-        setNotice(null);
-        setSignedIn(false);
-        setSessionEmail(null);
-        setSessionName(null);
-        setSessionAvatar(null);
-        setIsMember(null);
-        setMemberRole(null);
-        setWorkspaceId(null);
-        setInviteLoaded(false);
-        setConfirmLeave(false);
-      }
-    });
-    return () => {
-      data.subscription.unsubscribe();
-      clearOAuthTimer();
-    };
-  }, []);
+  }, [get, token]);
 
   async function handleAccept() {
     setStatus("accepting");
@@ -159,9 +101,16 @@ function InvitePage() {
     setError(null);
     setNotice(null);
     try {
-      await supabase.auth.signOut();
+      await signOutRequest();
+      setStatus("idle");
+      setSignedIn(false);
+      applySession(null);
+      setIsMember(null);
+      setMemberRole(null);
+      setWorkspaceId(null);
+      setInviteLoaded(false);
     } catch {
-      // the SIGNED_OUT event resets the page state regardless
+      setError("Unable to sign out. Please try again.");
     }
   }
 
@@ -188,38 +137,6 @@ function InvitePage() {
     getBrowserStorage("session").setItem("pending_invite_token", token);
   }
 
-  async function handleGoogle() {
-    setStatus("signing");
-    setError(null);
-    setNotice(null);
-    storePendingToken();
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.href,
-          scopes: "openid email profile",
-        },
-      });
-      if (error) throw error;
-    } catch (e) {
-      getBrowserStorage("session").removeItem("pending_invite_token");
-      setStatus("error");
-      setError(
-        e instanceof Error && e.message !== "The operation was aborted."
-          ? e.message
-          : "Google sign-in couldn't start. Allow pop-ups for this site and try again.",
-      );
-      return;
-    }
-    // Watchdog: reset the button if the popup is blocked, cancelled, or closed.
-    timeoutRef.current = window.setTimeout(() => {
-      getBrowserStorage("session").removeItem("pending_invite_token");
-      setStatus("error");
-      setError("Sign-in is taking too long. Make sure the Google window opened, then try again.");
-    }, OAUTH_TIMEOUT_MS);
-  }
-
   async function handleEmail(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("signing");
@@ -240,31 +157,13 @@ function InvitePage() {
     storePendingToken();
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.href },
-        });
-        if (error) throw error;
-        if (!data.session) {
-          // Email confirmation is required; keep the message neutral.
-          setPendingSignupEmail(email);
-          setNotice(
-            "We've sent a confirmation link to your email. Confirm it, then open this invitation again — you'll be added automatically.",
-          );
-          setStatus("idle");
-          return;
-        }
+        const user = await signUpRequest({ data: { email, password } });
+        setSignedIn(true);
+        applySession({ ...user, avatarUrl: null });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            throw new Error(
-              "No account found for this email. Create one with the same email you were invited with, confirm it, then open this invite link again.",
-            );
-          }
-          throw error;
-        }
+        const user = await signInRequest({ data: { email, password } });
+        setSignedIn(true);
+        applySession({ ...user, avatarUrl: null });
       }
     } catch (err) {
       getBrowserStorage("session").removeItem("pending_invite_token");
@@ -388,24 +287,6 @@ function InvitePage() {
               )}
             </p>
 
-            <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="flex-1 h-px bg-border" aria-hidden />
-              or
-              <span className="flex-1 h-px bg-border" aria-hidden />
-            </div>
-
-            <button
-              onClick={handleGoogle}
-              disabled={status === "signing"}
-              className="w-full inline-flex items-center justify-center gap-3 rounded-md border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground hover:bg-surface-2 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <GoogleLogo
-                size={18}
-                weight="bold"
-                className={status === "signing" ? "animate-pulse" : undefined}
-              />
-              Continue with Google
-            </button>
           </div>
         )}
 
@@ -514,12 +395,7 @@ function InvitePage() {
           <p className="text-sm text-[color:var(--sage)]">Welcome aboard. Redirecting…</p>
         )}
 
-        {pendingSignupEmail && notice && (
-          <p className="mt-4 rounded-md border border-[color:var(--sage)]/30 bg-[color:var(--sage)]/10 px-3 py-2.5 text-xs text-[color:var(--sage)]">
-            {notice}
-          </p>
-        )}
-        {notice && !pendingSignupEmail && (
+        {notice && (
           <p className="mt-4 rounded-md border border-[color:var(--sage)]/30 bg-[color:var(--sage)]/10 px-3 py-2.5 text-xs text-[color:var(--sage)]">
             {notice}
           </p>

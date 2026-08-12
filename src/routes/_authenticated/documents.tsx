@@ -5,8 +5,9 @@ import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { DocRef } from "@/lib/types";
 import { useRef, useState } from "react";
 import { X, Trash, ArrowSquareOut, FileText, FolderOpen } from "@phosphor-icons/react";
-import { supabase } from "@/integrations/supabase/client";
 import { showToast } from "@/components/toast";
+import { uploadDocument } from "@/lib/document.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 const MAX_DOCUMENT_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -24,7 +25,8 @@ export const Route = createFileRoute("/_authenticated/documents")({
 });
 
 function Documents() {
-  const { data, setKind, workspaceId, canEdit } = useWorkspaceData();
+  const { data, setKind, canEdit } = useWorkspaceData();
+  const uploadDocumentFn = useServerFn(uploadDocument);
   const docs = data.documents as DocRef[];
   const [editingDoc, setEditingDoc] = useState<DocRef | null>(null);
   const [viewingDoc, setViewingDoc] = useState<DocRef | null>(null);
@@ -86,26 +88,19 @@ function Documents() {
         showToast("Choose a PDF or DOCX file up to 5 MB", "error");
         return;
       }
-      if (!workspaceId) {
-        showToast("Your workspace is not ready yet", "error");
-        setIsUploading(false);
-        return;
-      }
       setIsUploading(true);
-      const fileName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-      const uniqueId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
-      filePath = `${workspaceId}/${uniqueId}-${fileName}`;
-      const { error } = await supabase.storage.from("documents").upload(filePath, selectedFile, {
-        contentType: selectedFile.type,
-        upsert: false,
-      });
-      if (error) {
-        showToast(error.message || "Couldn't upload document", "error");
+      const uploadData = new FormData();
+      uploadData.set("file", selectedFile);
+      try {
+        const uploaded = await uploadDocumentFn({ data: uploadData });
+        filePath = uploaded.filePath;
+        fileMimeType = uploaded.mimeType;
+        fileSize = uploaded.size;
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : "Couldn't upload document", "error");
         setIsUploading(false);
         return;
       }
-      fileMimeType = selectedFile.type;
-      fileSize = selectedFile.size;
     }
 
     if (editingDoc) {
@@ -154,15 +149,7 @@ function Documents() {
       popup.location.href = doc.url;
       return;
     }
-    const { data: signed, error } = await supabase.storage
-      .from("documents")
-      .createSignedUrl(doc.filePath, 60 * 60);
-    if (error || !signed?.signedUrl) {
-      popup.close();
-      showToast("Couldn't open this document", "error");
-      return;
-    }
-    popup.location.href = signed.signedUrl;
+    popup.location.href = `/api/documents/${doc.filePath.split("/").map(encodeURIComponent).join("/")}`;
   };
 
   const handleDelete = (id: string) => {

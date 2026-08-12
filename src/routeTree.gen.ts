@@ -31,6 +31,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCommandCenterRouteImport } from './routes/_authenticated/command-center'
 import { Route as AuthenticatedChecklistRouteImport } from './routes/_authenticated/checklist'
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
+import { Route as ApiDocumentsSplatRouteImport } from './routes/api/documents/$'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -142,6 +143,11 @@ const AuthenticatedBudgetRoute = AuthenticatedBudgetRouteImport.update({
   path: '/budget',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiDocumentsSplatRoute = ApiDocumentsSplatRouteImport.update({
+  id: '/api/documents/$',
+  path: '/api/documents/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
+  '/api/documents/$': typeof ApiDocumentsSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
+  '/api/documents/$': typeof ApiDocumentsSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
+  '/api/documents/$': typeof ApiDocumentsSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
+    | '/api/documents/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
+    | '/api/documents/$'
   id:
     | '__root__'
     | '/'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
+    | '/api/documents/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   InviteTokenRoute: typeof InviteTokenRoute
   RsvpTokenRoute: typeof RsvpTokenRoute
   UndanganTokenRoute: typeof UndanganTokenRoute
+  ApiDocumentsSplatRoute: typeof ApiDocumentsSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -456,6 +469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBudgetRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/documents/$': {
+      id: '/api/documents/$'
+      path: '/api/documents/$'
+      fullPath: '/api/documents/$'
+      preLoaderRoute: typeof ApiDocumentsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -503,6 +523,7 @@ const rootRouteChildren: RootRouteChildren = {
   InviteTokenRoute: InviteTokenRoute,
   RsvpTokenRoute: RsvpTokenRoute,
   UndanganTokenRoute: UndanganTokenRoute,
+  ApiDocumentsSplatRoute: ApiDocumentsSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

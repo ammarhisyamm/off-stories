@@ -11,7 +11,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { supabase } from "@/integrations/supabase/client";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { reportClientError } from "@/lib/telemetry";
 import { useServerFn } from "@tanstack/react-start";
@@ -40,7 +39,6 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
-  const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -174,20 +172,6 @@ function RootComponent() {
       window.removeEventListener("unhandledrejection", onRejection);
     };
   }, [reportFn]);
-
-  useEffect(() => {
-    try {
-      const { data } = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-      });
-      return () => data.subscription.unsubscribe();
-    } catch (error) {
-      console.error("[Supabase] Auth listener unavailable", error);
-      return undefined;
-    }
-  }, [router, queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>

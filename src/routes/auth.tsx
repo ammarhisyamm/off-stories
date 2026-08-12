@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { GoogleLogo, WarningCircle } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { WarningCircle } from "@phosphor-icons/react";
+import { useServerFn } from "@tanstack/react-start";
 import { BrandLogo } from "@/components/brand-logo";
+import { getSessionUser, signIn, signUp } from "@/lib/auth.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -14,182 +15,35 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const OAUTH_TIMEOUT_MS = 30_000;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 function AuthPage() {
   const navigate = useNavigate();
+  const sessionUser = useServerFn(getSessionUser);
+  const signInFn = useServerFn(signIn);
+  const signUpFn = useServerFn(signUp);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const cooldownRef = useRef<number | null>(null);
-  const timeoutRef = useRef<number | null>(null);
-
-  function clearOAuthTimer() {
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }
-
-  function stopResendCooldown() {
-    if (cooldownRef.current) {
-      window.clearInterval(cooldownRef.current);
-      cooldownRef.current = null;
-    }
-    setResendCooldown(0);
-  }
-
-  function startResendCooldown(seconds = 60) {
-    stopResendCooldown();
-    setResendCooldown(seconds);
-    cooldownRef.current = window.setInterval(() => {
-      setResendCooldown((s) => {
-        if (s <= 1) {
-          if (cooldownRef.current) window.clearInterval(cooldownRef.current);
-          cooldownRef.current = null;
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
-  }
 
   useEffect(() => {
-    return () => {
-      stopResendCooldown();
-      clearOAuthTimer();
-    };
-  }, []);
+    sessionUser().then((user) => {
+      if (user) navigate({ to: "/dashboard", replace: true });
+    }).catch(() => {});
+  }, [navigate, sessionUser]);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
-    });
-  }, [navigate]);
-
-  // Surface OAuth errors that land in the URL (e.g. cancelled consent).
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const oauthError = params.get("error") || params.get("error_description");
-    if (oauthError) setError(decodeURIComponent(oauthError));
-  }, []);
-
-  // If sign-in completes (via popup message), reset the button state.
-  useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        clearOAuthTimer();
-        setLoading(false);
-        setError(null);
-        navigate({ to: "/dashboard" });
-      }
-    });
-    return () => {
-      data.subscription.unsubscribe();
-      clearOAuthTimer();
-    };
-  }, [navigate]);
-
-  async function handleGoogle() {
-    setLoading(true);
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError(null);
-    setNotice(null);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin + "/auth/callback",
-          scopes: "openid email profile",
-        },
-      });
-      if (error) throw error;
-    } catch (e) {
-      setError(
-        e instanceof Error && e.message !== "The operation was aborted."
-          ? e.message
-          : "Google sign-in couldn't start. Allow pop-ups for this site and try again.",
-      );
-      setLoading(false);
-      return;
-    }
-    // Watchdog: if the popup is blocked, cancelled, or closed before finishing,
-    // reset the button so the user can retry instead of staying stuck.
-    timeoutRef.current = window.setTimeout(() => {
-      setLoading(false);
-      setError("Sign-in is taking too long. Make sure the Google window opened, then try again.");
-    }, OAUTH_TIMEOUT_MS);
-  }
-
-  async function handleEmail(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setNotice(null);
-    if (!EMAIL_RE.test(email)) {
-      setError("Enter a valid email address.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin + "/auth" },
-        });
-        if (error) throw error;
-        if (!data.session) {
-          // Supabase intentionally does not reveal whether the account already
-          // exists (anti-enumeration), so keep the message neutral.
-          setNotice(
-            "We've sent a confirmation link to your email if this is a new account. Check your inbox and spam, then sign in.",
-          );
-          setPendingEmail(email);
-          startResendCooldown(60);
-        } else {
-          navigate({ to: "/dashboard" });
-        }
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
-    } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      setError(message === "Invalid login credentials" ? "Incorrect email or password." : message);
+      const action = mode === "signup" ? signUpFn : signInFn;
+      await action({ data: { email, password } });
+      navigate({ to: "/dashboard", replace: true });
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "We couldn't sign you in. Please try again.");
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleResend() {
-    if (!pendingEmail || resendCooldown > 0) return;
-    setError(null);
-    try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email: pendingEmail,
-        options: { emailRedirectTo: window.location.origin + "/auth" },
-      });
-      if (error) throw error;
-      setNotice("Confirmation link sent again. Check your inbox (and spam) for the latest one.");
-      startResendCooldown(60);
-    } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      setError(
-        message.toLowerCase().includes("rate")
-          ? "You're sending too many emails. Please wait a bit and try again."
-          : message,
-      );
     }
   }
 
@@ -208,130 +62,28 @@ function AuthPage() {
           </p>
         </div>
 
-        <form onSubmit={handleEmail} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Email</span>
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              required
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-            />
+            <input type="email" name="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary" />
           </label>
           <label className="block">
             <span className="block text-sm font-medium mb-1.5">Password</span>
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              minLength={8}
-              required
-              className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
-            />
+            <input type="password" name="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={mode === "signup" ? "new-password" : "current-password"} minLength={8} required className="w-full rounded-md border border-border bg-surface-2 px-3 py-2 text-base sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary" />
           </label>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" disabled={loading} className="w-full rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60">
             {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
 
-        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="flex-1 h-px bg-border" aria-hidden />
-          or
-          <span className="flex-1 h-px bg-border" aria-hidden />
-        </div>
-
-        <button
-          onClick={handleGoogle}
-          disabled={loading}
-          className="w-full inline-flex items-center justify-center gap-3 rounded-md border border-border bg-surface px-4 py-3 text-sm font-medium text-foreground hover:bg-surface-2 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <GoogleLogo size={18} weight="bold" className={loading ? "animate-pulse" : undefined} />
-          Continue with Google
-        </button>
-
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          {mode === "signin" ? (
-            <>
-              New here?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signup");
-                  setError(null);
-                  setNotice(null);
-                  setPendingEmail(null);
-                  stopResendCooldown();
-                }}
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                Create an account
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("signin");
-                  setError(null);
-                  setNotice(null);
-                  setPendingEmail(null);
-                  stopResendCooldown();
-                }}
-                className="underline underline-offset-2 hover:text-foreground"
-              >
-                Sign in
-              </button>
-            </>
-          )}
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          {mode === "signin" ? "New here? " : "Already have an account? "}
+          <button type="button" onClick={() => { setMode((current) => current === "signin" ? "signup" : "signin"); setError(null); }} className="underline underline-offset-2 hover:text-foreground">
+            {mode === "signin" ? "Create an account" : "Sign in"}
+          </button>
         </p>
-
-        {notice && (
-          <div className="mt-4 rounded-md border border-[color:var(--sage)]/30 bg-[color:var(--sage)]/10 px-3 py-2.5 text-xs text-[color:var(--sage)]">
-            <p>{notice}</p>
-            {pendingEmail && (
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={resendCooldown > 0}
-                className="mt-2 underline underline-offset-2 hover:text-foreground disabled:no-underline disabled:opacity-50"
-              >
-                {resendCooldown > 0
-                  ? `Resend confirmation link (${resendCooldown}s)`
-                  : "Resend confirmation link"}
-              </button>
-            )}
-          </div>
-        )}
-        {error && (
-          <div
-            role="alert"
-            className="mt-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-left text-xs text-destructive"
-          >
-            <WarningCircle size={15} className="mt-0.5 shrink-0" weight="fill" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-muted-foreground">
-          <Link to="/privacy" className="hover:text-foreground transition-colors">
-            Privacy
-          </Link>
-          <span aria-hidden>·</span>
-          <Link to="/terms" className="hover:text-foreground transition-colors">
-            Terms
-          </Link>
-        </div>
+        {error && <div role="alert" className="mt-4 flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-left text-xs text-destructive"><WarningCircle size={15} className="mt-0.5 shrink-0" weight="fill" /><span>{error}</span></div>}
+        <div className="mt-6 flex items-center justify-center gap-4 text-xs text-muted-foreground"><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link><span aria-hidden>·</span><Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link></div>
       </div>
     </div>
   );
