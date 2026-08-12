@@ -5,7 +5,7 @@ import { getDatabase } from "@/lib/cloudflare.server";
 const SESSION_COOKIE = "offstories_session";
 const GOOGLE_STATE_COOKIE = "offstories_google_state";
 const SESSION_DAYS = 30;
-const PASSWORD_ITERATIONS = 250_000;
+const PASSWORD_ITERATIONS = 100_000;
 
 export type AuthUser = {
   id: string;
@@ -30,7 +30,9 @@ function fromBase64(value: string) {
 }
 
 async function digest(value: string) {
-  return toBase64(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value))));
+  return toBase64(
+    new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value))),
+  );
 }
 
 async function derivePassword(password: string, salt: Uint8Array) {
@@ -78,7 +80,8 @@ export async function verifyPassword(password: string, encoded: string | null) {
   const expected = fromBase64(hashValue);
   if (candidate.byteLength !== expected.byteLength) return false;
   let difference = 0;
-  for (let index = 0; index < candidate.byteLength; index += 1) difference |= candidate[index] ^ expected[index];
+  for (let index = 0; index < candidate.byteLength; index += 1)
+    difference |= candidate[index] ^ expected[index];
   return difference === 0;
 }
 
@@ -138,7 +141,8 @@ export function createGoogleAuthorizationUrl() {
 export async function completeGoogleAuthorization(code: string, state: string) {
   const expectedState = getCookie(GOOGLE_STATE_COOKIE);
   deleteCookie(GOOGLE_STATE_COOKIE, { path: "/" });
-  if (!expectedState || expectedState !== state) throw new Error("Google sign-in session expired. Please try again.");
+  if (!expectedState || expectedState !== state)
+    throw new Error("Google sign-in session expired. Please try again.");
 
   const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = googleConfig();
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -153,20 +157,21 @@ export async function completeGoogleAuthorization(code: string, state: string) {
     }),
   });
   if (!tokenResponse.ok) throw new Error("Google sign-in could not be completed.");
-  const tokenPayload = await tokenResponse.json() as { access_token?: string };
+  const tokenPayload = (await tokenResponse.json()) as { access_token?: string };
   if (!tokenPayload.access_token) throw new Error("Google did not return an access token.");
 
   const profileResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
     headers: { authorization: `Bearer ${tokenPayload.access_token}` },
   });
   if (!profileResponse.ok) throw new Error("Google profile could not be verified.");
-  const profile = await profileResponse.json() as {
+  const profile = (await profileResponse.json()) as {
     email?: string;
     email_verified?: boolean;
     name?: string;
     picture?: string;
   };
-  if (!profile.email || !profile.email_verified) throw new Error("Google account email is not verified.");
+  if (!profile.email || !profile.email_verified)
+    throw new Error("Google account email is not verified.");
 
   const database = getDatabase();
   const email = profile.email.toLowerCase();
@@ -176,8 +181,14 @@ export async function completeGoogleAuthorization(code: string, state: string) {
     .first<{ id: string }>();
   if (existing) {
     await database
-      .prepare("UPDATE users SET display_name = ?, avatar_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-      .bind(profile.name?.trim() || email.split("@")[0] || "You", profile.picture ?? null, existing.id)
+      .prepare(
+        "UPDATE users SET display_name = ?, avatar_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      )
+      .bind(
+        profile.name?.trim() || email.split("@")[0] || "You",
+        profile.picture ?? null,
+        existing.id,
+      )
       .run();
     await createSession(existing.id);
     return { id: existing.id, email };
@@ -188,7 +199,12 @@ export async function completeGoogleAuthorization(code: string, state: string) {
   await database.batch([
     database
       .prepare("INSERT INTO users (id, email, display_name, avatar_url) VALUES (?, ?, ?, ?)")
-      .bind(userId, email, profile.name?.trim() || email.split("@")[0] || "You", profile.picture ?? null),
+      .bind(
+        userId,
+        email,
+        profile.name?.trim() || email.split("@")[0] || "You",
+        profile.picture ?? null,
+      ),
     database
       .prepare("INSERT INTO workspaces (id, name, owner_id) VALUES (?, ?, ?)")
       .bind(workspaceId, "My Wedding", userId),
@@ -201,7 +217,10 @@ export async function completeGoogleAuthorization(code: string, state: string) {
 }
 
 export async function createSession(userId: string) {
-  const token = toBase64(crypto.getRandomValues(new Uint8Array(32))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+  const token = toBase64(crypto.getRandomValues(new Uint8Array(32)))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
   await getDatabase()
     .prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)")
@@ -239,7 +258,10 @@ export async function requireCurrentUser() {
 export async function destroySession() {
   const token = getCookie(SESSION_COOKIE);
   if (token) {
-    await getDatabase().prepare("DELETE FROM sessions WHERE id = ?").bind(await digest(token)).run();
+    await getDatabase()
+      .prepare("DELETE FROM sessions WHERE id = ?")
+      .bind(await digest(token))
+      .run();
   }
   deleteCookie(SESSION_COOKIE, { path: "/" });
 }
