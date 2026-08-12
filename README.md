@@ -122,24 +122,24 @@ Database migrations live in `cloudflare/migrations/`. Apply them with `npx wrang
 
 The app is configured for Cloudflare Pages in `vite.config.ts` (Nitro `cloudflare-pages` preset). The build emits static assets to `dist/` plus a single `dist/_worker.js` Pages Function that runs the TanStack Start server on Cloudflare Workers.
 
-### Cloudflare Pages (dashboard / Git integration)
+### Cloudflare Pages + GitHub Actions
 
-1. In the Cloudflare dashboard, create a new Pages project linked to this repo (or use Direct Upload).
-2. Set the build command to `npm run build` and build output directory to `dist`.
+1. In the Cloudflare dashboard, keep the Pages project on Direct Upload so GitHub Actions remains the single deploy path.
+2. No Cloudflare dashboard build command is needed for production deploys; GitHub Actions runs `npm run build` and uploads the `dist` directory directly to Pages.
 3. Add the D1 binding `DB` and R2 bucket binding `DOCUMENTS` in Settings > Bindings. Use the database `off-stories` and bucket `off-stories-documents`.
 4. Add `RESEND_API_KEY` only if email invites are enabled.
 5. Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` as encrypted Cloudflare Pages secrets.
 6. In Google Cloud Console, add `https://offstories.fun/auth/callback` as an authorized redirect URI.
-7. Deploy the `main` branch. Every push can trigger a new deployment when Git integration is enabled.
+7. The GitHub Actions workflow in `.github/workflows/deploy-cloudflare.yml` builds the app and deploys to Cloudflare Pages with `cloudflare/wrangler-action@v3`, which also reports the deployment back to GitHub.
 
-### Wrangler CLI (alternative)
+### Wrangler CLI
 
 ```bash
 npm run build
 npx wrangler pages deploy dist --project-name off-stories
 ```
 
-Environment variables (including `RESEND_API_KEY`) must be set for the Pages project — either in the dashboard or as a local `.dev.vars` file (gitignored) for `wrangler pages dev`.
+Use Wrangler directly for manual deploys or local smoke tests. Environment variables (including `RESEND_API_KEY`) must be set for the Pages project — either in the dashboard or as a local `.dev.vars` file (gitignored) for `wrangler pages dev`.
 
 ## Contributing
 
