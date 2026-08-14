@@ -67,11 +67,11 @@ const TOTAL = testimonials.length;
 
 function Stars() {
   return (
-    <div className="flex items-center gap-0.5 text-[#E8A33D]" aria-label="Rated 5 out of 5">
+    <span role="img" aria-label="Rated 5 out of 5" className="flex items-center gap-0.5 text-[#E8A33D]">
       {Array.from({ length: 5 }).map((_, i) => (
         <Star key={i} size={14} weight="fill" />
       ))}
-    </div>
+    </span>
   );
 }
 
@@ -87,7 +87,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
       </blockquote>
       <figcaption className="mt-6 flex items-center gap-3">
         <span
-          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold ${t.avatarClass}`}
+          className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-foreground ${t.avatarClass}`}
         >
           {t.initials}
         </span>
@@ -248,14 +248,14 @@ export function TestimonialsCarousel() {
       <button
         onClick={prev}
         aria-label="Previous testimonials"
-        className="absolute left-2 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-border bg-white/90 text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.05)] backdrop-blur transition hover:bg-surface-2 active:scale-95"
+        className="absolute left-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-white/90 text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.05)] backdrop-blur transition hover:bg-surface-2 active:scale-95"
       >
         <ArrowLeft size={16} />
       </button>
       <button
         onClick={next}
         aria-label="Next testimonials"
-        className="absolute right-2 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full border border-border bg-white/90 text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.05)] backdrop-blur transition hover:bg-surface-2 active:scale-95"
+        className="absolute right-2 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-border bg-white/90 text-foreground shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.05)] backdrop-blur transition hover:bg-surface-2 active:scale-95"
       >
         <ArrowRight size={16} />
       </button>
@@ -266,10 +266,15 @@ export function TestimonialsCarousel() {
             key={i}
             onClick={() => goToDot(i)}
             aria-label={`Go to testimonial ${i + 1}`}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === realIndex ? "w-6 bg-foreground" : "w-2 bg-border hover:bg-muted"
-            }`}
-          />
+            aria-current={i === realIndex ? "true" : undefined}
+            className="grid h-8 w-8 place-items-center rounded-full transition-colors duration-200"
+          >
+            <span
+              className={`block rounded-full transition-all duration-300 ${
+                i === realIndex ? "h-2 w-7 bg-foreground" : "h-2.5 w-2.5 bg-border hover:bg-muted"
+              }`}
+            />
+          </button>
         ))}
       </div>
     </div>

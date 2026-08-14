@@ -80,13 +80,13 @@ export function DashboardPreview() {
         <Sidebar />
         <div className="min-w-0 flex-1">
           <div className="border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
-            <div className="eyebrow mb-1 text-[10px]">
+            <div className="eyebrow mb-1 text-[10px] text-foreground/85">
               {event.type} · {event.location}
             </div>
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="serif text-base text-foreground">
+              <p className="text-base font-medium leading-tight text-foreground">
                 {daysUntil(event.date)} days to {event.name}
-              </h3>
+              </p>
               <span className="rounded-md bg-primary px-2 py-1 text-[9px] font-medium text-primary-foreground">
                 + Add task
               </span>
@@ -128,7 +128,7 @@ export function DashboardPreview() {
                   <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-foreground">
                     This week
                   </span>
-                  <span className="text-[10px] text-sage">3 due</span>
+                  <span className="text-[10px] text-foreground/85">3 due</span>
                 </div>
                 <div className="divide-y divide-border">
                   {urgent.map((t) => (
