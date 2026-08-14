@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://offstories.fun/</loc>
+    <loc>https://offstories.fun</loc>
     <lastmod>2026-08-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -31,6 +31,66 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://offstories.fun/blog/categories/planning-budget</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/categories/vendor-venue</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/categories/tradisi-adat</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/categories/dekorasi-konsep</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/categories/fashion-prewedding</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/categories/acara-tamu</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/categories/relationship-wellbeing</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/checklist-12-bulan-sebelum-nikah</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/nikah-jakarta-budget-50-juta</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/panduan-adat-pernikahan-jawa</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://offstories.fun/blog/budget-pernikahan-indonesia</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -55,39 +115,81 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://offstories.fun/blog/checklist-12-bulan-sebelum-nikah</loc>
+    <loc>https://offstories.fun/blog/cara-negosiasi-harga-vendor</loc>
     <lastmod>2026-08-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://offstories.fun/blog/categories/budget</loc>
-    <lastmod>2026-08-14</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://offstories.fun/blog/interview-vendor-katering</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://offstories.fun/blog/categories/seserahan</loc>
-    <lastmod>2026-08-14</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://offstories.fun/blog/rundown-resepsi-wedding-4-jam</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://offstories.fun/blog/categories/planning</loc>
-    <lastmod>2026-08-14</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://offstories.fun/blog/tema-wedding-minimalis-2025</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://offstories.fun/blog/categories/guests</loc>
-    <lastmod>2026-08-14</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://offstories.fun/blog/skincare-6-bulan-sebelum-wedding</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://offstories.fun/blog/categories/timeline</loc>
+    <loc>https://offstories.fun/blog/tips-pose-natural-prewedding</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/cincin-titanium-vs-emas</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/burnout-pre-wedding</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/nikah-adat-vs-nikah-sipil</loc>
+    <lastmod>2026-08-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/tips-memilih-venue-wedding</loc>
     <lastmod>2026-08-14</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/palet-warna-wedding-2026</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/komunikasi-pasangan-soal-budget</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://offstories.fun/blog/games-tamu-wedding</loc>
+    <lastmod>2026-08-14</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 </urlset>
