@@ -224,7 +224,7 @@ function BlogPostPage() {
   };
 
   return (
-    <PublicPage>
+    <PublicPage wide>
       <ReadingProgress />
       <script
         type="application/ld+json"
@@ -237,7 +237,7 @@ function BlogPostPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
 
-      <div className="grid gap-10 lg:grid-cols-[240px_1fr]">
+      <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
         <aside className="hidden lg:block">
           <div className="sticky top-8 space-y-6">
             <nav className="rounded-[22px] border border-border bg-surface p-5">
@@ -261,7 +261,7 @@ function BlogPostPage() {
           </div>
         </aside>
 
-        <article className="mx-auto max-w-3xl min-w-0">
+        <article className="min-w-0">
           <Link
             to="/blog"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -270,7 +270,7 @@ function BlogPostPage() {
             Kembali ke blog
           </Link>
 
-          <header className="mt-6 border-b border-border pb-8">
+          <header className="mx-auto mt-6 max-w-4xl border-b border-border pb-8">
             <Link
               to="/blog/categories/$slug"
               params={{ slug: post.categoryId }}
@@ -305,7 +305,7 @@ function BlogPostPage() {
             </div>
           </header>
 
-          <div className="mt-8">
+          <div className="mx-auto mt-8 max-w-3xl">
             <div className={`${sizeClass} space-y-8 leading-relaxed text-foreground/85`}>
               <p>{post.intro}</p>
 
@@ -383,106 +383,102 @@ function BlogPostPage() {
             <section className="mt-8">
               <HelpfulFeedback />
             </section>
-
-            <section className="mt-8 rounded-[24px] border border-border bg-surface p-6">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="eyebrow">Baca Juga</div>
-                  <h2 className="serif mt-2 text-2xl text-foreground">Artikel terkait.</h2>
-                </div>
-                <Link
-                  to="/auth"
-                  className="rounded-[14px] border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
-                >
-                  Buka workspace
-                </Link>
-              </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                {relatedPosts.length ? (
-                  relatedPosts.map((related) => (
-                    <Link
-                      key={related.slug}
-                      to="/blog/$slug"
-                      params={{ slug: related.slug }}
-                      className="rounded-[20px] border border-border bg-background p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white"
-                    >
-                      <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                        {getCategoryLabel(related)}
-                      </div>
-                      <h3 className="serif mt-3 text-lg text-balance text-foreground">
-                        {related.title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        {related.excerpt}
-                      </p>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="rounded-[20px] border border-border bg-background p-5 text-sm text-muted-foreground">
-                    Artikel lain sedang segera hadir.
-                  </div>
-                )}
-              </div>
-            </section>
-
-            {(previous || next) && (
-              <nav className="mt-8 grid gap-4 sm:grid-cols-2">
-                {previous ? (
-                  <Link
-                    to="/blog/$slug"
-                    params={{ slug: previous.slug }}
-                    className="group rounded-[20px] border border-border bg-white p-5 transition duration-150 hover:-translate-y-0.5 hover:shadow-soft"
-                  >
-                    <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                      <ArrowLeft size={14} />
-                      Artikel sebelumnya
-                    </div>
-                    <div className="serif mt-2 text-base text-foreground group-hover:text-primary">
-                      {previous.title}
-                    </div>
-                  </Link>
-                ) : (
-                  <span className="hidden sm:block" />
-                )}
-                {next ? (
-                  <Link
-                    to="/blog/$slug"
-                    params={{ slug: next.slug }}
-                    className="group rounded-[20px] border border-border bg-white p-5 text-right transition duration-150 hover:-translate-y-0.5 hover:shadow-soft"
-                  >
-                    <div className="flex items-center justify-end gap-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                      Artikel berikutnya
-                      <ArrowRight size={14} />
-                    </div>
-                    <div className="serif mt-2 text-base text-foreground group-hover:text-primary">
-                      {next.title}
-                    </div>
-                  </Link>
-                ) : (
-                  <span className="hidden sm:block" />
-                )}
-              </nav>
-            )}
-
-            <section className="mt-8 overflow-hidden rounded-[32px] bg-primary p-8 text-primary-foreground shadow-soft sm:p-10">
-              <h2 className="serif text-3xl text-balance">
-                Mau planning wedding lebih terorganisir?
-              </h2>
-              <p className="mt-4 max-w-xl text-base leading-relaxed opacity-90">
-                Coba OffStories dashboard gratis — kelola budget, checklist, dan vendor dalam satu
-                tempat untuk hari yang lebih tenang.
-              </p>
-              <Link
-                to="/auth"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-primary transition duration-150 hover:opacity-90 active:scale-[0.98]"
-              >
-                Coba Gratis Sekarang
-                <ArrowRight weight="bold" size={16} />
-              </Link>
-            </section>
           </div>
         </article>
       </div>
+
+      <section className="rounded-[24px] border border-border bg-surface p-6 sm:p-8">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="eyebrow">Baca Juga</div>
+            <h2 className="serif mt-2 text-2xl text-foreground">Artikel terkait.</h2>
+          </div>
+          <Link
+            to="/auth"
+            className="rounded-[14px] border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+          >
+            Buka workspace
+          </Link>
+        </div>
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
+          {relatedPosts.length ? (
+            relatedPosts.map((related) => (
+              <Link
+                key={related.slug}
+                to="/blog/$slug"
+                params={{ slug: related.slug }}
+                className="rounded-[20px] border border-border bg-background p-6 transition duration-150 hover:-translate-y-0.5 hover:bg-white"
+              >
+                <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                  {getCategoryLabel(related)}
+                </div>
+                <h3 className="serif mt-3 text-lg text-balance text-foreground">{related.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {related.excerpt}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <div className="rounded-[20px] border border-border bg-background p-5 text-sm text-muted-foreground">
+              Artikel lain sedang segera hadir.
+            </div>
+          )}
+        </div>
+      </section>
+
+      {previous || next ? (
+        <nav className="mt-8 grid gap-6 sm:grid-cols-2">
+          {previous ? (
+            <Link
+              to="/blog/$slug"
+              params={{ slug: previous.slug }}
+              className="group rounded-[20px] border border-border bg-white p-6 transition duration-150 hover:-translate-y-0.5 hover:shadow-soft"
+            >
+              <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                <ArrowLeft size={14} />
+                Artikel sebelumnya
+              </div>
+              <div className="serif mt-2 text-base text-foreground group-hover:text-primary">
+                {previous.title}
+              </div>
+            </Link>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          {next ? (
+            <Link
+              to="/blog/$slug"
+              params={{ slug: next.slug }}
+              className="group rounded-[20px] border border-border bg-white p-6 text-right transition duration-150 hover:-translate-y-0.5 hover:shadow-soft"
+            >
+              <div className="flex items-center justify-end gap-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                Artikel berikutnya
+                <ArrowRight size={14} />
+              </div>
+              <div className="serif mt-2 text-base text-foreground group-hover:text-primary">
+                {next.title}
+              </div>
+            </Link>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+        </nav>
+      ) : null}
+
+      <section className="mt-8 overflow-hidden rounded-[32px] bg-primary p-8 text-primary-foreground shadow-soft sm:p-10">
+        <h2 className="serif text-3xl text-balance">Mau planning wedding lebih terorganisir?</h2>
+        <p className="mt-4 max-w-xl text-base leading-relaxed opacity-90">
+          Coba OffStories dashboard gratis — kelola budget, checklist, dan vendor dalam satu tempat
+          untuk hari yang lebih tenang.
+        </p>
+        <Link
+          to="/auth"
+          className="mt-7 inline-flex items-center gap-2 rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-primary transition duration-150 hover:opacity-90 active:scale-[0.98]"
+        >
+          Coba Gratis Sekarang
+          <ArrowRight weight="bold" size={16} />
+        </Link>
+      </section>
 
       <script type="application/ld+json" />
     </PublicPage>

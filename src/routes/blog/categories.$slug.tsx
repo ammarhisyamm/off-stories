@@ -121,7 +121,7 @@ function BlogCategoryPage() {
   };
 
   return (
-    <PublicPage>
+    <PublicPage wide>
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
@@ -155,10 +155,10 @@ function BlogCategoryPage() {
           </div>
         </section>
 
-        <div className="grid gap-10 lg:grid-cols-[1fr_280px]">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-8">
           <div>
             {posts.length ? (
-              <section className="grid gap-4 md:grid-cols-2">
+              <section className="grid gap-6 md:grid-cols-2">
                 {posts.map((post) => (
                   <article
                     key={post.slug}

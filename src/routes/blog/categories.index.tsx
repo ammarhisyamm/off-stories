@@ -33,7 +33,7 @@ function BlogCategoriesPage() {
   );
 
   return (
-    <PublicPage>
+    <PublicPage wide>
       <div className="space-y-10">
         <section className="max-w-3xl border-b border-border pb-8">
           <div className="eyebrow mb-4">Blog categories</div>
@@ -46,7 +46,7 @@ function BlogCategoriesPage() {
           </p>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {blogCategories.map((category) => (
             <Link
               key={category.slug}

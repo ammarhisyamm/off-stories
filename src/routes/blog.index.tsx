@@ -99,7 +99,7 @@ function BlogIndex() {
   const latest = getLatestBlogPosts(6);
 
   return (
-    <PublicPage>
+    <PublicPage wide>
       <div className="space-y-16">
         <section className="border-b border-border pb-10 text-center">
           <h1 className="serif text-4xl text-balance text-foreground sm:text-5xl">
@@ -125,7 +125,7 @@ function BlogIndex() {
               Mulai dari tiga panduan yang paling banyak dicari.
             </h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {featured.map((post) => (
               <Link
                 key={post.slug}
@@ -165,7 +165,7 @@ function BlogIndex() {
               Panduan yang bisa dibaca sesuai kebutuhan.
             </h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {latest.map((post) => (
               <article
                 key={post.slug}

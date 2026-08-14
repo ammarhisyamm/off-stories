@@ -2,10 +2,11 @@ import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { BrandLogo } from "@/components/brand-logo";
 
-export function PublicHeader() {
+export function PublicHeader({ wide = false }: { wide?: boolean }) {
+  const width = wide ? "max-w-[1400px] px-6 lg:px-10" : "max-w-4xl px-6";
   return (
     <header className="border-b border-border bg-white/85 backdrop-blur-md">
-      <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
+      <div className={`${width} mx-auto py-5 flex items-center justify-between gap-4`}>
         <Link to="/" className="text-foreground">
           <BrandLogo />
         </Link>
@@ -40,10 +41,13 @@ export function PublicHeader() {
   );
 }
 
-export function PublicFooter() {
+export function PublicFooter({ wide = false }: { wide?: boolean }) {
+  const width = wide ? "max-w-[1400px] px-6 lg:px-10" : "max-w-4xl px-6";
   return (
     <footer className="border-t border-border mt-16">
-      <div className="max-w-4xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
+      <div
+        className={`${width} mx-auto py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground`}
+      >
         <div>offstories, one calm place for planning your wedding.</div>
         <nav className="flex items-center gap-4">
           <Link to="/blog" className="hover:text-foreground transition-colors">
@@ -61,12 +65,13 @@ export function PublicFooter() {
   );
 }
 
-export function PublicPage({ children }: { children: ReactNode }) {
+export function PublicPage({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
+  const width = wide ? "max-w-[1400px] px-5 sm:px-8 lg:px-10" : "max-w-4xl px-6";
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <PublicHeader />
-      <main className="flex-1 w-full max-w-4xl mx-auto px-6 py-12">{children}</main>
-      <PublicFooter />
+      <PublicHeader wide={wide} />
+      <main className={`flex-1 w-full ${width} mx-auto py-12`}>{children}</main>
+      <PublicFooter wide={wide} />
     </div>
   );
 }
