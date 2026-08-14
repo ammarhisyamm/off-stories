@@ -20,6 +20,7 @@ import { getBrowserStorage } from "@/lib/browser-storage";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { ToastViewport } from "@/components/toast";
 import { getSessionUser, signOut as signOutFn } from "@/lib/auth.functions";
+import { clearSessionCache } from "@/lib/session-cache";
 import { useServerFn } from "@tanstack/react-start";
 
 const primaryNav = [
@@ -173,6 +174,7 @@ function UserFooter({
   const signOutRequest = useServerFn(signOutFn);
   async function signOut() {
     await signOutRequest();
+    clearSessionCache();
     navigate({ to: "/auth", replace: true });
   }
   return (

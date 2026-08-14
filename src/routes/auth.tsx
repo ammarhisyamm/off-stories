@@ -4,6 +4,7 @@ import { Check, Eye, EyeSlash, GoogleLogo, WarningCircle } from "@phosphor-icons
 import { useServerFn } from "@tanstack/react-start";
 import { BrandLogo } from "@/components/brand-logo";
 import { getSessionUser, signIn, signUp, startGoogleSignIn } from "@/lib/auth.functions";
+import { clearSessionCache } from "@/lib/session-cache";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -65,6 +66,7 @@ function AuthPage() {
         return;
       }
       await action({ data: { email, password } });
+      clearSessionCache();
       navigate({ to: "/dashboard", replace: true });
     } catch (reason) {
       setError(

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getBrowserStorage } from "@/lib/browser-storage";
 import { acceptInvite, getInvite, leaveWorkspace } from "@/lib/invites.functions";
 import { getSessionUser, signIn, signOut, signUp } from "@/lib/auth.functions";
+import { clearSessionCache } from "@/lib/session-cache";
 import { resetWorkspaceDataCache } from "@/lib/use-workspace-data";
 import { useServerFn } from "@tanstack/react-start";
 import { Envelope, WarningCircle, SignOut } from "@phosphor-icons/react";
@@ -102,6 +103,7 @@ function InvitePage() {
     setNotice(null);
     try {
       await signOutRequest();
+      clearSessionCache();
       setStatus("idle");
       setSignedIn(false);
       applySession(null);
@@ -158,10 +160,12 @@ function InvitePage() {
     try {
       if (mode === "signup") {
         const user = await signUpRequest({ data: { email, password } });
+        clearSessionCache();
         setSignedIn(true);
         applySession({ ...user, avatarUrl: null });
       } else {
         const user = await signInRequest({ data: { email, password } });
+        clearSessionCache();
         setSignedIn(true);
         applySession({ ...user, avatarUrl: null });
       }
