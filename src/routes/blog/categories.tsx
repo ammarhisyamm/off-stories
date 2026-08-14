@@ -41,11 +41,11 @@ function BlogCategoriesPage() {
         <section className="max-w-3xl border-b border-border pb-8">
           <div className="eyebrow mb-4">Blog categories</div>
           <h1 className="serif text-4xl text-balance text-foreground sm:text-5xl">
-            Category yang mengikuti fase planning pasangan di Indonesia.
+            Kategori yang mengikuti fase planning pasangan di Indonesia.
           </h1>
           <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Setiap kategori dibuat supaya kamu bisa cepat pindah ke topik yang paling relevan:
-            budget, seserahan, WO, RSVP, dan timeline.
+            Sepuluh kategori dibuat supaya kamu bisa cepat berpindah ke topik yang paling relevan:
+            budget, checklist, adat, vendor, dan lainnya.
           </p>
         </section>
 
@@ -57,15 +57,18 @@ function BlogCategoriesPage() {
               className="group rounded-[24px] border border-border bg-white p-6 shadow-soft transition duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-foreground">
-                  {category.label}
+                <span className="text-2xl" aria-hidden>
+                  {category.emoji}
                 </span>
-                <ArrowRight size={16} className="text-muted-foreground transition-colors group-hover:text-primary" />
+                <ArrowRight
+                  size={16}
+                  className="text-muted-foreground transition-colors group-hover:text-primary"
+                />
               </div>
               <h2 className="serif mt-4 text-2xl text-foreground">{category.title}</h2>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{category.intro}</p>
               <div className="mt-5 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                {counts[category.slug] ?? 0} articles
+                {counts[category.slug] ?? 0} artikel
               </div>
             </Link>
           ))}

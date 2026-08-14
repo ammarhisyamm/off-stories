@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, CalendarBlank, Clock } from "@phosphor-icons/react";
+import { ArrowRight, CalendarBlank, Clock, Envelope, PaperPlaneTilt } from "@phosphor-icons/react";
+import { useState } from "react";
 
 import { PublicPage } from "@/components/public-page";
 import {
@@ -8,23 +9,26 @@ import {
   blogPosts,
   blogPostUrl,
   formatBlogDate,
+  getFeaturedBlogPosts,
+  getLatestBlogPosts,
+  getBlogPostsByCategory,
   siteUrl,
 } from "@/lib/blog";
 
 export const Route = createFileRoute("/blog")({
   head: () => ({
     meta: [
-      { title: "Blog — OffStories" },
+      { title: "Panduan Lengkap Persiapan Pernikahan — OffStories Blog" },
       {
         name: "description",
         content:
-          "Panduan pernikahan untuk Indonesia: budget, seserahan, RSVP, timeline, dan planning yang lebih tenang.",
+          "Tips, checklist, dan inspirasi wedding dari budgeting sampai hari H — khusus untuk calon pengantin Indonesia.",
       },
-      { property: "og:title", content: "Blog — OffStories" },
+      { property: "og:title", content: "Panduan Lengkap Persiapan Pernikahan — OffStories Blog" },
       {
         property: "og:description",
         content:
-          "Panduan pernikahan untuk Indonesia: budget, seserahan, RSVP, timeline, dan planning yang lebih tenang.",
+          "Tips, checklist, dan inspirasi wedding dari budgeting sampai hari H — khusus untuk calon pengantin Indonesia.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${siteUrl}/blog` },
@@ -35,47 +39,93 @@ export const Route = createFileRoute("/blog")({
   component: BlogIndex,
 });
 
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "done">("idle");
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (!email.includes("@")) return;
+        setState("done");
+      }}
+      className="mt-6"
+    >
+      {state === "done" ? (
+        <p className="rounded-2xl border border-primary/25 bg-primary/10 px-5 py-4 text-sm font-medium text-foreground">
+          Terima kasih! Checklist wedding gratis sedang dikirim ke email kamu. 💌
+        </p>
+      ) : (
+        <div className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
+          <label className="sr-only" htmlFor="newsletter-email">
+            Alamat email
+          </label>
+          <div className="relative flex-1">
+            <Envelope
+              size={18}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              id="newsletter-email"
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="alamat email kamu"
+              className="w-full rounded-full border border-border bg-background py-3 pl-11 pr-4 text-sm text-foreground outline-none transition duration-150 placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-soft transition duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+          >
+            Terima Checklist
+            <PaperPlaneTilt weight="bold" size={16} />
+          </button>
+        </div>
+      )}
+    </form>
+  );
+}
+
+function CategoryCount({ slug }: { slug: string }) {
+  const count = getBlogPostsByCategory(slug).length;
+  return (
+    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+      {count} artikel
+    </span>
+  );
+}
+
 function BlogIndex() {
-  const featured = blogPosts[0];
+  const featured = getFeaturedBlogPosts();
+  const latest = getLatestBlogPosts(6);
 
   return (
     <PublicPage>
-      <div className="space-y-12">
-        <section className="grid gap-6 border-b border-border pb-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
-          <div className="max-w-2xl">
-            <div className="eyebrow mb-4">Wedding planning guides for Indonesia</div>
-            <h1 className="serif text-4xl text-balance text-foreground sm:text-5xl">
-              Blog yang membantu pasangan memutuskan dengan lebih tenang.
-            </h1>
-            <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Panduan praktis tentang budget, seserahan, RSVP, timeline, dan workflow pernikahan
-              di Indonesia. Ditulis untuk membantu kamu mulai lebih cepat dan mengurangi keputusan
-              yang terasa terlalu mendadak.
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-border bg-surface p-5 shadow-soft">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Why this matters
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-foreground/80">
-              Artikel yang terstruktur membantu mesin pencari memahami konteks produk, dan
-              membantu calon pengguna menemukan jawaban yang relevan sebelum mereka masuk ke
-              workspace.
-            </p>
-            <Link
-              to="/auth"
-              className="mt-5 inline-flex items-center gap-2 rounded-[14px] border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
-            >
-              Start planning
-              <ArrowRight weight="bold" size={16} />
-            </Link>
-          </div>
+      <div className="space-y-16">
+        <section className="border-b border-border pb-10 text-center">
+          <h1 className="serif text-4xl text-balance text-foreground sm:text-5xl">
+            Panduan Lengkap Persiapan Pernikahan
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            Tips, checklist, dan inspirasi wedding dari budgeting sampai hari H — khusus untuk calon
+            pengantin Indonesia.
+          </p>
+          <a
+            href="#artikel-terbaru"
+            className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-soft transition duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+          >
+            Mulai Baca
+            <ArrowRight weight="bold" size={16} />
+          </a>
         </section>
 
         <section className="space-y-6">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
             <div>
-              <div className="eyebrow">Browse by category</div>
+              <div className="eyebrow">Kategori</div>
               <h2 className="serif mt-2 text-2xl text-foreground">
                 Temukan artikel yang paling relevan untuk fase planning kamu.
               </h2>
@@ -84,122 +134,127 @@ function BlogIndex() {
               to="/blog/categories"
               className="hidden items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary md:inline-flex"
             >
-              View all categories
+              Lihat semua kategori
               <ArrowRight size={16} />
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             {blogCategories.map((category) => (
               <Link
                 key={category.slug}
                 to={blogCategoryUrl(category.slug)}
-                className="rounded-[22px] border border-border bg-surface p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
+                className="group flex flex-col rounded-[22px] border border-border bg-surface p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
               >
-                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                  {category.label}
+                <div className="text-2xl" aria-hidden>
+                  {category.emoji}
                 </div>
-                <h3 className="serif mt-3 text-xl text-balance text-foreground">{category.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <h3 className="serif mt-3 text-xl text-balance text-foreground">
+                  {category.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                   {category.description}
                 </p>
+                <div className="mt-4">
+                  <CategoryCount slug={category.slug} />
+                </div>
               </Link>
             ))}
           </div>
         </section>
 
         <section className="space-y-6">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <div className="eyebrow">Featured article</div>
-              <h2 className="serif mt-2 text-2xl text-foreground">
-                Mulai dari budget yang paling realistis.
-              </h2>
-            </div>
-            <Link
-              to={`/blog/${featured.slug}`}
-              className="hidden items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary md:inline-flex"
-            >
-              Read the guide
-              <ArrowRight size={16} />
-            </Link>
+          <div className="border-b border-border pb-4">
+            <div className="eyebrow">Pilihan Editor</div>
+            <h2 className="serif mt-2 text-2xl text-foreground">
+              Mulai dari tiga panduan yang paling banyak dicari.
+            </h2>
           </div>
-          <article className="grid gap-6 rounded-[28px] border border-border bg-white p-6 shadow-soft lg:grid-cols-[1.2fr_0.8fr] lg:p-8">
-            <div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                <span className="rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground">
-                  {featured.category}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <CalendarBlank size={14} />
-                  {formatBlogDate(featured.updatedAt)}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Clock size={14} />
-                  {featured.readTime}
-                </span>
-              </div>
-              <h3 className="serif mt-5 text-3xl text-balance text-foreground sm:text-4xl">
-                {featured.title}
-              </h3>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
-                {featured.excerpt}
-              </p>
+          <div className="grid gap-4 md:grid-cols-3">
+            {featured.map((post) => (
               <Link
-                to={`/blog/${featured.slug}`}
-                className="mt-6 inline-flex items-center gap-2 rounded-[14px] bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-soft transition duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+                key={post.slug}
+                to={blogPostUrl(post.slug)}
+                className="group flex flex-col rounded-[24px] border border-border bg-white p-6 shadow-soft transition duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
               >
-                Read article
-                <ArrowRight weight="bold" size={16} />
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <span className="rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground">
+                    {post.category}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock size={14} />
+                    {post.readTime}
+                  </span>
+                </div>
+                <h3 className="serif mt-4 flex-1 text-xl text-balance text-foreground group-hover:text-primary">
+                  {post.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{post.excerpt}</p>
+                <div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <span>{formatBlogDate(post.updatedAt)}</span>
+                  <span className="inline-flex items-center gap-1.5 font-medium text-foreground transition-colors group-hover:text-primary">
+                    Baca
+                    <ArrowRight size={14} />
+                  </span>
+                </div>
               </Link>
-            </div>
-            <div className="rounded-[24px] border border-border bg-surface p-5">
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                What you&apos;ll learn
-              </div>
-              <ul className="mt-4 space-y-3 text-sm leading-relaxed text-foreground/80">
-                <li>• Cara membagi budget pernikahan tanpa kehilangan ruang cadangan.</li>
-                <li>• Mengapa lokasi dan guest count mengubah seluruh perhitungan.</li>
-                <li>• Kapan kamu butuh WO dan kapan DIY masih aman.</li>
-                <li>• Bagaimana data tamu dan seserahan jadi lebih rapi.</li>
-              </ul>
-            </div>
-          </article>
+            ))}
+          </div>
         </section>
 
-        <section className="space-y-6">
-          <div>
-            <div className="eyebrow">All articles</div>
+        <section className="space-y-6" id="artikel-terbaru">
+          <div className="border-b border-border pb-4">
+            <div className="eyebrow">Artikel terbaru</div>
             <h2 className="serif mt-2 text-2xl text-foreground">
               Panduan yang bisa dibaca sesuai kebutuhan.
             </h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {blogPosts.map((post) => (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {latest.map((post) => (
               <article
                 key={post.slug}
-                className="group rounded-[24px] border border-border bg-white p-6 shadow-soft transition duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
+                className="group flex flex-col rounded-[24px] border border-border bg-white p-6 shadow-soft transition duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
               >
                 <div className="flex items-center justify-between gap-3">
                   <span className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-foreground">
                     {post.category}
                   </span>
-                  <div className="text-xs text-muted-foreground">{formatBlogDate(post.updatedAt)}</div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <CalendarBlank size={14} />
+                    {formatBlogDate(post.updatedAt)}
+                  </div>
                 </div>
-                <h3 className="serif mt-4 text-2xl text-balance text-foreground">{post.title}</h3>
+                <h3 className="serif mt-4 flex-1 text-xl text-balance text-foreground">
+                  {post.title}
+                </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{post.excerpt}</p>
                 <div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted-foreground">
                   <span>{post.readTime}</span>
                   <Link
-                    to={`/blog/${post.slug}`}
+                    to={blogPostUrl(post.slug)}
                     className="inline-flex items-center gap-1.5 font-medium text-foreground transition-colors group-hover:text-primary"
                   >
-                    Read more
+                    Baca artikel
                     <ArrowRight size={14} />
                   </Link>
                 </div>
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="rounded-[32px] border border-border bg-surface px-6 py-12 text-center shadow-soft sm:px-12">
+          <div className="eyebrow">Free download</div>
+          <h2 className="serif mt-3 text-3xl text-balance text-foreground">
+            Dapatkan Checklist Wedding Gratis via Email
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+            Join 5,000+ calon pengantin yang sudah download template checklist kami. Satu tempat
+            untuk semua tugas, budget, dan tanggal penting.
+          </p>
+          <NewsletterForm />
+          <p className="mt-4 text-xs text-muted-foreground">
+            Kami tidak spam. Unsubscribe kapan saja.
+          </p>
         </section>
 
         <script
@@ -212,7 +267,7 @@ function BlogIndex() {
               name: "OffStories Blog",
               url: `${siteUrl}/blog`,
               description:
-                "Panduan pernikahan untuk Indonesia: budget, seserahan, RSVP, timeline, dan planning yang lebih tenang.",
+                "Tips, checklist, dan inspirasi wedding dari budgeting sampai hari H — khusus untuk calon pengantin Indonesia.",
               blogPost: blogPosts.map((post) => ({
                 "@type": "BlogPosting",
                 headline: post.title,
