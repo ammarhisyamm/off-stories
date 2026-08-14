@@ -343,7 +343,7 @@ function BlogPostPage() {
                     ) : null}
 
                     {index === 0 && (
-                      <div className="mt-6 rounded-2xl border-l-4 border-primary bg-surface p-5">
+                      <div className="mt-6 border-l-2 border-primary pl-5">
                         <div className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                           💡 Tips penting
                         </div>
@@ -377,17 +377,13 @@ function BlogPostPage() {
             </div>
 
             <section className="mt-8">
-              <FAQSection />
-            </section>
-
-            <section className="mt-8">
               <HelpfulFeedback />
             </section>
           </div>
         </article>
       </div>
 
-      <section className="rounded-[24px] border border-border bg-surface p-6 sm:p-8">
+      <section className="mt-10 rounded-[24px] border border-border bg-surface p-6 sm:p-8">
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="eyebrow">Baca Juga</div>
@@ -482,27 +478,5 @@ function BlogPostPage() {
 
       <script type="application/ld+json" />
     </PublicPage>
-  );
-}
-
-function FAQSection() {
-  const { post } = Route.useLoaderData();
-  return (
-    <section className="rounded-[24px] border border-border bg-surface p-6">
-      <h2 className="serif text-2xl text-foreground">FAQ</h2>
-      <div className="mt-5 space-y-4">
-        {post.faqs.map((faq) => (
-          <details
-            key={faq.question}
-            className="rounded-[18px] border border-border bg-background p-5"
-          >
-            <summary className="cursor-pointer list-none text-sm font-semibold text-foreground focus-visible:outline-none">
-              {faq.question}
-            </summary>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{faq.answer}</p>
-          </details>
-        ))}
-      </div>
-    </section>
   );
 }
