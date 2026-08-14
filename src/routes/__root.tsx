@@ -79,27 +79,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "offstories" },
+      { title: "OffStories — Wedding planning workspace" },
       {
         name: "description",
         content:
-          "offstories, a quiet, modular dashboard for managing every part of your wedding preparation in one place.",
+          "OffStories is a calm wedding planning workspace for couples in Indonesia: budget, checklist, vendors, guests, timeline, documents, and shared decisions in one place.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "OFFRAME STORIES" },
+      { property: "og:title", content: "OffStories — Wedding planning workspace" },
       {
         property: "og:description",
-        content: "offstories, one calm place for planning your wedding.",
+        content:
+          "A calm wedding planning workspace for couples: budget, checklist, vendors, guests, timeline, and notes in one shared place.",
       },
       { property: "og:image", content: "/og-image.png" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:locale", content: "en_US" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "OFFRAME STORIES" },
+      { name: "twitter:title", content: "OffStories — Wedding planning workspace" },
       {
         name: "twitter:description",
-        content: "offstories, one calm place for planning your wedding.",
+        content:
+          "A calm wedding planning workspace for couples: budget, checklist, vendors, guests, timeline, and notes in one shared place.",
       },
       { name: "twitter:image", content: "/og-image.png" },
       { name: "theme-color", content: "#fafafa" },

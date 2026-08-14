@@ -498,6 +498,9 @@ function LandingFooter() {
           A quiet place for planning your wedding, one calm shared workspace.
         </p>
         <nav className="flex items-center gap-5 text-xs text-muted-foreground">
+          <Link to="/blog" className="transition-colors hover:text-foreground">
+            Blog
+          </Link>
           <Link to="/privacy" className="transition-colors hover:text-foreground">
             Privacy
           </Link>

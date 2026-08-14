@@ -11,6 +11,12 @@ export function PublicHeader() {
         </Link>
         <nav className="flex items-center gap-4 text-sm text-muted-foreground">
           <Link
+            to="/blog"
+            className="rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Blog
+          </Link>
+          <Link
             to="/privacy"
             className="rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -40,6 +46,9 @@ export function PublicFooter() {
       <div className="max-w-4xl mx-auto px-6 py-8 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground">
         <div>offstories, one calm place for planning your wedding.</div>
         <nav className="flex items-center gap-4">
+          <Link to="/blog" className="hover:text-foreground transition-colors">
+            Blog
+          </Link>
           <Link to="/privacy" className="hover:text-foreground transition-colors">
             Privacy
           </Link>

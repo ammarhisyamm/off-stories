@@ -15,13 +15,13 @@ const LandingSections = lazy(() =>
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "offstories" },
+      { title: "OffStories — Wedding planning workspace" },
       {
         name: "description",
         content:
-          "offstories is a wedding planning dashboard for couples: checklist, budget, vendors, guests, timeline, and notes in one shared workspace.",
+          "OffStories is a calm wedding planning workspace for couples in Indonesia: checklist, budget, vendors, guests, timeline, and notes in one shared workspace.",
       },
-      { property: "og:title", content: "offstories" },
+      { property: "og:title", content: "OffStories — Wedding planning workspace" },
       {
         property: "og:description",
         content:
@@ -128,6 +128,12 @@ function LandingHeader() {
           >
             How it works
           </a>
+          <Link
+            to="/blog"
+            className="rounded-lg px-3 py-1.5 transition-colors hover:bg-surface-2 hover:text-foreground"
+          >
+            Blog
+          </Link>
           <a
             href="#faq"
             className="rounded-lg px-3 py-1.5 transition-colors hover:bg-surface-2 hover:text-foreground"
