@@ -184,7 +184,8 @@ function BlogCategoryPage() {
                       {post.excerpt}
                     </p>
                     <Link
-                      to={`/blog/${post.slug}`}
+                      to="/blog/$slug"
+                      params={{ slug: post.slug }}
                       className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors group-hover:text-primary"
                     >
                       Baca artikel
@@ -241,9 +242,9 @@ function BlogCategoryPage() {
               <ul className="mt-4 space-y-3">
                 {popular.map((post) => (
                   <li key={post.slug}>
-                    <Link to={`/blog/${post.slug}`} className="group block">
+                    <Link to="/blog/$slug" params={{ slug: post.slug }} className="group block">
                       <div className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                        {post?.category ?? category.title}
+                        {getCategoryLabel(post)}
                       </div>
                       <div className="mt-1 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
                         {post?.title}

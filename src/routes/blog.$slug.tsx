@@ -272,7 +272,8 @@ function BlogPostPage() {
 
           <header className="mt-6 border-b border-border pb-8">
             <Link
-              to={`/blog/categories/${post.categoryId}`}
+              to="/blog/categories/$slug"
+              params={{ slug: post.categoryId }}
               className="inline-flex rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground transition-colors hover:bg-surface-2"
             >
               {getCategoryLabel(post)}
@@ -401,7 +402,8 @@ function BlogPostPage() {
                   relatedPosts.map((related) => (
                     <Link
                       key={related.slug}
-                      to={`/blog/${related.slug}`}
+                      to="/blog/$slug"
+                      params={{ slug: related.slug }}
                       className="rounded-[20px] border border-border bg-background p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white"
                     >
                       <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
@@ -427,7 +429,8 @@ function BlogPostPage() {
               <nav className="mt-8 grid gap-4 sm:grid-cols-2">
                 {previous ? (
                   <Link
-                    to={`/blog/${previous.slug}`}
+                    to="/blog/$slug"
+                    params={{ slug: previous.slug }}
                     className="group rounded-[20px] border border-border bg-white p-5 transition duration-150 hover:-translate-y-0.5 hover:shadow-soft"
                   >
                     <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
@@ -443,7 +446,8 @@ function BlogPostPage() {
                 )}
                 {next ? (
                   <Link
-                    to={`/blog/${next.slug}`}
+                    to="/blog/$slug"
+                    params={{ slug: next.slug }}
                     className="group rounded-[20px] border border-border bg-white p-5 text-right transition duration-150 hover:-translate-y-0.5 hover:shadow-soft"
                   >
                     <div className="flex items-center justify-end gap-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">

@@ -13,7 +13,6 @@ import { useScrollProgress } from "@/hooks/use-scroll-progress";
 import {
   blogCategories,
   blogCategoryUrl,
-  blogPostUrl,
   getCategoryLabel,
   getPublishedPosts,
   formatBlogDate,
@@ -497,7 +496,8 @@ function BlogSpotlight() {
           <div className="grid gap-4">
             <Reveal delay={60}>
               <Link
-                to={blogPostUrl(featuredPost.slug)}
+                to="/blog/$slug"
+                params={{ slug: featuredPost.slug }}
                 className="group rounded-[24px] border border-border bg-white p-6 shadow-soft transition duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
               >
                 <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
@@ -518,7 +518,8 @@ function BlogSpotlight() {
               {secondaryPosts.map((post, index) => (
                 <Reveal key={post.slug} delay={140 + index * 80}>
                   <Link
-                    to={blogPostUrl(post.slug)}
+                    to="/blog/$slug"
+                    params={{ slug: post.slug }}
                     className="group flex h-full flex-col rounded-[22px] border border-border bg-background p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white"
                   >
                     <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
