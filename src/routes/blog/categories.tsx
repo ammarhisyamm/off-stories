@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "@phosphor-icons/react";
 
 import { PublicPage } from "@/components/public-page";
-import { blogCategories, blogCategoryUrl, blogPosts, siteUrl, slugifyCategory } from "@/lib/blog";
+import { blogCategories, blogCategoryUrl, getCategoryCount, siteUrl } from "@/lib/blog";
 
 export const Route = createFileRoute("/blog/categories")({
   head: () => ({
@@ -29,10 +29,7 @@ export const Route = createFileRoute("/blog/categories")({
 
 function BlogCategoriesPage() {
   const counts = Object.fromEntries(
-    blogCategories.map((category) => [
-      category.slug,
-      blogPosts.filter((post) => slugifyCategory(post.category) === category.slug).length,
-    ]),
+    blogCategories.map((category) => [category.slug, getCategoryCount(category.slug)]),
   );
 
   return (

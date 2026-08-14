@@ -1,13 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, CalendarBlank, Clock, Envelope, PaperPlaneTilt } from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { PublicPage } from "@/components/public-page";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import {
   blogCategories,
   blogCategoryUrl,
   formatBlogDate,
   getBlogPostsByCategory,
+  getCategoryLabel,
   getLatestBlogPosts,
   siteUrl,
 } from "@/lib/blog";
@@ -36,9 +39,10 @@ export const Route = createFileRoute("/blog/categories/$slug")({
   component: BlogCategoryPage,
 });
 
-function CompactNewsletter() {
+function CompactNewsletter({ slug }: { slug: string }) {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
+  const subscribe = useServerFn(subscribeNewsletter);
 
   return (
     <div className="rounded-[22px] border border-border bg-surface p-6">
@@ -55,7 +59,8 @@ function CompactNewsletter() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            if (email.includes("@")) setDone(true);
+            if (email.includes("@"))
+              subscribe({ data: { email, source: `category:${slug}` } }).then(() => setDone(true));
           }}
           className="mt-4 space-y-3"
         >
@@ -161,7 +166,7 @@ function BlogCategoryPage() {
                   >
                     <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                       <span className="rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground">
-                        {post.category}
+                        {getCategoryLabel(post)}
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarBlank size={14} />
@@ -169,7 +174,7 @@ function BlogCategoryPage() {
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <Clock size={14} />
-                        {post.readTime}
+                        {post.readingTime}
                       </span>
                     </div>
                     <h2 className="serif mt-4 flex-1 text-2xl text-balance text-foreground">
@@ -249,7 +254,7 @@ function BlogCategoryPage() {
               </ul>
             </div>
 
-            <CompactNewsletter />
+            <CompactNewsletter slug={category.slug} />
           </aside>
         </div>
       </div>

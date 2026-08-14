@@ -33,10 +33,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Trim API token
+        run: echo "CF_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }}" | tr -d '[:space:]' >> "$GITHUB_ENV"
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          apiToken: ${{ env.CF_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=off-stories --branch=main --commit-dirty=false
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          environment: production

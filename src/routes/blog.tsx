@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, CalendarBlank, Clock, Envelope, PaperPlaneTilt } from "@phosphor-icons/react";
 import { useState } from "react";
 
 import { PublicPage } from "@/components/public-page";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import {
   blogCategories,
   blogCategoryUrl,
@@ -11,7 +13,8 @@ import {
   formatBlogDate,
   getFeaturedBlogPosts,
   getLatestBlogPosts,
-  getBlogPostsByCategory,
+  getCategoryCount,
+  getCategoryLabel,
   siteUrl,
 } from "@/lib/blog";
 
@@ -41,14 +44,18 @@ export const Route = createFileRoute("/blog")({
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "done">("idle");
+  const [state, setState] = useState<"idle" | "submitting" | "done">("idle");
+  const subscribe = useServerFn(subscribeNewsletter);
 
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
         if (!email.includes("@")) return;
-        setState("done");
+        setState("submitting");
+        subscribe({ data: { email, source: "blog" } })
+          .then(() => setState("done"))
+          .catch(() => setState("idle"));
       }}
       className="mt-6"
     >
@@ -78,9 +85,10 @@ function NewsletterForm() {
           </div>
           <button
             type="submit"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-soft transition duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+            disabled={state === "submitting"}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-soft transition duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Terima Checklist
+            {state === "submitting" ? "Mengirim…" : "Terima Checklist"}
             <PaperPlaneTilt weight="bold" size={16} />
           </button>
         </div>
@@ -90,7 +98,7 @@ function NewsletterForm() {
 }
 
 function CategoryCount({ slug }: { slug: string }) {
-  const count = getBlogPostsByCategory(slug).length;
+  const count = getCategoryCount(slug);
   return (
     <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
       {count} artikel
@@ -178,11 +186,11 @@ function BlogIndex() {
               >
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span className="rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground">
-                    {post.category}
+                    {getCategoryLabel(post)}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <Clock size={14} />
-                    {post.readTime}
+                    {post.readingTime}
                   </span>
                 </div>
                 <h3 className="serif mt-4 flex-1 text-xl text-balance text-foreground group-hover:text-primary">
@@ -216,7 +224,7 @@ function BlogIndex() {
               >
                 <div className="flex items-center justify-between gap-3">
                   <span className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-foreground">
-                    {post.category}
+                    {getCategoryLabel(post)}
                   </span>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <CalendarBlank size={14} />
@@ -228,7 +236,7 @@ function BlogIndex() {
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{post.excerpt}</p>
                 <div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                  <span>{post.readTime}</span>
+                  <span>{post.readingTime}</span>
                   <Link
                     to={blogPostUrl(post.slug)}
                     className="inline-flex items-center gap-1.5 font-medium text-foreground transition-colors group-hover:text-primary"

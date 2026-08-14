@@ -18,6 +18,7 @@ import {
   formatBlogDate,
   getBlogPost,
   getBlogPostsByCategory,
+  getCategoryLabel,
   getRelatedBlogPosts,
   siteUrl,
 } from "@/lib/blog";
@@ -183,10 +184,10 @@ function BlogPostPage() {
     [post],
   );
 
-  const postIndex = getBlogPostsByCategory(post.category).findIndex(
+  const postIndex = getBlogPostsByCategory(post.categoryId).findIndex(
     (item) => item.slug === post.slug,
   );
-  const categoryPosts = getBlogPostsByCategory(post.category);
+  const categoryPosts = getBlogPostsByCategory(post.categoryId);
   const previous = postIndex > 0 ? categoryPosts[postIndex - 1] : undefined;
   const next =
     postIndex >= 0 && postIndex < categoryPosts.length - 1
@@ -201,8 +202,8 @@ function BlogPostPage() {
       {
         "@type": "ListItem",
         position: 2,
-        name: post.category,
-        item: `${siteUrl}/blog/categories/${post.category.toLowerCase()}`,
+        name: getCategoryLabel(post),
+        item: `${siteUrl}/blog/categories/${post.categoryId}`,
       },
       { "@type": "ListItem", position: 3, name: post.title, item: blogPostUrl(post.slug) },
     ],
@@ -271,10 +272,10 @@ function BlogPostPage() {
 
           <header className="mt-6 border-b border-border pb-8">
             <Link
-              to={`/blog/categories/${post.category.toLowerCase()}`}
+              to={`/blog/categories/${post.categoryId}`}
               className="inline-flex rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground transition-colors hover:bg-surface-2"
             >
-              {post.category}
+              {getCategoryLabel(post)}
             </Link>
             <h1 className="serif mt-5 text-4xl text-balance text-foreground sm:text-5xl">
               {post.title}
@@ -286,7 +287,7 @@ function BlogPostPage() {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Clock size={14} />
-                {post.readTime}
+                {post.readingTime}
               </span>
               <span className="inline-flex items-center gap-2">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
@@ -404,7 +405,7 @@ function BlogPostPage() {
                       className="rounded-[20px] border border-border bg-background p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white"
                     >
                       <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                        {related.category}
+                        {getCategoryLabel(related)}
                       </div>
                       <h3 className="serif mt-3 text-lg text-balance text-foreground">
                         {related.title}

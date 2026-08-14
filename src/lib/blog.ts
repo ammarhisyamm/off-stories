@@ -1,10 +1,21 @@
 export const siteUrl = "https://offstories.fun";
 
+export type BlogSubSection = {
+  heading: string;
+  paragraphs: string[];
+  bullets?: string[];
+  ordered?: string[];
+};
+
 export type BlogSection = {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
   ordered?: string[];
+  subsections?: BlogSubSection[];
+  quote?: string;
+  callout?: { title: string; body: string };
+  table?: { headers: string[]; rows: string[][] };
 };
 
 export type BlogFAQ = {
@@ -21,21 +32,24 @@ export type BlogPost = {
   slug: string;
   title: string;
   excerpt: string;
-  category: string;
+  categoryId: string;
   publishedAt: string;
   updatedAt: string;
-  readTime: string;
+  readingTime: string;
   author: BlogAuthor;
   intro: string;
   sections: BlogSection[];
   faqs: BlogFAQ[];
   relatedSlugs: string[];
   keywords: string[];
+  tags: string[];
+  published: boolean;
+  featuredImage?: string;
+  imageAlt?: string;
 };
 
 export type BlogCategory = {
   slug: string;
-  label: string;
   title: string;
   description: string;
   intro: string;
@@ -52,9 +66,19 @@ export function formatBlogDate(date: string) {
   return blogDateFormatter.format(new Date(date));
 }
 
-export function slugifyCategory(category: string) {
-  return category
+export function slugifyCategory(value: string) {
+  return value
     .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export function slugifyHeading(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
@@ -71,10 +95,10 @@ export const blogPosts: BlogPost[] = [
     title: "Checklist 12 Bulan Sebelum Nikah di Indonesia: Timeline yang Lebih Terkontrol",
     excerpt:
       "Timeline praktis dari 12 bulan sebelum hari H sampai mendekati acara, cocok untuk pasangan yang ingin mengurangi keputusan mendadak.",
-    category: "Checklist",
+    categoryId: "planning-budget",
     publishedAt: "2026-08-07",
     updatedAt: "2026-08-13",
-    readTime: "7 menit baca",
+    readingTime: "7 menit baca",
     author: offStoriesAuthor,
     intro:
       "Timeline pernikahan yang bagus bukan yang paling padat, melainkan yang paling realistis. Kalau kamu mulai sekitar 12 bulan sebelum hari H, kamu punya cukup ruang untuk mengunci tanggal, menyusun budget, memilih vendor, dan menghindari keputusan mendadak yang biasanya paling mahal. Di Indonesia, urutan yang rapi juga membantu kamu menyesuaikan jadwal KUA, akad nikah, resepsi, dan kebutuhan keluarga besar.",
@@ -90,6 +114,10 @@ export const blogPosts: BlogPost[] = [
           "Buat daftar vendor prioritas.",
           "Mulai catat kebutuhan adat atau keluarga.",
         ],
+        callout: {
+          title: "Tips penting",
+          body: "Simpan semua keputusan dan kontak vendor di satu tempat sejak awal supaya tidak ada yang tercecer di chat yang berbeda.",
+        },
       },
       {
         heading: "8 sampai 4 bulan sebelum acara",
@@ -108,6 +136,8 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           "Tiga bulan terakhir adalah masa pengecekan, bukan masa panik. Fokusnya pindah ke konfirmasi tamu, pengecekan cetak, finalisasi seating, dan briefing hari H. Kalau semua data sudah rapi sebelumnya, fase ini justru terasa lebih tenang dari yang dibayangkan.",
         ],
+        quote:
+          "Rundown yang jelas dan data yang rapi adalah dua hal yang paling menenangkan di minggu-minggu terakhir.",
       },
     ],
     faqs: [
@@ -124,16 +154,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["budget-pernikahan-indonesia", "rundown-resepsi-wedding-4-jam", "nikah-jakarta-budget-50-juta"],
     keywords: ["timeline pernikahan", "checklist 12 bulan sebelum nikah", "wedding timeline indonesia"],
+    tags: ["timeline", "checklist", "persiapan"],
+    published: true,
   },
   {
     slug: "nikah-jakarta-budget-50-juta",
     title: "Nikah di Jakarta dengan Budget 50 Juta: Breakdown Real dari Pasangan",
     excerpt:
       "Breakdown nyata dari pasangan yang sudah lewat: ke mana saja Rp 50 juta habis, dan bagian mana yang paling layak diprioritaskan.",
-    category: "Budget",
+    categoryId: "planning-budget",
     publishedAt: "2026-08-09",
     updatedAt: "2026-08-13",
-    readTime: "7 menit baca",
+    readingTime: "7 menit baca",
     author: offStoriesAuthor,
     intro:
       "Rp 50 juta untuk pernikahan di Jakarta sering terdengar mustahil, padahal banyak pasangan berhasil melewatinya dengan alokasi yang disiplin. Kuncinya bukan menekan semua item, melainkan memutuskan di mana kamu rela 'boros' dan di mana kamu rela sederhana. Sebelum mulai, sisihkan dulu dana cadangan supaya perubahan kecil tidak langsung bikin panik.",
@@ -155,13 +187,16 @@ export const blogPosts: BlogPost[] = [
         paragraphs: [
           "Tidak ada rumus yang sama untuk semua pasangan, tapi pola di bawah ini memberi gambaran distribusi yang rata-rata berhasil:",
         ],
-        ordered: [
-          "Venue + catering: Rp 25 juta (alokasi terbesar).",
-          "Dekorasi dan dokumentasi: Rp 10 juta.",
-          "Makeup, busana, dan MC: Rp 7 juta.",
-          "Seserahan, undangan, dan souvenir: Rp 6 juta.",
-          "Cadangan dan biaya kecil: Rp 2 juta.",
-        ],
+        table: {
+          headers: ["Komponen", "Alokasi", "Catatan"],
+          rows: [
+            ["Venue + catering", "Rp 25 juta", "Porsi terbesar, sangat menentukan"],
+            ["Dekorasi & dokumentasi", "Rp 10 juta", "Prioritas visual"],
+            ["Makeup, busana, MC", "Rp 7 juta", "Sesuaikan dengan kebutuhan"],
+            ["Seserahan & undangan", "Rp 6 juta", "Bisa dikompres"],
+            ["Cadangan & biaya kecil", "Rp 2 juta", "Jangan dilewati"],
+          ],
+        },
       },
       {
         heading: "Di mana bisa hemat dan di mana jangan",
@@ -185,16 +220,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["budget-pernikahan-indonesia", "checklist-12-bulan-sebelum-nikah", "cara-negosiasi-harga-vendor"],
     keywords: ["budget wedding jakarta 50 juta", "nikah di jakarta budget 50 juta", "biaya pernikahan jakarta"],
+    tags: ["budget", "jakarta", "breakdown biaya"],
+    published: true,
   },
   {
     slug: "panduan-adat-pernikahan-jawa",
     title: "Panduan Adat Pernikahan Jawa: Dari Lamaran sampai Resepsi",
     excerpt:
       "Rangkaian prosesi adat Jawa dari lamaran, akad, sampai resepsi, lengkap dengan makna dan persiapan biayanya.",
-    category: "Adat",
+    categoryId: "tradisi-adat",
     publishedAt: "2026-08-10",
     updatedAt: "2026-08-13",
-    readTime: "8 menit baca",
+    readingTime: "8 menit baca",
     author: offStoriesAuthor,
     intro:
       "Pernikahan adat Jawa punya rangkaian yang kaya makna, dari lamaran sampai panggih di resepsi. Bagi sebagian keluarga, prosesi ini wajib, bagi yang lain cukup dipilih yang penting. Yang paling bijak adalah duduk bersama keluarga untuk menyepakati prosesi mana yang benar-benar dijalankan, agar budget dan tenaga tidak habis untuk hal yang sebenarnya tidak diminta siapa pun.",
@@ -221,6 +258,10 @@ export const blogPosts: BlogPost[] = [
           "Siapkan perlengkapan midodareni jika keluarga memakainya.",
           "Konsultasikan urutan akad dengan penghulu atau KUA.",
         ],
+        callout: {
+          title: "Common mistake",
+          body: "Menambah prosesi di tengah jalan tanpa kesepakatan kedua keluarga, padahal budget dan logistik sudah dikunci.",
+        },
       },
       {
         heading: "Resepsi dan panggih",
@@ -243,16 +284,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["checklist-seserahan-pernikahan", "nikah-adat-vs-nikah-sipil", "rundown-resepsi-wedding-4-jam"],
     keywords: ["adat pernikahan jawa", "prosesi pernikahan jawa", "biaya adat jawa", "panggih"],
+    tags: ["adat jawa", "prosesi", "budaya"],
+    published: true,
   },
   {
     slug: "budget-pernikahan-indonesia",
     title: "Budget Pernikahan di Indonesia: Cara Membagi Anggaran Tanpa Over",
     excerpt:
       "Panduan praktis untuk membagi biaya venue, catering, dekor, WO, dokumentasi, dan dana cadangan supaya anggaran pernikahan tetap sehat.",
-    category: "Budget",
+    categoryId: "planning-budget",
     publishedAt: "2026-08-01",
     updatedAt: "2026-08-12",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Di Indonesia, budget pernikahan biasanya paling cepat membengkak di tiga area: venue, catering, dan vendor utama. Kalau tiga komponen ini tidak dihitung sejak awal, pasangan sering baru sadar bahwa total pengeluaran sudah melewati target setelah kontrak pertama ditandatangani. Karena itu, pembagian anggaran perlu dibuat sejak fase awal, bukan setelah semua keputusan besar selesai. Buat pasangan yang menikah di Jakarta, Surabaya, Bandung, Bali, atau kota besar lain, perbedaan harga antarkota bisa terasa sangat nyata sejak awal pencarian vendor.",
@@ -303,16 +346,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["nikah-jakarta-budget-50-juta", "wedding-organizer-vs-diy-wedding", "checklist-seserahan-pernikahan"],
     keywords: ["budget pernikahan indonesia", "budget wedding indonesia", "cara membagi budget nikah"],
+    tags: ["budget", "anggaran", "tips keuangan"],
+    published: true,
   },
   {
     slug: "checklist-seserahan-pernikahan",
     title: "Checklist Seserahan Pernikahan di Indonesia: Barang, Timing, dan Cara Menyusunnya",
     excerpt:
       "Daftar seserahan yang umum di Indonesia, kapan harus mulai menyiapkan, dan cara mengatur checklist supaya tidak ada item yang tertinggal.",
-    category: "Adat",
+    categoryId: "tradisi-adat",
     publishedAt: "2026-08-03",
     updatedAt: "2026-08-13",
-    readTime: "5 menit baca",
+    readingTime: "5 menit baca",
     author: offStoriesAuthor,
     intro:
       "Seserahan sering terasa sederhana di awal, tetapi begitu mulai dicatat, itemnya cepat bertambah. Karena tiap keluarga punya kebiasaan yang berbeda, checklist seserahan sebaiknya diperlakukan seperti daftar kerja: jelas, bisa dicentang, dan mudah disesuaikan dengan adat keluarga masing-masing. Di Indonesia, isi seserahan bisa ikut berubah tergantung adat Jawa, Sunda, Minang, Bugis, Betawi, atau kebiasaan keluarga inti.",
@@ -363,16 +408,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["panduan-adat-pernikahan-jawa", "budget-pernikahan-indonesia", "cara-negosiasi-harga-vendor"],
     keywords: ["seserahan pernikahan", "checklist seserahan", "barang seserahan"],
+    tags: ["seserahan", "adat", "checklist"],
+    published: true,
   },
   {
     slug: "wedding-organizer-vs-diy-wedding",
     title: "Wedding Organizer vs DIY Wedding di Indonesia: Kapan Perlu WO?",
     excerpt:
       "Bandingkan peran wedding organizer dan planning mandiri agar kamu tahu kapan WO benar-benar membantu, dan kapan kamu bisa mengelola sendiri.",
-    category: "Checklist",
+    categoryId: "planning-budget",
     publishedAt: "2026-08-04",
     updatedAt: "2026-08-13",
-    readTime: "5 menit baca",
+    readingTime: "5 menit baca",
     author: offStoriesAuthor,
     intro:
       "Di Indonesia, keputusan pakai Wedding Organizer sering ditentukan bukan cuma oleh budget, tetapi juga oleh kompleksitas keluarga, jumlah tamu, adat yang dipakai, dan seberapa banyak vendor yang perlu dikontrol. Ada pasangan yang cukup nyaman mengatur sendiri, tetapi ada juga yang butuh WO untuk menjaga timeline tetap rapi dan keluarga tetap tenang. Saat akad, resepsi, dan sesi keluarga terjadi dalam satu hari, koordinasi WO biasanya terasa jauh lebih membantu.",
@@ -421,16 +468,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["budget-pernikahan-indonesia", "rundown-resepsi-wedding-4-jam", "interview-vendor-katering"],
     keywords: ["wedding organizer vs diy", "perlu wedding organizer", "plan wedding sendiri"],
+    tags: ["wedding organizer", "diy", "keputusan"],
+    published: true,
   },
   {
     slug: "rsvp-seating-check-in-pernikahan",
     title: "RSVP, Seating, dan Check-in Pernikahan di Indonesia: Flow Tamu yang Lebih Rapi",
     excerpt:
       "Cara menata RSVP link, WhatsApp, seating, dan QR check-in supaya pengelolaan tamu lebih mudah dan acara berjalan lebih tenang.",
-    category: "Resepsi",
+    categoryId: "acara-tamu",
     publishedAt: "2026-08-06",
     updatedAt: "2026-08-13",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Guest management sering baru terasa penting saat jumlah tamu mulai mendekati kapasitas venue. Padahal, alur RSVP, seating, dan check-in yang rapi bisa mengurangi antrean, menghindari kursi kosong yang kacau, dan membuat tim keluarga lebih mudah mengarahkan tamu di hari acara. Untuk pasangan di Indonesia, RSVP sering datang lewat WhatsApp, lalu perlu dirapikan lagi ke satu daftar utama supaya keluarga, WO, dan venue melihat data yang sama.",
@@ -479,16 +528,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["rundown-resepsi-wedding-4-jam", "budget-pernikahan-indonesia", "checklist-12-bulan-sebelum-nikah"],
     keywords: ["rsvp pernikahan", "seating plan pernikahan", "check in tamu wedding"],
+    tags: ["rsvp", "tamu", "seating"],
+    published: true,
   },
   {
     slug: "cara-negosiasi-harga-vendor",
     title: "Cara Negosiasi Harga Vendor Tanpa Kelihatan Pelit",
     excerpt:
       "Teknik menawar vendor yang tetap sopan dan profesional, plus kapan lebih baik minta penyesuaian paket daripada potongan harga.",
-    category: "Vendor",
+    categoryId: "vendor-venue",
     publishedAt: "2026-08-11",
     updatedAt: "2026-08-13",
-    readTime: "5 menit baca",
+    readingTime: "5 menit baca",
     author: offStoriesAuthor,
     intro:
       "Banyak pasangan merasa canggung menawar vendor karena takut terkesan pelit. Padahal, vendor yang profesional justru menghargai pasangan yang komunikasinya jelas. Kuncinya bukan menekan harga mentah-mentah, tapi mencari titik tengah: penyesuaian paket, jadwal, atau tambahan kecil yang nilainya signifikan bagi kamu dan tetap wajar bagi vendor.",
@@ -531,16 +582,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["interview-vendor-katering", "nikah-jakarta-budget-50-juta", "budget-pernikahan-indonesia"],
     keywords: ["negosiasi harga vendor", "tips menawar vendor wedding", "cara hemat vendor"],
+    tags: ["vendor", "negosiasi", "hemat"],
+    published: true,
   },
   {
     slug: "interview-vendor-katering",
     title: "Interview Vendor Katering: 7 Pertanyaan yang Wajib Ditanyain",
     excerpt:
       "Daftar pertanyaan penting sebelum booking katering: mulai dari harga per pax, menu prasmanan, sampai kebijakan perubahan jumlah tamu.",
-    category: "Vendor",
+    categoryId: "vendor-venue",
     publishedAt: "2026-08-12",
     updatedAt: "2026-08-13",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Katering biasanya mengambil porsi terbesar dari budget resepsi, jadi memilihnya tidak boleh asal. Pertanyaan yang tepat di awal bisa menyelamatkanmu dari kejutan di akhir, seperti biaya peralatan, minimum pax, atau kebijakan saat tamu hadir lebih sedikit dari perkiraan. Berikut daftar yang wajib ditanyakan sebelum tanda tangan kontrak.",
@@ -587,16 +640,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["cara-negosiasi-harga-vendor", "rundown-resepsi-wedding-4-jam", "budget-pernikahan-indonesia"],
     keywords: ["interview vendor katering", "tips pilih katering wedding", "pertanyaan untuk katering"],
+    tags: ["katering", "vendor", "pertanyaan"],
+    published: true,
   },
   {
     slug: "rundown-resepsi-wedding-4-jam",
     title: "Rundown Resepsi Wedding 4 Jam: Template yang Bisa Dicopy",
     excerpt:
       "Susunan acara 4 jam dari tamu masuk sampai acara selesai, lengkap dengan waktu ideal untuk tiap sesi.",
-    category: "Resepsi",
+    categoryId: "acara-tamu",
     publishedAt: "2026-08-08",
     updatedAt: "2026-08-13",
-    readTime: "5 menit baca",
+    readingTime: "5 menit baca",
     author: offStoriesAuthor,
     intro:
       "Resepsi yang berjalan mulus biasanya bukan karena kebetulan, melainkan karena rundown yang jelas dan direvisi bersama MC. Untuk acara 4 jam, setiap 30 menit punya fungsi masing-masing. Template di bawah bisa langsung kamu sesuaikan dengan adat, jumlah tamu, dan format acara kamu.",
@@ -614,6 +669,17 @@ export const blogPosts: BlogPost[] = [
           "1 jam berikut: foto tamu, games ringan, dan sesi ramah tamah.",
           "30 menit terakhir: ucapan terima kasih dan penutupan.",
         ],
+        table: {
+          headers: ["Waktu", "Sesi"],
+          rows: [
+            ["30 menit", "Tamu masuk, registrasi, hiburan ringan"],
+            ["30 menit", "Foto keluarga dan panggih singkat"],
+            ["30 menit", "Sambutan keluarga"],
+            ["1 jam", "Makan prasmanan dan hiburan utama"],
+            ["1 jam", "Foto tamu, games, ramah tamah"],
+            ["30 menit", "Ucapan terima kasih dan penutupan"],
+          ],
+        },
       },
       {
         heading: "Hal yang sering bikin jadwal molor",
@@ -642,16 +708,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["rsvp-seating-check-in-pernikahan", "interview-vendor-katering", "panduan-adat-pernikahan-jawa"],
     keywords: ["rundown resepsi wedding", "susunan acara pernikahan", "template rundown 4 jam"],
+    tags: ["rundown", "resepsi", "template"],
+    published: true,
   },
   {
     slug: "tema-wedding-minimalis-2025",
     title: "Tema Wedding Minimalis 2025: Inspirasi dan Estimasi Budget",
     excerpt:
       "Ide tema minimalis yang sedang tren, cara memadukan warna netral, dan perkiraan budget dekorasi yang realistis.",
-    category: "Dekorasi",
+    categoryId: "dekorasi-konsep",
     publishedAt: "2026-08-10",
     updatedAt: "2026-08-13",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Wedding minimalis tidak berarti kosong, melainkan fokus pada elemen inti dengan komposisi yang rapi. Di tahun 2025, palet netral seperti cream, sage, dan dusty pink masih mendominasi karena menghasilkan foto yang timeless. Kabar baiknya, tema ini sering lebih hemat karena mengurangi jumlah dekorasi yang bertumpuk.",
@@ -700,16 +768,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["budget-pernikahan-indonesia", "nikah-jakarta-budget-50-juta", "rundown-resepsi-wedding-4-jam"],
     keywords: ["tema wedding minimalis", "dekorasi wedding", "inspirasi tema pernikahan"],
+    tags: ["dekorasi", "tema", "warna"],
+    published: true,
   },
   {
     slug: "skincare-6-bulan-sebelum-wedding",
     title: "Skincare Routine 6 Bulan Sebelum Wedding: yang Benar-benar Berdampak",
     excerpt:
       "Rutinitas perawatan kulit yang realistis dari 6 bulan sebelum hari H, fokus pada konsistensi bukan produk mahal.",
-    category: "Fashion",
+    categoryId: "fashion-prewedding",
     publishedAt: "2026-08-09",
     updatedAt: "2026-08-13",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Kulit yang sehat di hari H tidak terjadi dalam satu minggu. Dengan waktu 6 bulan, kamu punya kesempatan untuk memperbaiki tekstur, menjaga kelembapan, dan memberi ruang untuk konsultasi profesional jika dibutuhkan. Yang paling penting bukan membeli banyak produk, melainkan memulai lebih awal dan konsisten.",
@@ -753,16 +823,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["budget-pernikahan-indonesia", "cara-negosiasi-harga-vendor", "checklist-12-bulan-sebelum-nikah"],
     keywords: ["skincare pre wedding", "perawatan kulit sebelum nikah", "rutinitas skincare 6 bulan"],
+    tags: ["skincare", "beauty", "persiapan diri"],
+    published: true,
   },
   {
     slug: "tips-pose-natural-prewedding",
     title: "Tips Pose Natural untuk yang Tidak Terbiasa Difoto",
     excerpt:
       "Cara rileks di depan kamera untuk sesi prewedding, dari latihan kecil sampai teknik yang biasa dipakai fotografer.",
-    category: "Prewedding",
+    categoryId: "fashion-prewedding",
     publishedAt: "2026-08-08",
     updatedAt: "2026-08-13",
-    readTime: "5 menit baca",
+    readingTime: "5 menit baca",
     author: offStoriesAuthor,
     intro:
       "Banyak pasangan cemas menghadapi sesi prewedding karena merasa kaku di depan kamera. Kabar baiknya, foto yang natural bukan soal bakat, melainkan latihan dan komunikasi dengan fotografer. Semakin rileks kamu, semakin mudah hasilnya terlihat seperti keseharian kalian.",
@@ -805,16 +877,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["cara-negosiasi-harga-vendor", "rundown-resepsi-wedding-4-jam", "budget-pernikahan-indonesia"],
     keywords: ["tips pose prewedding", "pose natural di depan kamera", "foto prewedding"],
+    tags: ["prewedding", "fotografi", "pose"],
+    published: true,
   },
   {
     slug: "cincin-titanium-vs-emas",
     title: "Cincin Kawin Titanium vs Emas: Mana yang Lebih Tahan Lama?",
     excerpt:
       "Perbandingan cincin titanium dan emas dari segi kekuatan, harga, dan kenyamanan, supaya kamu pilih sesuai gaya hidup.",
-    category: "Cincin",
+    categoryId: "fashion-prewedding",
     publishedAt: "2026-08-07",
     updatedAt: "2026-08-13",
-    readTime: "5 menit baca",
+    readingTime: "5 menit baca",
     author: offStoriesAuthor,
     intro:
       "Pilihan antara titanium dan emas sering membuat pasangan galau karena keduanya punya keunggulan berbeda. Titanium dikenal ringan dan sangat tahan gores, sementara emas lebih fleksibel dan mudah diukir. Keputusan terbaik bergantung pada gaya hidup sehari-hari dan seberapa sering cincin akan dipakai.",
@@ -857,16 +931,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["budget-pernikahan-indonesia", "cara-negosiasi-harga-vendor", "checklist-12-bulan-sebelum-nikah"],
     keywords: ["cincin titanium vs emas", "cincin kawin", "jewelry pernikahan"],
+    tags: ["cincin", "jewelry", "perbandingan"],
+    published: true,
   },
   {
     slug: "burnout-pre-wedding",
     title: "Burnout Pre-Wedding: Tanda-tanda dan Cara Mengatasinya",
     excerpt:
       "Kenali tanda stres berlebih saat persiapan pernikahan dan cara mengatasinya sebelum sampai ke titik kelelahan.",
-    category: "Mental",
+    categoryId: "relationship-wellbeing",
     publishedAt: "2026-08-12",
     updatedAt: "2026-08-13",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Persiapan pernikahan seharusnya membahagiakan, tetapi bagi banyak pasangan justru menjadi salah satu fase paling melelahkan. Burnout muncul perlahan: rasa lelah yang tidak hilang, mudah tersinggung, dan menurunnya antusiasme pada detail acara. Mengenali tanda ini sejak dini jauh lebih penting daripada memaksakan semuanya sempurna.",
@@ -916,16 +992,18 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["checklist-12-bulan-sebelum-nikah", "budget-pernikahan-indonesia", "wedding-organizer-vs-diy-wedding"],
     keywords: ["burnout pre wedding", "stres persiapan pernikahan", "mental health wedding"],
+    tags: ["mental", "stress", "wellbeing"],
+    published: true,
   },
   {
     slug: "nikah-adat-vs-nikah-sipil",
     title: "Nikah Adat vs Nikah Sipil di Indonesia: Plus Minus dan Biaya",
     excerpt:
       "Bandingkan pernikahan adat dan akad sipil dari sisi prosesi, biaya, dan kemudahan administrasi, lalu pilih yang paling cocok.",
-    category: "Adat",
+    categoryId: "tradisi-adat",
     publishedAt: "2026-08-11",
     updatedAt: "2026-08-13",
-    readTime: "6 menit baca",
+    readingTime: "6 menit baca",
     author: offStoriesAuthor,
     intro:
       "Sebagian pasangan memilih mengikuti prosesi adat secara penuh, sebagian lain memilih rangkaian sipil yang lebih ringkas, dan banyak juga yang menggabungkan keduanya. Tidak ada pilihan yang salah, selama keputusannya disepakati kedua keluarga dan sesuai dengan kebutuhan hari H. Yang perlu diperjelas sejak awal adalah biaya dan tingkat kompleksitas tiap pilihan.",
@@ -968,125 +1046,315 @@ export const blogPosts: BlogPost[] = [
     ],
     relatedSlugs: ["panduan-adat-pernikahan-jawa", "budget-pernikahan-indonesia", "rundown-resepsi-wedding-4-jam"],
     keywords: ["nikah adat vs nikah sipil", "prosesi pernikahan", "biaya pernikahan adat"],
+    tags: ["adat", "sipil", "perbandingan"],
+    published: true,
+  },
+  {
+    slug: "tips-memilih-venue-wedding",
+    title: "Tips Memilih Venue Wedding: 8 Hal yang Harus Dicek Sebelum Bayar DP",
+    excerpt:
+      "Daftar cek sebelum booking venue: kapasitas, biaya tersembunyi, kebijakan vendor luar, dan apa yang tidak boleh kamu lewatkan.",
+    categoryId: "vendor-venue",
+    publishedAt: "2026-08-14",
+    updatedAt: "2026-08-14",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Venue biasanya salah satu pengeluaran terbesar dalam pernikahan, tapi banyak pasangan baru menemukan masalah setelah DP dibayar. Ada yang ternyata punya pembatasan jam sewa, ada juga biaya wajib yang tidak disebut di awal. Berikut hal-hal yang wajib dicek sebelum kamu mengunci keputusan venue.",
+    sections: [
+      {
+        heading: "Kapasitas dan tata ruang",
+        paragraphs: [
+          "Pastikan kapasitas venue sesuai dengan estimasi tamu, bukan hanya angka maksimal di brosur. Tanyakan juga fleksibilitas tata ruang: apakah bisa mengakomodasi pelaminan, prasmanan, dan area foto tanpa terasa penuh.",
+        ],
+        bullets: [
+          "Cek kapasitas maksimal vs jumlah tamu realistis.",
+          "Lihat layout area akad dan resepsi.",
+          "Tanyakan parkir dan akses tamu.",
+        ],
+      },
+      {
+        heading: "Biaya tersembunyi",
+        paragraphs: [
+          "Minta rincian penawaran tertulis dan tanyakan biaya di luar paket: biaya kebersihan, listrik, overtime, atau penggunaan vendor pihak ketiga. Biaya kecil ini sering baru muncul di hari H.",
+        ],
+      },
+      {
+        heading: "Kebijakan vendor luar",
+        paragraphs: [
+          "Beberapa venue mewajibkan memakai katering atau dekorasi internal, sementara yang lain membebaskan dengan biaya masuk vendor. Pastikan kamu paham sebelum membandingkan harga dengan venue lain.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Kapan waktu terbaik booking venue?",
+        answer:
+          "Umumnya 9–12 bulan sebelum hari H untuk tanggal populer, terutama di kota besar dan bulan ramai.",
+      },
+      {
+        question: "Apakah bisa negosiasi paket venue?",
+        answer:
+          "Bisa, terutama di low season atau hari kerja. Tanyakan penyesuaian layanan, bukan hanya potongan harga.",
+      },
+    ],
+    relatedSlugs: ["interview-vendor-katering", "cara-negosiasi-harga-vendor", "budget-pernikahan-indonesia"],
+    keywords: ["tips memilih venue wedding", "biaya venue pernikahan", "checklist venue"],
+    tags: ["venue", "lokasi", "booking"],
+    published: true,
+  },
+  {
+    slug: "palet-warna-wedding-2026",
+    title: "Palet Warna Wedding 2026: Kombinasi yang Tenang dan Timeless",
+    excerpt:
+      "Kombinasi palet warna yang sedang tren untuk wedding Indonesia, cara mencocokkannya dengan dekorasi, dan tips memilih yang sesuai venue.",
+    categoryId: "dekorasi-konsep",
+    publishedAt: "2026-08-14",
+    updatedAt: "2026-08-14",
+    readingTime: "5 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Palet warna menentukan suasana seluruh acara dan konsistensi dokumentasi. Untuk wedding Indonesia, kombinasi yang tenang seperti sage, cream, dan terracotta terbukti menghasilkan foto yang tidak cepat terasa outdated. Berikut cara memilih dan memadukan palet yang tepat untuk venue kamu.",
+    sections: [
+      {
+        heading: "Mulai dari venue, bukan tren",
+        paragraphs: [
+          "Warna lantai, dinding, dan pencahayaan venue adalah dasar yang sulit diubah. Pilih palet yang melengkapi venue alih-alih melawannya. Untuk venue dengan kayu dan tanaman, sage dan cream biasanya paling aman.",
+        ],
+        bullets: [
+          "Sesuaikan palet dengan material venue.",
+          "Pilih satu warna netral sebagai base.",
+          "Tambahkan satu warna aksen saja.",
+        ],
+      },
+      {
+        heading: "Kombinasi yang sedang banyak dipakai",
+        paragraphs: [
+          "Beberapa kombinasi yang banyak dipakai pasangan Indonesia tahun ini: sage dengan cream dan dusty pink untuk kesan lembut; terracotta dengan ivory untuk kesan hangat; serta navy dengan putih untuk kesan formal yang tetap tenang.",
+        ],
+      },
+      {
+        heading: "Uji sebelum mengunci",
+        paragraphs: [
+          "Sebelum final, uji palet pada beberapa elemen kecil seperti kartu, bunga, dan kain. Cek juga warna di pencahayaan malam karena hasilnya bisa sangat berbeda dari siang hari.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Berapa warna yang ideal untuk satu palet?",
+        answer:
+          "Sebagian besar pasangan menggunakan 2–3 warna: satu netral, satu utama, dan satu aksen.",
+      },
+      {
+        question: "Apakah tren warna penting?",
+        answer:
+          "Tidak wajib. Yang lebih penting adalah keselarasan dengan venue dan selera kamu untuk jangka panjang.",
+      },
+    ],
+    relatedSlugs: ["tema-wedding-minimalis-2025", "budget-pernikahan-indonesia", "rundown-resepsi-wedding-4-jam"],
+    keywords: ["palet warna wedding", "tema warna pernikahan", "dekorasi wedding"],
+    tags: ["warna", "palet", "tema"],
+    published: true,
+  },
+  {
+    slug: "komunikasi-pasangan-soal-budget",
+    title: "Cara Komunikasi Pasangan Soal Budget Wedding tanpa Berantem",
+    excerpt:
+      "Cara membahas keuangan pernikahan dengan pasangan secara jujur dan tenang, plus trik menyepakati prioritas bersama.",
+    categoryId: "relationship-wellbeing",
+    publishedAt: "2026-08-14",
+    updatedAt: "2026-08-14",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Budget adalah salah satu topik paling sensitif dalam persiapan pernikahan. Kalau dibahas dengan nada menuntut, obrolan kecil bisa berubah jadi konflik. Kuncinya bukan siapa yang benar, tapi bagaimana kamu berdua menyepakati prioritas bersama. Berikut cara membahas keuangan yang membuat hubungan justru makin dekat.",
+    sections: [
+      {
+        heading: "Mulai dari nilai, bukan angka",
+        paragraphs: [
+          "Sebelum bicara nominal, tanyakan hal yang paling penting bagi masing-masing. Mungkin salah satu dari kamu lebih peduli makanan, yang lain lebih peduli dokumentasi. Menyepakati nilai dulu membuat pembahasan angka terasa lebih mudah.",
+        ],
+        bullets: [
+          "Diskusikan 3 hal terpenting bagi masing-masing.",
+          "Jangan membandingkan dengan pernikahan orang lain.",
+          "Buat kesepakatan soal angka yang nyaman bagi berdua.",
+        ],
+      },
+      {
+        heading: "Pisahkan perasaan dari keputusan",
+        paragraphs: [
+          "Saat topik terasa panas, pisahkan dulu perasaan dari keputusan. Ambil jeda, lalu kembali dengan data: berapa biaya sebenarnya, dan apakah bisa dikurangi tanpa mengorbankan prioritas bersama.",
+        ],
+      },
+      {
+        heading: "Jadwalkan pembahasan, bukan dadakan",
+        paragraphs: [
+          "Jadikan budget sebagai agenda rutin mingguan, bukan topik yang muncul mendadak saat sedang lelah. Dengan jadwal yang jelas, diskusi terasa lebih terstruktur dan tidak mudah memanas.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Bagaimana jika pasangan sulit terbuka soal keuangan?",
+        answer:
+          "Mulai dari hal kecil dan ajak diskusi tanpa menghakimi. Konsistensi lebih penting daripada pembahasan panjang sekali waktu.",
+      },
+      {
+        question: "Apakah penting membuat dokumen budget bersama?",
+        answer:
+          "Sangat membantu. Data yang sama membuat keputusan lebih objektif dan mengurangi perdebatan.",
+      },
+    ],
+    relatedSlugs: ["burnout-pre-wedding", "budget-pernikahan-indonesia", "checklist-12-bulan-sebelum-nikah"],
+    keywords: ["komunikasi pasangan", "budget wedding diskusi", "hubungan sehat saat persiapan nikah"],
+    tags: ["komunikasi", "hubungan", "budget"],
+    published: true,
+  },
+  {
+    slug: "games-tamu-wedding",
+    title: "Games untuk Tamu Wedding: 7 Ide Seru yang Tidak Cringe",
+    excerpt:
+      "Ide games ringan untuk resepsi yang menghidupkan suasana tanpa membuat tamu malu, lengkap dengan hadiah yang hemat.",
+    categoryId: "acara-tamu",
+    publishedAt: "2026-08-14",
+    updatedAt: "2026-08-14",
+    readingTime: "5 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Games adalah cara efektif mencairkan suasana di tengah resepsi, tapi banyak pasangan khawatir acara terasa dipaksakan. Kuncinya memilih games yang singkat, sukarela, dan tidak memaksa tamu menjadi pusat perhatian. Berikut tujuh ide yang biasanya berhasil di resepsi wedding Indonesia.",
+    sections: [
+      {
+        heading: "Games yang melibatkan banyak orang",
+        paragraphs: [
+          "Mulai dengan games yang bisa diikuti banyak tamu dari tempat duduk, seperti tebak lagu, kuis fakta pasangan, atau undian nomor meja. Format ini menyenangkan tanpa memanggil satu per satu ke depan.",
+        ],
+      },
+      {
+        heading: "Games sukarela di atas panggung",
+        paragraphs: [
+          "Kalau ingin games yang lebih interaktif, pilih yang sifatnya sukarela dan singkat, seperti kuis siapa yang lebih mengenal pasangan atau kompetisi kecil antar meja. MC berperan besar menjaga suasana tetap ringan.",
+        ],
+      },
+      {
+        heading: "Hadiah yang hemat tapi bermakna",
+        paragraphs: [
+          "Hadiah tidak harus mahal. Souvenir ekstra, gantungan kunci, atau voucer kecil sudah cukup. Yang penting hadiah dibagikan dengan cepat supaya rundown tidak molor.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Kapan waktu terbaik untuk games?",
+        answer:
+          "Saat tamu sudah mulai makan atau di sela-sela hiburan utama, ketika suasana sudah cukup hangat.",
+      },
+      {
+        question: "Berapa lama games idealnya?",
+        answer:
+          "10–15 menit per sesi sudah cukup untuk menjaga energi tanpa mengganggu flow acara.",
+      },
+    ],
+    relatedSlugs: ["rundown-resepsi-wedding-4-jam", "rsvp-seating-check-in-pernikahan", "budget-pernikahan-indonesia"],
+    keywords: ["games wedding", "hiburan resepsi", "games untuk tamu"],
+    tags: ["games", "hiburan", "resepsi"],
+    published: true,
   },
 ];
 
 export const blogCategories: BlogCategory[] = [
   {
-    slug: "budget",
-    label: "Budget",
-    title: "Budgeting & Keuangan",
-    description: "Tips mengatur budget wedding, tracking pengeluaran, dan nikah hemat tanpa kompromi kualitas.",
+    slug: "planning-budget",
+    title: "Planning & Budget",
+    description: "Persiapan pernikahan, budgeting, timeline, checklist, dan keputusan perencanaan.",
     intro:
-      "Untuk pasangan di Indonesia, budget biasanya paling sensitif di venue, catering, WO, dan dekor. Kategori ini membantu kamu mulai dari angka yang paling realistis.",
+      "Semua hal soal perencanaan: budgeting, timeline, checklist, dan keputusan yang membangun fondasi pernikahan.",
     emoji: "💰",
   },
   {
-    slug: "checklist",
-    label: "Checklist",
-    title: "Checklist & Timeline",
-    description: "Timeline persiapan, checklist lengkap, dan hal-hal yang sering terlupa menjelang hari H.",
+    slug: "vendor-venue",
+    title: "Vendor & Venue",
+    description: "Memilih, membandingkan, mewawancarai, dan bernegosiasi dengan vendor dan venue.",
     intro:
-      "Urutan kerja yang rapi adalah obat dari keputusan mendadak. Kategori ini menuntun kamu dari 12 bulan sebelum sampai H-1.",
-    emoji: "📋",
+      "Dari katering sampai venue: cara memilih, mewawancarai, dan bernegosiasi dengan vendor yang tepat.",
+    emoji: "🤝",
   },
   {
-    slug: "adat",
-    label: "Adat",
-    title: "Adat & Tradisi",
-    description: "Panduan adat Jawa, Sunda, Batak, Minang, Bali, dan tradisi lokal lainnya.",
+    slug: "tradisi-adat",
+    title: "Tradisi & Adat",
+    description: "Tradisi pernikahan Indonesia: adat Jawa, Sunda, Batak, Minang, dan Bali.",
     intro:
-      "Dari lamaran sampai resepsi, kategori ini membahas prosesi adat dan bagaimana menyesuaikannya dengan budget dan kesepakatan keluarga.",
+      "Prosesi, seserahan, dan adat dari berbagai daerah di Indonesia yang menyatukan dua keluarga.",
     emoji: "🏛️",
   },
   {
-    slug: "vendor",
-    label: "Vendor",
-    title: "Vendor & Supplier",
-    description: "Cara pilih vendor, review MUA, venue, katering, dan tips negosiasi harga.",
+    slug: "dekorasi-konsep",
+    title: "Dekorasi & Konsep",
+    description: "Tema wedding, dekorasi, styling, palet warna, dan konsep visual.",
     intro:
-      "Vendor yang tepat menentukan hari H yang tenang. Di sini kamu belajar menyaring, mewawancarai, dan bernegosiasi dengan lebih percaya diri.",
-    emoji: "👗",
-  },
-  {
-    slug: "dekorasi",
-    label: "Dekorasi",
-    title: "Tema & Dekorasi",
-    description: "Inspirasi tema wedding, DIY decorations, dan warna palette yang sedang tren.",
-    intro:
-      "Tema yang jelas membuat dekorasi fokus dan hemat. Kategori ini menginspirasi tanpa membuat keputusan terasa berlebihan.",
+      "Inspirasi tema, palet warna, dan dekorasi yang membentuk suasana dan kenangan visual acara.",
     emoji: "🎨",
   },
   {
-    slug: "fashion",
-    label: "Fashion",
-    title: "Fashion & Beauty",
-    description: "Gaun pengantin, skincare pre-wedding, busana keluarga, dan bridesmaids.",
+    slug: "fashion-prewedding",
+    title: "Fashion & Pre-Wedding",
+    description: "Busana pengantin, perawatan diri, prewedding, fotografi, dan videografi.",
     intro:
-      "Tampil percaya diri di hari H dimulai dari persiapan yang tidak terburu-buru, baik untuk pengantin maupun keluarga.",
-    emoji: "👕",
+      "Gaun, skincare, sesi prewedding, dan dokumentasi supaya kamu tampil percaya diri sampai hari H.",
+    emoji: "👗",
   },
   {
-    slug: "prewedding",
-    label: "Prewedding",
-    title: "Pre-Wedding & Dokumentasi",
-    description: "Ide lokasi prewed, tips pose, dan cara memilih fotografer vs videografer.",
+    slug: "acara-tamu",
+    title: "Acara & Tamu",
+    description: "Rundown resepsi, manajemen tamu, RSVP, seating, catering, dan games.",
     intro:
-      "Dokumentasi menyimpan kenangan paling berharga. Kategori ini membantu kamu memilih dan bersiap tampil natural di depan kamera.",
-    emoji: "📸",
-  },
-  {
-    slug: "resepsi",
-    label: "Resepsi",
-    title: "Resepsi & Acara",
-    description: "Rundown acara, games untuk tamu, catering, dan menu favorit.",
-    intro:
-      "Resepsi yang mulus soal rundown yang jelas. Di sini kamu menyusun urutan acara, hiburan, dan pengalaman tamu.",
+      "Flow hari H: rundown, tamu, RSVP, seating, katering, dan hiburan yang membuat acara terasa lancar.",
     emoji: "🎉",
   },
   {
-    slug: "cincin",
-    label: "Cincin",
-    title: "Cincin & Jewelry",
-    description: "Pilih cincin kawin, custom design, perawatan, dan estimasi harga.",
+    slug: "relationship-wellbeing",
+    title: "Relationship & Wellbeing",
+    description: "Persiapan hubungan, komunikasi, manajemen stres, dan persiapan emosional.",
     intro:
-      "Cincin yang dipakai setiap hari harus sesuai gaya hidup. Kategori ini membantu memilih bahan, ukuran, dan perawatannya.",
-    emoji: "💍",
-  },
-  {
-    slug: "mental",
-    label: "Mental",
-    title: "Mental Prep & Relationship",
-    description: "Mengatasi stress pre-wedding, komunikasi dengan pasangan, dan keluarga.",
-    intro:
-      "Persiapan pernikahan tidak hanya soal vendor. Kategori ini menjaga hubungan dan kesehatan mental tetap sehat sampai hari H.",
+      "Menjaga hubungan dan kesehatan mental tetap sehat selama persiapan, agar pernikahan tidak menguras berdua.",
     emoji: "🧘",
   },
-];
-
-export const featuredSlugs = [
-  "checklist-12-bulan-sebelum-nikah",
-  "nikah-jakarta-budget-50-juta",
-  "panduan-adat-pernikahan-jawa",
 ];
 
 export function getBlogCategory(slug: string) {
   return blogCategories.find((category) => category.slug === slug);
 }
 
+export function getCategoryForPost(post: BlogPost) {
+  return getBlogCategory(post.categoryId);
+}
+
+export function getCategoryLabel(post: BlogPost) {
+  return getCategoryForPost(post)?.title ?? post.categoryId;
+}
+
+export function getPublishedPosts() {
+  return blogPosts.filter((post) => post.published);
+}
+
 export function getBlogPostsByCategory(slug: string) {
-  return blogPosts.filter((post) => slugifyCategory(post.category) === slug);
+  return getPublishedPosts().filter((post) => post.categoryId === slug);
+}
+
+export function getCategoryCount(slug: string) {
+  return getBlogPostsByCategory(slug).length;
 }
 
 export function getFeaturedBlogPosts() {
-  return featuredSlugs
-    .map((slug) => getBlogPost(slug))
-    .filter((post): post is BlogPost => Boolean(post));
+  return [
+    getBlogPost("checklist-12-bulan-sebelum-nikah"),
+    getBlogPost("nikah-jakarta-budget-50-juta"),
+    getBlogPost("panduan-adat-pernikahan-jawa"),
+  ].filter((post): post is BlogPost => Boolean(post));
 }
 
-export function getLatestBlogPosts(count = 8) {
-  return [...blogPosts]
-    .filter((post) => !featuredSlugs.includes(post.slug))
+export function getLatestBlogPosts(count = 6) {
+  return getPublishedPosts()
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .slice(0, count);
 }
@@ -1096,7 +1364,7 @@ export function blogCategoryUrl(slug: string) {
 }
 
 export function getBlogPost(slug: string) {
-  return blogPosts.find((post) => post.slug === slug);
+  return getPublishedPosts().find((post) => post.slug === slug);
 }
 
 export function getRelatedBlogPosts(post: BlogPost, limit = 3) {
@@ -1104,12 +1372,68 @@ export function getRelatedBlogPosts(post: BlogPost, limit = 3) {
     .map((slug) => getBlogPost(slug))
     .filter((item): item is BlogPost => Boolean(item));
   if (related.length >= limit) return related.slice(0, limit);
-  const fallback = blogPosts
+  const sameCategory = getBlogPostsByCategory(post.categoryId)
     .filter((item) => item.slug !== post.slug && !related.some((r) => r.slug === item.slug))
     .slice(0, limit - related.length);
-  return [...related, ...fallback];
+  return [...related, ...sameCategory];
+}
+
+export function getAdjacentPosts(post: BlogPost) {
+  const siblings = getBlogPostsByCategory(post.categoryId);
+  const index = siblings.findIndex((item) => item.slug === post.slug);
+  return {
+    previous: index > 0 ? siblings[index - 1] : undefined,
+    next: index >= 0 && index < siblings.length - 1 ? siblings[index + 1] : undefined,
+  };
+}
+
+export function getPostHeadings(post: BlogPost) {
+  return post.sections.map((section) => ({
+    id: slugifyHeading(section.heading),
+    heading: section.heading,
+    subsections: (section.subsections ?? []).map((sub) => ({
+      id: slugifyHeading(sub.heading),
+      heading: sub.heading,
+    })),
+  }));
 }
 
 export function blogPostUrl(slug: string) {
   return `${siteUrl}/blog/${slug}`;
+}
+
+const categoryCover: Record<string, { from: string; to: string }> = {
+  "planning-budget": { from: "#e8f0e8", to: "#f6faf6" },
+  "vendor-venue": { from: "#fff0e2", to: "#fff8f0" },
+  "tradisi-adat": { from: "#f8e8e8", to: "#fbecec" },
+  "dekorasi-konsep": { from: "#fbe9e4", to: "#fdf4f0" },
+  "fashion-prewedding": { from: "#f9e8f2", to: "#fdf2f8" },
+  "acara-tamu": { from: "#fdf2dd", to: "#fff9ee" },
+  "relationship-wellbeing": { from: "#e8eef7", to: "#f4f7fc" },
+};
+
+export function postCover(post: BlogPost) {
+  const { from, to } = categoryCover[post.categoryId] ?? categoryCover["planning-budget"];
+  const label = getCategoryLabel(post);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${from}"/>
+      <stop offset="1" stop-color="${to}"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <circle cx="1040" cy="120" r="200" fill="#ffffff" opacity="0.35"/>
+  <circle cx="140" cy="540" r="260" fill="#ffffff" opacity="0.25"/>
+  <text x="1200" y="430" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="120" font-weight="700" fill="#5b0e20" opacity="0.92">${label
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")}</text>
+  <text x="1200" y="505" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif" font-size="30" letter-spacing="6" fill="#5b0e20" opacity="0.6">${label.toUpperCase()}</text>
+</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+export function postImageAlt(post: BlogPost) {
+  return post.imageAlt ?? `${post.title} — ilustrasi kategori ${getCategoryLabel(post)}`;
 }
