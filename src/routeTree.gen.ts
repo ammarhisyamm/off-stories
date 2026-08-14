@@ -19,6 +19,7 @@ import { Route as UndanganTokenRouteImport } from './routes/undangan.$token'
 import { Route as RsvpTokenRouteImport } from './routes/rsvp.$token'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as CheckInTokenRouteImport } from './routes/check-in.$token'
+import { Route as BlogCategoriesRouteImport } from './routes/blog/categories'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
@@ -33,6 +34,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCommandCenterRouteImport } from './routes/_authenticated/command-center'
 import { Route as AuthenticatedChecklistRouteImport } from './routes/_authenticated/checklist'
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
+import { Route as BlogCategoriesSlugRouteImport } from './routes/blog/categories.$slug'
 import { Route as ApiDocumentsSplatRouteImport } from './routes/api/documents/$'
 
 const TermsRoute = TermsRouteImport.update({
@@ -83,6 +85,11 @@ const CheckInTokenRoute = CheckInTokenRouteImport.update({
   id: '/check-in/$token',
   path: '/check-in/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BlogCategoriesRoute = BlogCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => BlogRoute,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/$slug',
@@ -155,6 +162,11 @@ const AuthenticatedBudgetRoute = AuthenticatedBudgetRouteImport.update({
   path: '/budget',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const BlogCategoriesSlugRoute = BlogCategoriesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogCategoriesRoute,
+} as any)
 const ApiDocumentsSplatRoute = ApiDocumentsSplatRouteImport.update({
   id: '/api/documents/$',
   path: '/api/documents/$',
@@ -181,11 +193,13 @@ export interface FileRoutesByFullPath {
   '/vendors': typeof AuthenticatedVendorsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/categories': typeof BlogCategoriesRouteWithChildren
   '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
   '/api/documents/$': typeof ApiDocumentsSplatRoute
+  '/blog/categories/$slug': typeof BlogCategoriesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -207,11 +221,13 @@ export interface FileRoutesByTo {
   '/vendors': typeof AuthenticatedVendorsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/categories': typeof BlogCategoriesRouteWithChildren
   '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
   '/api/documents/$': typeof ApiDocumentsSplatRoute
+  '/blog/categories/$slug': typeof BlogCategoriesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -235,11 +251,13 @@ export interface FileRoutesById {
   '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
   '/auth_/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/blog/categories': typeof BlogCategoriesRouteWithChildren
   '/check-in/$token': typeof CheckInTokenRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
   '/api/documents/$': typeof ApiDocumentsSplatRoute
+  '/blog/categories/$slug': typeof BlogCategoriesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -263,11 +281,13 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/auth/callback'
     | '/blog/$slug'
+    | '/blog/categories'
     | '/check-in/$token'
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
     | '/api/documents/$'
+    | '/blog/categories/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -289,11 +309,13 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/auth/callback'
     | '/blog/$slug'
+    | '/blog/categories'
     | '/check-in/$token'
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
     | '/api/documents/$'
+    | '/blog/categories/$slug'
   id:
     | '__root__'
     | '/'
@@ -316,11 +338,13 @@ export interface FileRouteTypes {
     | '/_authenticated/vendors'
     | '/auth_/callback'
     | '/blog/$slug'
+    | '/blog/categories'
     | '/check-in/$token'
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
     | '/api/documents/$'
+    | '/blog/categories/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -409,6 +433,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/check-in/$token'
       preLoaderRoute: typeof CheckInTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/blog/categories': {
+      id: '/blog/categories'
+      path: '/categories'
+      fullPath: '/blog/categories'
+      preLoaderRoute: typeof BlogCategoriesRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/blog/$slug': {
       id: '/blog/$slug'
@@ -508,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBudgetRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/blog/categories/$slug': {
+      id: '/blog/categories/$slug'
+      path: '/$slug'
+      fullPath: '/blog/categories/$slug'
+      preLoaderRoute: typeof BlogCategoriesSlugRouteImport
+      parentRoute: typeof BlogCategoriesRoute
+    }
     '/api/documents/$': {
       id: '/api/documents/$'
       path: '/api/documents/$'
@@ -551,12 +589,26 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BlogCategoriesRouteChildren {
+  BlogCategoriesSlugRoute: typeof BlogCategoriesSlugRoute
+}
+
+const BlogCategoriesRouteChildren: BlogCategoriesRouteChildren = {
+  BlogCategoriesSlugRoute: BlogCategoriesSlugRoute,
+}
+
+const BlogCategoriesRouteWithChildren = BlogCategoriesRoute._addFileChildren(
+  BlogCategoriesRouteChildren,
+)
+
 interface BlogRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
+  BlogCategoriesRoute: typeof BlogCategoriesRouteWithChildren
 }
 
 const BlogRouteChildren: BlogRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
+  BlogCategoriesRoute: BlogCategoriesRouteWithChildren,
 }
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)

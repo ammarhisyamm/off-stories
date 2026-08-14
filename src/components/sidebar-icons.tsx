@@ -105,6 +105,17 @@ export function SidebarNotes({ className }: { className?: string }) {
   );
 }
 
+export function SidebarBlog({ className }: { className?: string }) {
+  return (
+    <S className={className}>
+      {p("M5.4 4.6 H18.6 V19.4 H5.4 Z", 0)}
+      {p("M8 8.2 H16", 1)}
+      {p("M8 11.2 H16", 2)}
+      {p("M8 14.2 H13.2", 3)}
+    </S>
+  );
+}
+
 export function SidebarDocuments({ className }: { className?: string }) {
   return (
     <S className={className}>

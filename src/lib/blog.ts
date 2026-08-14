@@ -27,6 +27,14 @@ export type BlogPost = {
   keywords: string[];
 };
 
+export type BlogCategory = {
+  slug: string;
+  label: string;
+  title: string;
+  description: string;
+  intro: string;
+};
+
 const blogDateFormatter = new Intl.DateTimeFormat("id-ID", {
   day: "numeric",
   month: "long",
@@ -35,6 +43,14 @@ const blogDateFormatter = new Intl.DateTimeFormat("id-ID", {
 
 export function formatBlogDate(date: string) {
   return blogDateFormatter.format(new Date(date));
+}
+
+export function slugifyCategory(category: string) {
+  return category
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export const blogPosts: BlogPost[] = [
@@ -48,12 +64,12 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-08-12",
     readTime: "6 menit baca",
     intro:
-      "Di Indonesia, budget pernikahan biasanya paling cepat membengkak di tiga area: venue, catering, dan vendor utama. Kalau tiga komponen ini tidak dihitung sejak awal, pasangan sering baru sadar bahwa total pengeluaran sudah melewati target setelah kontrak pertama ditandatangani. Karena itu, pembagian anggaran perlu dibuat sejak fase awal, bukan setelah semua keputusan besar selesai.",
+      "Di Indonesia, budget pernikahan biasanya paling cepat membengkak di tiga area: venue, catering, dan vendor utama. Kalau tiga komponen ini tidak dihitung sejak awal, pasangan sering baru sadar bahwa total pengeluaran sudah melewati target setelah kontrak pertama ditandatangani. Karena itu, pembagian anggaran perlu dibuat sejak fase awal, bukan setelah semua keputusan besar selesai. Buat pasangan yang menikah di Jakarta, Surabaya, Bandung, Bali, atau kota besar lain, perbedaan harga antarkota bisa terasa sangat nyata sejak awal pencarian vendor.",
     sections: [
       {
         heading: "Apa yang paling memengaruhi budget",
         paragraphs: [
-          "Kota tempat acara sangat menentukan level biaya. Jakarta, Surabaya, Bandung, Bali, dan kota besar lain biasanya punya tarif venue dan vendor yang lebih tinggi daripada kota satelit. Jumlah tamu juga memengaruhi semua lini: venue, catering, kursi, parkir, dekor, souvenir, dan tim operasional.",
+          "Kota tempat acara sangat menentukan level biaya. Jakarta, Surabaya, Bandung, Bali, dan kota besar lain biasanya punya tarif venue dan vendor yang lebih tinggi daripada kota satelit. Jumlah tamu juga memengaruhi semua lini: venue, catering, kursi, parkir, dekor, souvenir, dan tim operasional. Kalau acaranya memakai format akad dan resepsi terpisah, kamu juga perlu mengeluarkan budget tambahan untuk flow tamu dan waktu sewa venue.",
           "Kalau kamu sudah tahu lokasi dan estimasi tamu, kamu sebenarnya sudah punya dua input terbesar untuk memulai perhitungan budget yang masuk akal.",
         ],
         bullets: [
@@ -102,7 +118,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: "checklist-seserahan-pernikahan",
-    title: "Checklist Seserahan Pernikahan: Barang, Timing, dan Cara Menyusunnya",
+    title: "Checklist Seserahan Pernikahan di Indonesia: Barang, Timing, dan Cara Menyusunnya",
     excerpt:
       "Daftar seserahan yang umum di Indonesia, kapan harus mulai menyiapkan, dan cara mengatur checklist supaya tidak ada item yang tertinggal.",
     category: "Seserahan",
@@ -110,12 +126,12 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-08-13",
     readTime: "5 menit baca",
     intro:
-      "Seserahan sering terasa sederhana di awal, tetapi begitu mulai dicatat, itemnya cepat bertambah. Karena tiap keluarga punya kebiasaan yang berbeda, checklist seserahan sebaiknya diperlakukan seperti daftar kerja: jelas, bisa dicentang, dan mudah disesuaikan dengan adat keluarga masing-masing.",
+      "Seserahan sering terasa sederhana di awal, tetapi begitu mulai dicatat, itemnya cepat bertambah. Karena tiap keluarga punya kebiasaan yang berbeda, checklist seserahan sebaiknya diperlakukan seperti daftar kerja: jelas, bisa dicentang, dan mudah disesuaikan dengan adat keluarga masing-masing. Di Indonesia, isi seserahan bisa ikut berubah tergantung adat Jawa, Sunda, Minang, Bugis, Betawi, atau kebiasaan keluarga inti.",
     sections: [
       {
         heading: "Apa yang biasanya masuk ke seserahan",
         paragraphs: [
-          "Isi seserahan bisa berbeda-beda tergantung tradisi keluarga, tetapi biasanya ada kombinasi barang pribadi, perlengkapan ibadah, produk perawatan diri, pakaian, hingga kebutuhan simbolis yang disepakati bersama. Intinya bukan menyalin daftar orang lain mentah-mentah, melainkan menyesuaikan dengan adat, kemampuan, dan preferensi keluarga.",
+          "Isi seserahan bisa berbeda-beda tergantung tradisi keluarga, tetapi biasanya ada kombinasi barang pribadi, perlengkapan ibadah, produk perawatan diri, pakaian, hingga kebutuhan simbolis yang disepakati bersama. Intinya bukan menyalin daftar orang lain mentah-mentah, melainkan menyesuaikan dengan adat, kemampuan, dan preferensi keluarga. Kalau keluarga ingin aman, formatnya bisa dibuat bertahap: barang yang wajib, barang tambahan, dan barang simbolis yang sudah disepakati sejak awal.",
           "Kalau kamu ingin rapi, pisahkan seserahan ke beberapa kategori supaya lebih mudah ditandai saat belanja.",
         ],
         bullets: [
@@ -161,7 +177,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: "wedding-organizer-vs-diy-wedding",
-    title: "Wedding Organizer vs DIY Wedding: Kapan Perlu WO?",
+    title: "Wedding Organizer vs DIY Wedding di Indonesia: Kapan Perlu WO?",
     excerpt:
       "Bandingkan peran wedding organizer dan planning mandiri agar kamu tahu kapan WO benar-benar membantu, dan kapan kamu bisa mengelola sendiri.",
     category: "Planning",
@@ -169,12 +185,12 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-08-13",
     readTime: "5 menit baca",
     intro:
-      "Di Indonesia, keputusan pakai Wedding Organizer sering ditentukan bukan cuma oleh budget, tetapi juga oleh kompleksitas keluarga, jumlah tamu, dan seberapa banyak vendor yang perlu dikontrol. Ada pasangan yang cukup nyaman mengatur sendiri, tetapi ada juga yang butuh WO untuk menjaga timeline tetap rapi dan keluarga tetap tenang.",
+      "Di Indonesia, keputusan pakai Wedding Organizer sering ditentukan bukan cuma oleh budget, tetapi juga oleh kompleksitas keluarga, jumlah tamu, adat yang dipakai, dan seberapa banyak vendor yang perlu dikontrol. Ada pasangan yang cukup nyaman mengatur sendiri, tetapi ada juga yang butuh WO untuk menjaga timeline tetap rapi dan keluarga tetap tenang. Saat akad, resepsi, dan sesi keluarga terjadi dalam satu hari, koordinasi WO biasanya terasa jauh lebih membantu.",
     sections: [
       {
         heading: "Kapan WO paling membantu",
         paragraphs: [
-          "WO paling berguna saat kamu punya banyak vendor, jadwal yang padat, atau keluarga yang ingin semuanya berjalan dengan detail tertentu. Mereka membantu koordinasi hari H, menyusun urutan kerja vendor, dan mengurangi beban komunikasi yang biasanya melelahkan kalau semua dilakukan oleh pasangan sendiri.",
+          "WO paling berguna saat kamu punya banyak vendor, jadwal yang padat, atau keluarga yang ingin semuanya berjalan dengan detail tertentu. Mereka membantu koordinasi hari H, menyusun urutan kerja vendor, dan mengurangi beban komunikasi yang biasanya melelahkan kalau semua dilakukan oleh pasangan sendiri. Ini sangat terasa kalau kamu harus sinkron dengan gedung, WO, keluarga besar, MC, dekor, dan dokumentasi sekaligus.",
         ],
         bullets: [
           "Acara dengan banyak vendor dan titik koordinasi.",
@@ -218,7 +234,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: "rsvp-seating-check-in-pernikahan",
-    title: "RSVP, Seating, dan Check-in Pernikahan: Flow Tamu yang Lebih Rapi",
+    title: "RSVP, Seating, dan Check-in Pernikahan di Indonesia: Flow Tamu yang Lebih Rapi",
     excerpt:
       "Cara menata RSVP link, WhatsApp, seating, dan QR check-in supaya pengelolaan tamu lebih mudah dan acara berjalan lebih tenang.",
     category: "Guests",
@@ -226,12 +242,12 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-08-13",
     readTime: "6 menit baca",
     intro:
-      "Guest management sering baru terasa penting saat jumlah tamu mulai mendekati kapasitas venue. Padahal, alur RSVP, seating, dan check-in yang rapi bisa mengurangi antrean, menghindari kursi kosong yang kacau, dan membuat tim keluarga lebih mudah mengarahkan tamu di hari acara.",
+      "Guest management sering baru terasa penting saat jumlah tamu mulai mendekati kapasitas venue. Padahal, alur RSVP, seating, dan check-in yang rapi bisa mengurangi antrean, menghindari kursi kosong yang kacau, dan membuat tim keluarga lebih mudah mengarahkan tamu di hari acara. Untuk pasangan di Indonesia, RSVP sering datang lewat WhatsApp, lalu perlu dirapikan lagi ke satu daftar utama supaya keluarga, WO, dan venue melihat data yang sama.",
     sections: [
       {
         heading: "Kenapa RSVP dulu baru seating",
         paragraphs: [
-          "RSVP memberi gambaran siapa yang benar-benar datang dan berapa pax yang perlu disiapkan. Tanpa itu, seating plan mudah berubah karena kamu belum tahu jumlah hadir yang realistis. Setelah RSVP terkumpul, barulah kamu bisa menyusun susunan meja yang lebih masuk akal.",
+          "RSVP memberi gambaran siapa yang benar-benar datang dan berapa pax yang perlu disiapkan. Tanpa itu, seating plan mudah berubah karena kamu belum tahu jumlah hadir yang realistis. Setelah RSVP terkumpul, barulah kamu bisa menyusun susunan meja yang lebih masuk akal. Di acara keluarga besar, ini juga membantu menghindari tamu yang datang berkelompok tapi duduk terpencar.",
         ],
         bullets: [
           "RSVP menentukan estimasi hadir yang lebih akurat.",
@@ -275,7 +291,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: "checklist-12-bulan-sebelum-nikah",
-    title: "Checklist 12 Bulan Sebelum Nikah: Timeline Pernikahan yang Lebih Terkontrol",
+    title: "Checklist 12 Bulan Sebelum Nikah di Indonesia: Timeline Pernikahan yang Lebih Terkontrol",
     excerpt:
       "Timeline praktis dari 12 bulan sebelum hari H sampai mendekati acara, cocok untuk pasangan yang ingin mengurangi keputusan mendadak.",
     category: "Timeline",
@@ -283,12 +299,12 @@ export const blogPosts: BlogPost[] = [
     updatedAt: "2026-08-13",
     readTime: "7 menit baca",
     intro:
-      "Timeline pernikahan yang bagus bukan yang paling padat, melainkan yang paling realistis. Kalau kamu mulai sekitar 12 bulan sebelum hari H, kamu punya cukup ruang untuk mengunci tanggal, menyusun budget, memilih vendor, dan menghindari keputusan mendadak yang biasanya paling mahal.",
+      "Timeline pernikahan yang bagus bukan yang paling padat, melainkan yang paling realistis. Kalau kamu mulai sekitar 12 bulan sebelum hari H, kamu punya cukup ruang untuk mengunci tanggal, menyusun budget, memilih vendor, dan menghindari keputusan mendadak yang biasanya paling mahal. Di Indonesia, urutan yang rapi juga membantu kamu menyesuaikan jadwal KUA, akad nikah, resepsi, dan kebutuhan keluarga besar.",
     sections: [
       {
         heading: "12 sampai 9 bulan sebelum acara",
         paragraphs: [
-          "Fase ini biasanya dipakai untuk mengunci fondasi utama. Lokasi, range budget, format acara, dan prioritas keluarga sebaiknya sudah mulai jelas. Setelah itu, vendor besar seperti venue, catering, dan foto-video bisa mulai dibicarakan.",
+          "Fase ini biasanya dipakai untuk mengunci fondasi utama. Lokasi, range budget, format acara, dan prioritas keluarga sebaiknya sudah mulai jelas. Setelah itu, vendor besar seperti venue, catering, dan foto-video bisa mulai dibicarakan. Kalau kamu ingin mengurus akad di KUA, ini juga waktu yang pas untuk mulai mengantisipasi jadwal administratif dan kebutuhan dokumen.",
         ],
         ordered: [
           "Tentukan tanggal dan kota acara.",
@@ -332,6 +348,61 @@ export const blogPosts: BlogPost[] = [
     keywords: ["timeline pernikahan", "checklist 12 bulan sebelum nikah", "wedding timeline indonesia"],
   },
 ];
+
+export const blogCategories: BlogCategory[] = [
+  {
+    slug: "budget",
+    label: "Budget",
+    title: "Budget pernikahan",
+    description: "Cara membagi biaya pernikahan, menentukan prioritas, dan menjaga budget tetap sehat.",
+    intro:
+      "Untuk pasangan di Indonesia, budget biasanya paling sensitif di venue, catering, WO, dan dekor. Category ini membantu kamu mulai dari angka yang paling realistis.",
+  },
+  {
+    slug: "seserahan",
+    label: "Seserahan",
+    title: "Seserahan & adat",
+    description: "Checklist seserahan, timing belanja, dan penyesuaian dengan tradisi keluarga.",
+    intro:
+      "Kategori ini fokus pada checklist seserahan yang umum dipakai di Indonesia, termasuk penyesuaian dengan adat keluarga dan kebutuhan simbolis.",
+  },
+  {
+    slug: "planning",
+    label: "Planning",
+    title: "WO vs DIY",
+    description: "Kapan wedding organizer membantu, kapan planning mandiri masih masuk akal, dan apa risikonya.",
+    intro:
+      "Kategori ini membahas koordinasi, vendor, dan workflow yang biasanya paling sibuk pada pernikahan di Indonesia.",
+  },
+  {
+    slug: "guests",
+    label: "Guests",
+    title: "RSVP & tamu",
+    description: "RSVP, seating, check-in, dan alur tamu yang lebih rapi untuk acara di Indonesia.",
+    intro:
+      "Kategori ini membantu kamu merapikan tamu, kursi, dan check-in agar tim keluarga dan venue melihat data yang sama.",
+  },
+  {
+    slug: "timeline",
+    label: "Timeline",
+    title: "Timeline nikah",
+    description: "Checklist 12 bulan, persiapan KUA, akad, resepsi, dan milestone penting menjelang hari H.",
+    intro:
+      "Kategori ini untuk pasangan yang ingin urutan kerja lebih tenang dari awal sampai mendekati hari acara.",
+  },
+];
+
+export function getBlogCategory(slug: string) {
+  return blogCategories.find((category) => category.slug === slug);
+}
+
+export function getBlogPostsByCategory(slug: string) {
+  return blogPosts.filter((post) => slugifyCategory(post.category) === slug);
+}
+
+export function blogCategoryUrl(slug: string) {
+  return `${siteUrl}/blog/categories/${slug}`;
+}
 
 export function getBlogPost(slug: string) {
   return blogPosts.find((post) => post.slug === slug);

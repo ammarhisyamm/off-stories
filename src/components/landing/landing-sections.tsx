@@ -10,6 +10,13 @@ import { TestimonialsCarousel } from "@/components/landing/testimonials-carousel
 import { BrandLogo } from "@/components/brand-logo";
 import { useReveal } from "@/hooks/use-reveal";
 import { useScrollProgress } from "@/hooks/use-scroll-progress";
+import {
+  blogCategories,
+  blogCategoryUrl,
+  blogPostUrl,
+  blogPosts,
+  formatBlogDate,
+} from "@/lib/blog";
 
 function CTAButton({
   to,
@@ -443,6 +450,99 @@ function FAQ() {
   );
 }
 
+function BlogSpotlight() {
+  const featuredPost = blogPosts[0];
+  const secondaryPosts = blogPosts.slice(1, 4);
+
+  return (
+    <section className="border-b border-border bg-surface/40">
+      <div className="container-landing section-landing">
+        <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+          <div className="max-w-xl">
+            <Reveal>
+              <div className="eyebrow text-xs">From the blog</div>
+              <h2 className="display mt-3 text-3xl text-foreground text-balance sm:text-4xl lg:text-5xl">
+                Guides for couples planning in Indonesia.
+              </h2>
+              <p className="mt-6 text-base leading-relaxed text-muted-foreground sm:text-lg">
+                We keep the advice local and practical: KUA, akad, resepsi, seserahan, RSVP via
+                WhatsApp, and the budget realities couples actually face in Jakarta, Bandung,
+                Surabaya, Bali, and beyond.
+              </p>
+            </Reveal>
+            <Reveal delay={120}>
+              <div className="mt-8 flex flex-wrap gap-2">
+                {blogCategories.map((category) => (
+                  <Link
+                    key={category.slug}
+                    to={blogCategoryUrl(category.slug)}
+                    className="rounded-full border border-border bg-background px-4 py-2 text-xs font-medium text-foreground transition duration-150 hover:bg-surface-2"
+                  >
+                    {category.label}
+                  </Link>
+                ))}
+              </div>
+            </Reveal>
+            <Reveal delay={220}>
+              <div className="mt-8">
+                <CTAButton to="/blog" primary>
+                  Explore the blog
+                </CTAButton>
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="grid gap-4">
+            <Reveal delay={60}>
+              <Link
+                to={blogPostUrl(featuredPost.slug)}
+                className="group rounded-[24px] border border-border bg-white p-6 shadow-soft transition duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
+              >
+                <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <span className="rounded-full border border-border bg-surface px-3 py-1 font-medium text-foreground">
+                    {featuredPost.category}
+                  </span>
+                  <span>{formatBlogDate(featuredPost.updatedAt)}</span>
+                </div>
+                <h3 className="serif mt-4 text-2xl text-balance text-foreground">
+                  {featuredPost.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {featuredPost.excerpt}
+                </p>
+              </Link>
+            </Reveal>
+            <div className="grid gap-4 md:grid-cols-3">
+              {secondaryPosts.map((post, index) => (
+                <Reveal key={post.slug} delay={140 + index * 80}>
+                  <Link
+                    to={blogPostUrl(post.slug)}
+                    className="group flex h-full flex-col rounded-[22px] border border-border bg-background p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white"
+                  >
+                    <div className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                      {post.category}
+                    </div>
+                    <h3 className="serif mt-3 text-xl text-balance text-foreground group-hover:text-primary">
+                      {post.title}
+                    </h3>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                      {post.excerpt}
+                    </p>
+                    <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-foreground">
+                      Read more
+                      <span aria-hidden="true">→</span>
+                    </span>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCTA() {
   return (
     <section className="relative overflow-hidden">
@@ -521,6 +621,7 @@ export function LandingSections() {
       <Workflow />
       <Testimonials />
       <FAQ />
+      <BlogSpotlight />
       <FinalCTA />
       <LandingFooter />
     </>

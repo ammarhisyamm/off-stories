@@ -2,7 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, CalendarBlank, Clock } from "@phosphor-icons/react";
 
 import { PublicPage } from "@/components/public-page";
-import { blogPosts, blogPostUrl, formatBlogDate, siteUrl } from "@/lib/blog";
+import {
+  blogCategories,
+  blogCategoryUrl,
+  blogPosts,
+  blogPostUrl,
+  formatBlogDate,
+  siteUrl,
+} from "@/lib/blog";
 
 export const Route = createFileRoute("/blog")({
   head: () => ({
@@ -62,6 +69,41 @@ function BlogIndex() {
               Start planning
               <ArrowRight weight="bold" size={16} />
             </Link>
+          </div>
+        </section>
+
+        <section className="space-y-6">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <div className="eyebrow">Browse by category</div>
+              <h2 className="serif mt-2 text-2xl text-foreground">
+                Temukan artikel yang paling relevan untuk fase planning kamu.
+              </h2>
+            </div>
+            <Link
+              to="/blog/categories"
+              className="hidden items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary md:inline-flex"
+            >
+              View all categories
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {blogCategories.map((category) => (
+              <Link
+                key={category.slug}
+                to={blogCategoryUrl(category.slug)}
+                className="rounded-[22px] border border-border bg-surface p-5 transition duration-150 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
+              >
+                <div className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {category.label}
+                </div>
+                <h3 className="serif mt-3 text-xl text-balance text-foreground">{category.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {category.description}
+                </p>
+              </Link>
+            ))}
           </div>
         </section>
 

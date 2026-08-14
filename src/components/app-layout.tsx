@@ -6,6 +6,7 @@ import {
   SidebarBudget,
   SidebarCalendar,
   SidebarChecklist,
+  SidebarBlog,
   SidebarDocuments,
   SidebarGuests,
   SidebarHouse,
@@ -29,6 +30,7 @@ const primaryNav = [
   { to: "/vendors", label: "Vendors", Icon: SidebarVendors },
   { to: "/guests", label: "Guests", Icon: SidebarGuests },
   { to: "/notes", label: "Notes", Icon: SidebarNotes },
+  { to: "/blog", label: "Blog", Icon: SidebarBlog },
   { to: "/documents", label: "Documents", Icon: SidebarDocuments },
   { to: "/settings", label: "Settings", Icon: SidebarSettings },
 ] as const;
@@ -329,6 +331,14 @@ export function AppLayout({
               <div className="mt-1.5 text-xs text-muted-foreground">
                 {hasEvent ? `${days} days to go` : "Set up your event"}
               </div>
+              <Link
+                to="/blog"
+                preload="intent"
+                onClick={() => setMobileOpen(false)}
+                className="mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+              >
+                Blog
+              </Link>
             </div>
             <button
               onClick={() => setMobileOpen(false)}
