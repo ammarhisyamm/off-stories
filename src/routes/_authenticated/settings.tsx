@@ -497,10 +497,17 @@ function CollaboratorsPanel() {
   const [confirmLeave, setConfirmLeave] = useState(false);
 
   async function fetchState() {
-    const [inv, mem] = await Promise.all([list(), members()]);
-    setInvites(inv.invites as Invite[]);
-    setMemberList((mem.members ?? []) as Member[]);
-    setRoleState((mem.role as "owner" | "editor" | "viewer" | null) ?? null);
+    const inv = (await list()) as { invites: Invite[]; workspaceId?: string };
+    const mem = (await members()) as {
+      members?: Member[];
+      role?: "owner" | "editor" | "viewer" | null;
+      workspaceId?: string | null;
+      workspaceName?: string | null;
+      myId?: string | null;
+    };
+    setInvites(inv.invites ?? []);
+    setMemberList(mem.members ?? []);
+    setRoleState(mem.role ?? null);
     setWorkspaceId(mem.workspaceId ?? null);
     setWorkspaceName(mem.workspaceName ?? null);
     setMyId(mem.myId ?? null);

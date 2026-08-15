@@ -85,7 +85,16 @@ export const listInvites = createServerFn({ method: "GET" })
         "SELECT id, token, email, role, created_at, expires_at, accepted_at, revoked_at FROM workspace_invites WHERE workspace_id = ? ORDER BY created_at DESC",
       )
       .bind(workspaceId)
-      .all();
+      .all<{
+        id: string;
+        token: string;
+        email: string;
+        role: string;
+        created_at: string;
+        expires_at: string | null;
+        accepted_at: string | null;
+        revoked_at: string | null;
+      }>();
     return { invites: rows.results ?? [], workspaceId };
   });
 
@@ -273,7 +282,14 @@ export const listMembers = createServerFn({ method: "GET" })
        WHERE workspace_members.workspace_id = ? ORDER BY workspace_members.joined_at`,
       )
       .bind(workspaceId)
-      .all();
+      .all<{
+        user_id: string;
+        role: string;
+        joined_at: string;
+        display_name: string;
+        email: string;
+        avatar_url: string | null;
+      }>();
     const members = (rows.results ?? []).map((row) => ({
       ...row,
       profiles: { display_name: row.display_name, email: row.email, avatar_url: row.avatar_url },

@@ -13,6 +13,7 @@ import {
   getCategoryLabel,
   getLatestBlogPosts,
   siteUrl,
+  type BlogCategory,
 } from "@/lib/blog";
 
 export const Route = createFileRoute("/blog/categories/$slug")({
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/blog/categories/$slug")({
       links: [{ rel: "canonical", href: blogCategoryUrl(category.slug) }],
     };
   },
-  loader: ({ params }) => {
+  loader: ({ params }): { category: BlogCategory } => {
     const category = blogCategories.find((item) => item.slug === params.slug);
     if (!category) throw notFound();
     return { category };
@@ -96,7 +97,7 @@ function CompactNewsletter({ slug }: { slug: string }) {
 }
 
 function BlogCategoryPage() {
-  const { category } = Route.useLoaderData();
+  const { category } = Route.useLoaderData() as { category: BlogCategory };
   const posts = getBlogPostsByCategory(category.slug);
   const otherCategories = blogCategories.filter((item) => item.slug !== category.slug);
   const categoryCounts = Object.fromEntries(
@@ -124,7 +125,6 @@ function BlogCategoryPage() {
     <PublicPage wide>
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
       <div className="space-y-10">

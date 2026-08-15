@@ -160,7 +160,7 @@ export function useWorkspaceData() {
     return () => {
       listeners.delete(listener);
     };
-  }, [loadFn, saveFn]);
+  }, [loadFn, saveFn, reportFn]);
 
   const setKind = useCallback(
     (kind: DataKind, payload: unknown, opts?: { success?: string | null }) => {

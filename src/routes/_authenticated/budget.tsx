@@ -457,7 +457,7 @@ function SavingsPanel({
   const [targetInput, setTargetInput] = useState(formatIDRInput(event.savingsTarget));
   const [savedInput, setSavedInput] = useState(formatIDRInput(event.savingsSaved));
   const progress = target ? Math.min(100, Math.round((saved / target) * 100)) : 0;
-  const weddingDate = event.date ? new Date(event.date) : null;
+  const weddingDate = useMemo(() => (event.date ? new Date(event.date) : null), [event.date]);
   const [startMonth, setStartMonth] = useState(
     event.savingsStartMonth ?? (weddingDate ? weddingMonth(weddingDate) : ""),
   );

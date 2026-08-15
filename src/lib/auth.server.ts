@@ -35,7 +35,7 @@ async function digest(value: string) {
   );
 }
 
-async function derivePassword(password: string, salt: Uint8Array) {
+async function derivePassword(password: string, salt: Uint8Array<ArrayBuffer>) {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
@@ -105,7 +105,7 @@ function googleStateCookieOptions() {
   };
 }
 
-function googleConfig() {
+function googleConfig(): { GOOGLE_CLIENT_ID: string; GOOGLE_CLIENT_SECRET: string } {
   const runtimeEnv = env as unknown as {
     GOOGLE_CLIENT_ID?: string;
     GOOGLE_CLIENT_SECRET?: string;
@@ -113,7 +113,10 @@ function googleConfig() {
   if (!runtimeEnv.GOOGLE_CLIENT_ID || !runtimeEnv.GOOGLE_CLIENT_SECRET) {
     throw new Error("Google sign-in is not configured yet.");
   }
-  return runtimeEnv;
+  return {
+    GOOGLE_CLIENT_ID: runtimeEnv.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: runtimeEnv.GOOGLE_CLIENT_SECRET,
+  };
 }
 
 function googleCallbackUrl() {

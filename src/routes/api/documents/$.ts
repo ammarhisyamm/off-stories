@@ -1,19 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
+import { requireCurrentUser } from "@/lib/auth.server";
 import { getDocumentsBucket } from "@/lib/cloudflare.server";
 import { resolveMemberRole, resolveWorkspace } from "@/lib/data.functions";
 
 export const Route = createFileRoute("/api/documents/$")({
   server: {
-    middleware: [requireCloudflareAuth],
     handlers: {
-      GET: async ({ context, params }) => {
-        const workspaceId = await resolveWorkspace(context.userId);
+      GET: async ({ params }) => {
+        const user = await requireCurrentUser();
+        const workspaceId = await resolveWorkspace(user.id);
         const key = params._splat;
         if (!workspaceId || !key || !key.startsWith(`${workspaceId}/`)) {
           return new Response("Not found", { status: 404 });
         }
-        if (!(await resolveMemberRole(workspaceId, context.userId))) {
+        if (!(await resolveMemberRole(workspaceId, user.id))) {
           return new Response("Forbidden", { status: 403 });
         }
         const object = await getDocumentsBucket().get(key);

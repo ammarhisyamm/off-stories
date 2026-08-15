@@ -21,6 +21,7 @@ import {
   getCategoryLabel,
   getRelatedBlogPosts,
   siteUrl,
+  type BlogPost,
 } from "@/lib/blog";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/blog/$slug")({
       links: [{ rel: "canonical", href: blogPostUrl(post.slug) }],
     };
   },
-  loader: ({ params }) => {
+  loader: ({ params }): { post: BlogPost } => {
     const post = getBlogPost(params.slug);
     if (!post) throw notFound();
     return { post };
@@ -166,7 +167,7 @@ function HelpfulFeedback() {
 }
 
 function BlogPostPage() {
-  const { post } = Route.useLoaderData();
+  const { post } = Route.useLoaderData() as { post: BlogPost };
   const relatedPosts = getRelatedBlogPosts(post, 3);
   const [size, setSize] = useState<"sm" | "md" | "lg">("md");
   const sizeClass = {
@@ -228,12 +229,10 @@ function BlogPostPage() {
       <ReadingProgress />
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
 
