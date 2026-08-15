@@ -453,7 +453,7 @@ function FAQ() {
 function BlogSpotlight() {
   const published = getPublishedPosts();
   const featuredPost = published[0];
-  const secondaryPosts = published.slice(1, 4);
+  const secondaryPosts = published.slice(1, 3);
 
   return (
     <section className="border-b border-border bg-surface/40">
@@ -514,7 +514,7 @@ function BlogSpotlight() {
                 </p>
               </Link>
             </Reveal>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
               {secondaryPosts.map((post, index) => (
                 <Reveal key={post.slug} delay={140 + index * 80}>
                   <Link
