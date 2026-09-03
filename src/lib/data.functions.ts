@@ -129,6 +129,210 @@ function isSafeHttpUrlForData(url: string): boolean {
   }
 }
 
+// ── Per-kind Zod schemas (bounded, prevents storage DoS / injection) ──
+const MAX_ARRAY = 2000;
+const MAX_STR = 500;
+const shortStr = z.string().max(MAX_STR);
+const longStr = z.string().max(5000);
+const idStr = z.string().max(120);
+
+const eventSchema = z
+  .object({
+    name: z.string().max(200).optional(),
+    type: z.string().max(100).optional(),
+    date: z.string().max(30).optional(),
+    location: z.string().max(300).optional(),
+    guestEstimate: z.number().min(0).max(100000).optional(),
+    budget: z.number().min(0).max(1e13).optional(),
+    savingsTarget: z.number().min(0).max(1e13).optional(),
+    savingsSaved: z.number().min(0).max(1e13).optional(),
+    savingsStartMonth: z.string().max(20).optional(),
+    savingsMonthlySplit: z.number().min(0).max(1).optional(),
+    adat: z.string().max(100).optional(),
+    brideName: z.string().max(100).optional(),
+    groomName: z.string().max(100).optional(),
+    ceremonyTypes: z.array(z.string().max(50)).max(20).optional(),
+    venueStatus: z.enum(["not_decided", "shortlisted", "booked"]).optional(),
+    venueName: z.string().max(200).optional(),
+    budgetPayer: z.enum(["couple", "bride_family", "groom_family", "shared", "other"]).optional(),
+    planningTeam: z.array(z.string().max(100)).max(50).optional(),
+  })
+  .passthrough();
+
+const docRefSchema = z.object({
+  id: idStr,
+  title: z.string().max(300),
+  kind: z.enum(["Contract", "Invoice", "Moodboard", "Reference", "Rundown", "Floor plan"]),
+  vendor: z.string().max(200).optional(),
+  url: z.string().max(2048),
+  filePath: z.string().max(500).optional(),
+  mimeType: z.string().max(200).optional(),
+  size: z
+    .number()
+    .min(0)
+    .max(50 * 1024 * 1024)
+    .optional(),
+  addedAt: z.string().max(50).optional(),
+});
+
+const taskSchema = z
+  .object({
+    id: idStr,
+    title: z.string().max(300),
+    category: z.string().max(100).optional(),
+    due: z.string().max(30).optional(),
+    priority: z.enum(["low", "medium", "high"]).optional(),
+    status: z.enum(["todo", "in_progress", "done"]).optional(),
+    assignee: z.string().max(100).optional(),
+    link: z.string().max(2048).optional(),
+  })
+  .passthrough();
+
+const budgetSchema = z
+  .object({
+    id: idStr,
+    category: z.string().max(100),
+    vendor: z.string().max(200).optional(),
+    amount: z.number().min(0).max(1e13),
+    paid: z.number().min(0).max(1e13).optional(),
+    committed: z.number().min(0).max(1e13).optional(),
+    status: z.enum(["paid", "partial", "due", "planned"]).optional(),
+    dueDate: z.string().max(30).optional(),
+    payer: z.enum(["couple", "bride_family", "groom_family", "shared", "other"]).optional(),
+    payments: z
+      .array(
+        z
+          .object({
+            id: idStr,
+            amount: z.number().min(0).max(1e13),
+            date: z.string().max(30),
+            payer: z.enum(["couple", "bride_family", "groom_family", "shared", "other"]).optional(),
+            note: z.string().max(500).optional(),
+          })
+          .passthrough(),
+      )
+      .max(200)
+      .optional(),
+  })
+  .passthrough();
+
+const vendorSchema = z
+  .object({
+    id: idStr,
+    name: z.string().max(200),
+    category: z.string().max(100).optional(),
+    contact: z.string().max(200).optional(),
+    phone: z.string().max(30).optional(),
+    packageName: z.string().max(200).optional(),
+    quoted: z.number().min(0).max(1e13).optional(),
+    final: z.number().min(0).max(1e13).optional(),
+    status: z.enum(["researching", "shortlisted", "booked", "cancelled"]).optional(),
+  })
+  .passthrough();
+
+const guestSchema = z
+  .object({
+    id: idStr,
+    name: z.string().max(200),
+    side: z.enum(["Bride", "Groom", "Both"]).optional(),
+    pax: z.number().min(0).max(100).optional(),
+    invited: z.boolean().optional(),
+    rsvp: z.enum(["pending", "yes", "no", "maybe"]).optional(),
+    phone: z.string().max(30).optional(),
+    email: z.string().max(254).optional(),
+    table: z.string().max(100).optional(),
+    dietaryNotes: z.string().max(500).optional(),
+    checkedIn: z.boolean().optional(),
+  })
+  .passthrough();
+
+const perKindSchemas: Record<DataKind, z.ZodTypeAny> = {
+  event: eventSchema,
+  tasks: z.array(taskSchema).max(MAX_ARRAY),
+  budget: z.array(budgetSchema).max(MAX_ARRAY),
+  vendors: z.array(vendorSchema).max(MAX_ARRAY),
+  guests: z.array(guestSchema).max(MAX_ARRAY),
+  milestones: z
+    .array(
+      z
+        .object({
+          id: idStr,
+          title: shortStr,
+          date: z.string().max(30),
+          kind: z.enum(["venue", "vendor", "fitting", "legal", "payment", "review"]),
+          done: z.boolean().optional(),
+        })
+        .passthrough(),
+    )
+    .max(MAX_ARRAY),
+  notes: z
+    .array(
+      z
+        .object({
+          id: idStr,
+          title: shortStr,
+          body: longStr.optional(),
+          tag: z.string().max(50).optional(),
+          date: z.string().max(30).optional(),
+        })
+        .passthrough(),
+    )
+    .max(MAX_ARRAY),
+  documents: z.array(docRefSchema).max(500),
+  rundown: z
+    .array(
+      z
+        .object({
+          id: idStr,
+          time: z.string().max(20),
+          title: shortStr,
+          location: z.string().max(300).optional(),
+          pic: z.string().max(200).optional(),
+          notes: longStr.optional(),
+          status: z.enum(["planned", "done"]).optional(),
+        })
+        .passthrough(),
+    )
+    .max(MAX_ARRAY),
+  seserahan: z
+    .array(
+      z
+        .object({
+          id: idStr,
+          name: shortStr,
+          category: z.string().max(100).optional(),
+          quantity: z.number().min(0).max(10000).optional(),
+          estimatedCost: z.number().min(0).max(1e13).optional(),
+          actualCost: z.number().min(0).max(1e13).optional(),
+          status: z.enum(["to_buy", "bought", "wrapped", "ready"]).optional(),
+          payer: z.enum(["couple", "bride_family", "groom_family", "shared", "other"]).optional(),
+          assignedTo: z.string().max(100).optional(),
+          link: z.string().max(2048).optional(),
+          notes: z.string().max(2000).optional(),
+        })
+        .passthrough(),
+    )
+    .max(MAX_ARRAY),
+  command: z
+    .object({
+      contacts: z
+        .array(
+          z
+            .object({
+              id: idStr,
+              name: shortStr,
+              role: z.string().max(100).optional(),
+              phone: z.string().max(30),
+              type: z.enum(["vendor", "family", "emergency"]).optional(),
+              notes: z.string().max(1000).optional(),
+            })
+            .passthrough(),
+        )
+        .max(500),
+    })
+    .passthrough(),
+};
+
 function validatePayload(kind: DataKind, payload: unknown): void {
   const json = JSON.stringify(payload);
   if (json.length > MAX_PAYLOAD_BYTES) {
@@ -141,12 +345,20 @@ function validatePayload(kind: DataKind, payload: unknown): void {
       throw new Error("Invalid payload keys");
     }
   }
-  // Per-kind: validate DocRef URLs to prevent stored javascript: XSS
+  // Zod per-kind validation
+  const schema = perKindSchemas[kind];
+  if (schema) {
+    const result = schema.safeParse(payload);
+    if (!result.success) {
+      throw new Error(
+        `Invalid payload for ${kind}: ${result.error.issues[0]?.message ?? "validation failed"}`,
+      );
+    }
+  }
+  // Extra: validate DocRef URLs to prevent stored javascript: XSS (defence in depth)
   if (kind === "documents" && Array.isArray(payload)) {
     for (const doc of payload as Array<Record<string, unknown>>) {
       if (typeof doc.url === "string" && doc.url.length > 0) {
-        // Allow https: and same-origin /api/documents/... links (relative handled client-side),
-        // but reject javascript:, data:, etc.
         if (
           /^\s*javascript:/i.test(doc.url) ||
           /^\s*data:/i.test(doc.url) ||
@@ -157,7 +369,6 @@ function validatePayload(kind: DataKind, payload: unknown): void {
         if (doc.url.startsWith("http://") || doc.url.startsWith("https://")) {
           if (!isSafeHttpUrlForData(doc.url)) throw new Error("Invalid document URL.");
         }
-        // also cap URL length
         if (doc.url.length > 2048) throw new Error("Document URL too long.");
       }
     }

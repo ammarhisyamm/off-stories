@@ -6,6 +6,7 @@ import { randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace, type EventData } from "@/lib/data.functions";
 import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
+import { logAudit } from "@/lib/audit.server";
 
 const tokenSchema = z.string().min(1).max(80);
 
@@ -71,18 +72,30 @@ export const getOrCreateInvitationLink = createServerFn({ method: "POST" })
       .prepare("INSERT INTO invitation_pages (id, workspace_id, token) VALUES (?, ?, ?)")
       .bind(randomId(), workspaceId, token)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "invitation.create",
+      targetId: token,
+    });
     return { token, url: `${appOrigin()}/undangan/${token}` };
   });
 
 export const revokeInvitationLink = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
+    assertSameOrigin();
     const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
     await getDatabase()
       .prepare("UPDATE invitation_pages SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ?")
       .bind(workspaceId)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "invitation.revoke",
+    });
     return { ok: true };
   });
 

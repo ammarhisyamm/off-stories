@@ -225,7 +225,23 @@ export async function createSession(userId: string) {
     .replaceAll("/", "_")
     .replaceAll("=", "");
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  await getDatabase()
+  const db = getDatabase();
+  // Enforce max concurrent sessions (3) — rotate oldest out
+  const MAX_SESSIONS = 3;
+  const sessions = await db
+    .prepare("SELECT id FROM sessions WHERE user_id = ? ORDER BY expires_at ASC")
+    .bind(userId)
+    .all<{ id: string }>();
+  if ((sessions.results?.length ?? 0) >= MAX_SESSIONS) {
+    const toDelete = (sessions.results ?? []).slice(
+      0,
+      (sessions.results?.length ?? 0) - MAX_SESSIONS + 1,
+    );
+    for (const s of toDelete) {
+      await db.prepare("DELETE FROM sessions WHERE id = ?").bind(s.id).run();
+    }
+  }
+  await db
     .prepare("INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)")
     .bind(await digest(token), userId, expiresAt)
     .run();
@@ -237,13 +253,31 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   if (!token) return null;
   const session = await getDatabase()
     .prepare(
-      `SELECT users.id, users.email, users.display_name, users.avatar_url
+      `SELECT users.id, users.email, users.display_name, users.avatar_url, sessions.expires_at
        FROM sessions JOIN users ON users.id = sessions.user_id
        WHERE sessions.id = ? AND sessions.expires_at > CURRENT_TIMESTAMP`,
     )
     .bind(await digest(token))
-    .first<{ id: string; email: string; display_name: string; avatar_url: string | null }>();
+    .first<{
+      id: string;
+      email: string;
+      display_name: string;
+      avatar_url: string | null;
+      expires_at: string;
+    }>();
   if (!session) return null;
+  // Idle timeout: if session is older than 7 days without activity, force re-login
+  // We use expires_at sliding window — extend on activity if > 50% elapsed
+  const expiresMs = new Date(session.expires_at).getTime();
+  const now = Date.now();
+  const totalMs = SESSION_DAYS * 24 * 60 * 60 * 1000;
+  if (expiresMs - now < totalMs * 0.5) {
+    const newExpires = new Date(now + totalMs).toISOString();
+    await getDatabase()
+      .prepare("UPDATE sessions SET expires_at = ? WHERE id = ?")
+      .bind(newExpires, await digest(token))
+      .run();
+  }
   return {
     id: session.id,
     email: session.email,

@@ -41,6 +41,7 @@ export const Route = createFileRoute("/blog/")({
 
 function NewsletterForm() {
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [state, setState] = useState<"idle" | "submitting" | "done">("idle");
   const subscribe = useServerFn(subscribeNewsletter);
 
@@ -49,8 +50,9 @@ function NewsletterForm() {
       onSubmit={(event) => {
         event.preventDefault();
         if (!email.includes("@")) return;
+        if (website.trim()) return; // bot
         setState("submitting");
-        subscribe({ data: { email, source: "blog" } })
+        subscribe({ data: { email, source: "blog", website } })
           .then(() => setState("done"))
           .catch(() => setState("idle"));
       }}
@@ -80,6 +82,17 @@ function NewsletterForm() {
               className="w-full rounded-full border border-border bg-background py-3 pl-11 pr-4 text-sm text-foreground outline-none transition duration-150 placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             />
           </div>
+          {/* Honeypot — hidden from humans */}
+          <input
+            type="text"
+            name="website"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="hidden"
+          />
           <button
             type="submit"
             disabled={state === "submitting"}

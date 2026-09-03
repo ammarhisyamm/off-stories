@@ -7,13 +7,29 @@ import { assertSameOrigin, checkRateLimit } from "@/lib/security.server";
 const subscribeSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
   source: z.string().trim().max(60).optional().default("blog"),
+  // Honeypot: bots fill this; humans leave empty (field is hidden)
+  website: z.string().max(200).optional().default(""),
+  // Turnstile token (optional — enforced only if TURNSTILE_SECRET_KEY is set)
+  turnstileToken: z.string().max(2000).optional(),
 });
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .inputValidator((input) => subscribeSchema.parse(input))
   .handler(async ({ data }) => {
     assertSameOrigin();
+    // Honeypot check — silently accept but don't actually subscribe
+    if (data.website && data.website.trim().length > 0) {
+      return { ok: true };
+    }
     checkRateLimit({ key: "newsletter", limit: 3, windowMs: 60_000, scope: data.email });
+    // Turnstile verification if token provided (falls back to true if secret not configured)
+    if (data.turnstileToken) {
+      const { verifyTurnstile } = await import("@/lib/security.server");
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const ip = getRequest()?.headers.get("cf-connecting-ip") ?? undefined;
+      const ok = await verifyTurnstile(data.turnstileToken, ip);
+      if (!ok) throw new Error("Bot verification failed. Please try again.");
+    }
     // Prevent re-subscribe bypass: if previously unsubscribed, require explicit re-confirm
     // For now, respect unsubscribed_at — don't resurrect without check
     const existing = await getDatabase()

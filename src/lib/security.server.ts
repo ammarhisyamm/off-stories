@@ -99,6 +99,34 @@ export function assertSameOrigin(): void {
   throw new Error("Forbidden: invalid origin.");
 }
 
+/**
+ * Verify Cloudflare Turnstile token if TURNSTILE_SECRET_KEY is configured.
+ * Returns true if valid or if not configured (fail-open for dev).
+ */
+export async function verifyTurnstile(
+  token: string | null | undefined,
+  ip?: string,
+): Promise<boolean> {
+  if (!token) return false;
+  try {
+    const { env } = await import("cloudflare:workers");
+    const secret = (env as unknown as Record<string, string | undefined>)["TURNSTILE_SECRET_KEY"];
+    if (!secret) return true; // not configured -> skip verification (honeypot+rateLimit still protect)
+    const form = new URLSearchParams();
+    form.set("secret", secret);
+    form.set("response", token);
+    if (ip) form.set("remoteip", ip);
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: form,
+    });
+    const data = (await res.json()) as { success?: boolean };
+    return Boolean(data.success);
+  } catch {
+    return false;
+  }
+}
+
 // ── Simple in-memory sliding-window rate limiter (per Worker isolate) ──
 // For Cloudflare Workers this is per-isolate, which is good enough as a
 // first line of defence before enabling a Rate Limit binding / KV.

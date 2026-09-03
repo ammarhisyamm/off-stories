@@ -42,6 +42,7 @@ export const Route = createFileRoute("/blog/categories/$slug")({
 
 function CompactNewsletter({ slug }: { slug: string }) {
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
   const [done, setDone] = useState(false);
   const subscribe = useServerFn(subscribeNewsletter);
 
@@ -60,8 +61,10 @@ function CompactNewsletter({ slug }: { slug: string }) {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            if (email.includes("@"))
-              subscribe({ data: { email, source: `category:${slug}` } }).then(() => setDone(true));
+            if (email.includes("@") && !website.trim())
+              subscribe({ data: { email, source: `category:${slug}`, website } }).then(() =>
+                setDone(true),
+              );
           }}
           className="mt-4 space-y-3"
         >
@@ -83,6 +86,16 @@ function CompactNewsletter({ slug }: { slug: string }) {
               className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground outline-none transition duration-150 placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             />
           </div>
+          <input
+            type="text"
+            name="website"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="hidden"
+          />
           <button
             type="submit"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-soft transition duration-150 hover:opacity-90 active:scale-[0.98]"

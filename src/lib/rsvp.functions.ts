@@ -5,6 +5,7 @@ import { randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace } from "@/lib/data.functions";
 import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
+import { logAudit } from "@/lib/audit.server";
 import type { EventData } from "@/lib/data.functions";
 import type { Guest } from "@/lib/types";
 
@@ -81,6 +82,12 @@ export const createRsvpLink = createServerFn({ method: "POST" })
       )
       .bind(randomId(), workspaceId, data.guestId, token)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "rsvp.create_link",
+      targetId: data.guestId,
+    });
     return {
       url: `${appOrigin()}/rsvp/${token}`,
       checkInUrl: `${appOrigin()}/check-in/${token}`,
@@ -92,6 +99,7 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((input) => z.object({ guestId: guestIdSchema }).parse(input))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
     const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
     await getDatabase()
@@ -100,6 +108,12 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
       )
       .bind(workspaceId, data.guestId)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "rsvp.revoke_link",
+      targetId: data.guestId,
+    });
     return { ok: true };
   });
 

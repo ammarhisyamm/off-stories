@@ -6,6 +6,7 @@ import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace } from "@/lib/data.functions";
 import { sendPartnerInviteEmail } from "@/lib/email";
 import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
+import { logAudit } from "@/lib/audit.server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const tokenSchema = z.string().uuid();
@@ -62,6 +63,13 @@ async function createInvite(userId: string, email: string | null) {
     )
     .bind(invite.id, workspaceId, invite.token, email, userId, invite.expiresAt)
     .run();
+  await logAudit({
+    workspaceId,
+    actorId: userId,
+    action: "invite.create",
+    targetId: invite.id,
+    meta: { email },
+  });
   return {
     id: invite.id,
     token: invite.token,
@@ -127,6 +135,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), role: z.enum(["viewer", "editor"]) }).parse(data),
   )
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
     const workspaceId = await ownerWorkspace(context.userId);
     await getDatabase()
       .prepare(
@@ -134,6 +143,13 @@ export const updateMemberRole = createServerFn({ method: "POST" })
       )
       .bind(data.role, workspaceId, data.userId, context.userId)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "member.role_change",
+      targetId: data.userId,
+      meta: { newRole: data.role },
+    });
     return { ok: true };
   });
 
@@ -141,6 +157,7 @@ export const revokeInvite = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
     const workspaceId = await ownerWorkspace(context.userId);
     await getDatabase()
       .prepare(
@@ -148,6 +165,12 @@ export const revokeInvite = createServerFn({ method: "POST" })
       )
       .bind(data.id, workspaceId)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "invite.revoke",
+      targetId: data.id,
+    });
     return { ok: true };
   });
 
@@ -229,6 +252,12 @@ export const acceptInvite = createServerFn({ method: "POST" })
         )
         .bind(context.userId, invite.id),
     ]);
+    await logAudit({
+      workspaceId: invite.workspace_id,
+      actorId: context.userId,
+      action: "invite.accept",
+      targetId: invite.id,
+    });
     return { ok: true, workspaceId: invite.workspace_id };
   });
 
@@ -236,6 +265,7 @@ export const leaveWorkspace = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((data) => z.object({ workspaceId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
     const owner = await getDatabase()
       .prepare("SELECT owner_id FROM workspaces WHERE id = ?")
       .bind(data.workspaceId)
@@ -246,6 +276,12 @@ export const leaveWorkspace = createServerFn({ method: "POST" })
       .prepare("DELETE FROM workspace_members WHERE workspace_id = ? AND user_id = ?")
       .bind(data.workspaceId, context.userId)
       .run();
+    await logAudit({
+      workspaceId: data.workspaceId,
+      actorId: context.userId,
+      action: "member.leave",
+      targetId: context.userId,
+    });
     return { ok: true };
   });
 
@@ -253,11 +289,18 @@ export const removePartner = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((data) => z.object({ userId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
     const workspaceId = await ownerWorkspace(context.userId);
     await getDatabase()
       .prepare("DELETE FROM workspace_members WHERE workspace_id = ? AND user_id = ?")
       .bind(workspaceId, data.userId)
       .run();
+    await logAudit({
+      workspaceId,
+      actorId: context.userId,
+      action: "member.remove",
+      targetId: data.userId,
+    });
     return { ok: true };
   });
 
