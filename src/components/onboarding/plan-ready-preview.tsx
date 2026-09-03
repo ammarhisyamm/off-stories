@@ -36,13 +36,22 @@ export function PlanReadyPreview({
   onBack: () => void;
   onFinish: () => void;
 }) {
-  const planningDate = new Date(`${getPlanningDate(setup.weddingDate)}T12:00:00`);
+  const primaryDate = setup.akadDate || setup.weddingDate;
+  const resepsiDateRaw = setup.resepsiDate || primaryDate;
+  const planningDate = new Date(`${getPlanningDate(primaryDate)}T12:00:00`);
+  const resepsiPlanningDate = new Date(`${getPlanningDate(resepsiDateRaw)}T12:00:00`);
   const formattedDate = planningDate.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
-  const planningDurationMonths = getPlanningDurationMonths(setup.weddingDate);
+  const formattedResepsi = resepsiPlanningDate.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const showTwoDates = resepsiDateRaw !== primaryDate;
+  const planningDurationMonths = getPlanningDurationMonths(primaryDate);
   const planningDuration = `${planningDurationMonths} ${planningDurationMonths === 1 ? "Month" : "Months"}`;
   const allocation = [
     { label: "Venue", percent: 28, icon: Buildings },
@@ -83,9 +92,15 @@ export function PlanReadyPreview({
     },
   ];
   const insights = [
-    `For weddings with around ${setup.guests} guests in ${setup.location || "your city"}, catering will likely be the largest expense.`,
-    "Booking your venue 9–12 months before your wedding date gives you more choices and better pricing.",
-    "Your planning timeline suggests starting vendor bookings within the next 30 days.",
+    `Untuk ${setup.guests} tamu di ${setup.location || "kota pilihan"} (${setup.guestsBride} dari mempelai 1, ${setup.guestsGroom} dari mempelai 2), catering ~40–50% budget — di ${setup.location || "Other"} estimasi Rp ${(setup.guests * (setup.location === "Jakarta" ? 90000 : setup.location === "Bali" ? 95000 : 70000)).toLocaleString("id-ID")}/pax.`,
+    setup.venueType === "outdoor"
+      ? "Outdoor butuh plan B hujan, genset & toilet portable — alokasikan 10–20% extra untuk venue."
+      : setup.venueStatus === "booked"
+        ? `Venue ${setup.venueName || setup.venueType || "terpilih"} sudah booking — kunci harga & konfirmasi kapasitas vs ${setup.guests} tamu.`
+        : "Booking venue 9–12 bulan sebelum (peak: sebelum Ramadan & tanggal cantik) — survei 3 venue & bandingkan paket bundling.",
+    setup.adat !== "No specific adat yet"
+      ? `${setup.adat} punya ${setup.ceremonyTypes.length} upacara terpilih — lock urutan dengan sesepuh 6–8 bulan sebelum.`
+      : "Timeline kamu menyarankan mulai booking vendor dalam 30 hari ke depan.",
   ];
   const budgetFloor = Math.round((estimatedBudget * 0.9) / 1_000_000) * 1_000_000;
   const budgetCeiling = Math.round((estimatedBudget * 1.2) / 1_000_000) * 1_000_000;
@@ -117,8 +132,11 @@ export function PlanReadyPreview({
                 setup.weddingType || "Wedding celebration",
                 ...(setup.adat && setup.adat !== "No specific adat yet" ? [setup.adat] : []),
                 setup.location || "Location to be decided",
-                `${setup.guests} Guests`,
-                formattedDate,
+                ...(setup.venueType ? [setup.venueType.replace("_", " ")] : []),
+                ...(setup.timeSlot ? [setup.timeSlot] : []),
+                `${setup.guests} Guests (${setup.guestsBride} & ${setup.guestsGroom})`,
+                showTwoDates ? `Akad: ${formattedDate}` : formattedDate,
+                ...(showTwoDates ? [`Resepsi: ${formattedResepsi}`] : []),
                 ...(setup.partnerOneName && setup.partnerTwoName
                   ? [`${setup.partnerOneName} & ${setup.partnerTwoName}`]
                   : []),
@@ -182,13 +200,16 @@ export function PlanReadyPreview({
             <OverviewItem
               icon={<MapPin size={19} />}
               label="Wedding Location"
-              value={setup.location || "To be decided"}
+              value={`${setup.location || "To be decided"}${setup.venueType ? ` · ${setup.venueType.replace("_", " ")}` : ""}${setup.venueName ? ` · ${setup.venueName}` : ""}`}
             />
             <OverviewItem
               icon={<CalendarBlank size={19} />}
-              label="Wedding Date"
-              value={formattedDate}
+              label={showTwoDates ? "Akad & Resepsi" : "Wedding Date"}
+              value={showTwoDates ? `${formattedDate} → ${formattedResepsi}` : formattedDate}
             />
+            {setup.timeSlot && (
+              <OverviewItem icon={<Clock size={19} />} label="Waktu" value={setup.timeSlot} />
+            )}
             {(setup.partnerOneName || setup.partnerTwoName) && (
               <OverviewItem
                 icon={<Heart size={19} />}
@@ -199,13 +220,16 @@ export function PlanReadyPreview({
             <OverviewItem
               icon={<UsersThree size={19} />}
               label="Estimated Guests"
-              value={`${setup.guests} Guests`}
+              value={`${setup.guests} (${setup.guestsBride} & ${setup.guestsGroom})`}
             />
             <OverviewItem
               icon={<UserCircleGear size={19} />}
               label="Wedding Organizer"
-              value={setup.organizer === "yes" ? "Yes" : "No"}
+              value={setup.organizer === "yes" ? "Ya" : "Tidak"}
             />
+            {setup.religion && (
+              <OverviewItem icon={<Notebook size={19} />} label="Agama" value={setup.religion} />
+            )}
             <OverviewItem
               icon={<Clock size={19} />}
               label="Planning Duration"

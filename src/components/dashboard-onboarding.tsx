@@ -14,9 +14,11 @@ import {
 import { ChoiceCard } from "./onboarding/choice-card";
 import { OnboardingModal } from "./onboarding/onboarding-modal";
 import {
+  AdatStep,
   BudgetStep,
+  DateTimeStep,
   GuestsStep,
-  LocationStep,
+  LocationVenueStep,
   OrganizerStep,
   WeddingTypeStep,
 } from "./onboarding/questions";
@@ -47,8 +49,8 @@ export function DashboardOnboarding({
   const [startError, setStartError] = useState<string | null>(null);
 
   const estimatedBudget = useMemo(
-    () => setupBudget(setup.guests, setup.budgetChoice, setup.budget),
-    [setup.budget, setup.budgetChoice, setup.guests],
+    () => setupBudget(setup.guests, setup.budgetChoice, setup.budget, setup.location),
+    [setup.budget, setup.budgetChoice, setup.guests, setup.location],
   );
 
   function update(next: Partial<SetupState>) {
@@ -69,7 +71,13 @@ export function DashboardOnboarding({
       setStartError("Nama kedua mempelai dan tanggal pernikahan wajib diisi sebelum melanjutkan.");
       return;
     }
-    update({ partnerOneName, partnerTwoName, weddingDate });
+    update({
+      partnerOneName,
+      partnerTwoName,
+      weddingDate,
+      akadDate: weddingDate,
+      resepsiDate: weddingDate,
+    });
     if (mode === "blank") {
       const coupleName = `${partnerOneName} & ${partnerTwoName}`;
       setKind(
@@ -99,7 +107,7 @@ export function DashboardOnboarding({
   }
 
   function nextQuestion() {
-    if (question < 5) setQuestion((current) => current + 1);
+    if (question < 7) setQuestion((current) => (current + 1) as typeof question);
     else setStage(3);
   }
 
@@ -333,19 +341,25 @@ export function DashboardOnboarding({
           </p>
         </div>
         {question === 1 && (
-          <LocationStep {...stepProps} onBack={() => setStage(1)} onNext={nextQuestion} />
+          <LocationVenueStep {...stepProps} onBack={() => setStage(1)} onNext={nextQuestion} />
         )}
         {question === 2 && (
           <GuestsStep {...stepProps} onBack={() => setQuestion(1)} onNext={nextQuestion} />
         )}
         {question === 3 && (
-          <BudgetStep {...stepProps} onBack={() => setQuestion(2)} onNext={nextQuestion} />
+          <DateTimeStep {...stepProps} onBack={() => setQuestion(2)} onNext={nextQuestion} />
         )}
         {question === 4 && (
-          <WeddingTypeStep {...stepProps} onBack={() => setQuestion(3)} onNext={nextQuestion} />
+          <BudgetStep {...stepProps} onBack={() => setQuestion(3)} onNext={nextQuestion} />
         )}
         {question === 5 && (
-          <OrganizerStep {...stepProps} onBack={() => setQuestion(4)} onNext={nextQuestion} />
+          <AdatStep {...stepProps} onBack={() => setQuestion(4)} onNext={nextQuestion} />
+        )}
+        {question === 6 && (
+          <WeddingTypeStep {...stepProps} onBack={() => setQuestion(5)} onNext={nextQuestion} />
+        )}
+        {question === 7 && (
+          <OrganizerStep {...stepProps} onBack={() => setQuestion(6)} onNext={nextQuestion} />
         )}
       </div>
     ) : (

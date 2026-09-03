@@ -67,6 +67,7 @@ export function Progress({ current, total }: { current: number; total: number })
 
 export function QuestionShell({
   question,
+  total = 7,
   children,
   onBack,
   onNext,
@@ -74,6 +75,7 @@ export function QuestionShell({
   disabled = false,
 }: {
   question: number;
+  total?: number;
   children: ReactNode;
   onBack: () => void;
   onNext: () => void;
@@ -82,9 +84,11 @@ export function QuestionShell({
 }) {
   return (
     <div className="mx-auto max-w-2xl">
-      <Progress current={question} total={5} />
+      <Progress current={question} total={total} />
       <div className="panel p-4 sm:p-8">
-        <div className="eyebrow">Question {question} of 5</div>
+        <div className="eyebrow">
+          Question {question} of {total}
+        </div>
         <div className="mt-6">{children}</div>
         <div className="mt-8 flex items-center justify-between gap-3 border-t border-[#f1f1f1] pt-4 sm:mt-10 sm:pt-5">
           <button

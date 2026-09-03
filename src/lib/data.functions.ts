@@ -51,8 +51,16 @@ export type EventData = typeof emptyEvent & {
   ceremonyTypes?: string[];
   venueStatus?: "not_decided" | "shortlisted" | "booked";
   venueName?: string;
+  venueType?: string;
   budgetPayer?: "couple" | "bride_family" | "groom_family" | "shared" | "other";
   planningTeam?: string[];
+  // research-based extensions
+  akadDate?: string;
+  resepsiDate?: string;
+  timeSlot?: string;
+  religion?: string;
+  guestsBride?: number;
+  guestsGroom?: number;
 };
 
 export type WorkspaceData = {
