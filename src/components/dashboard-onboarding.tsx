@@ -230,25 +230,34 @@ export function DashboardOnboarding({
                     <span className="mb-2 block text-sm font-medium">
                       Acara yang akan direncanakan
                     </span>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {ceremonyOptions.map((ceremony) => {
                         const active = setup.ceremonyTypes.includes(ceremony);
                         return (
-                          <button
+                          <label
                             key={ceremony}
-                            type="button"
-                            onClick={() =>
-                              update({
-                                ceremonyTypes: active
-                                  ? setup.ceremonyTypes.filter((item) => item !== ceremony)
-                                  : [...setup.ceremonyTypes, ceremony],
-                              })
-                            }
-                            className={`rounded-full border px-3 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
-                            aria-pressed={active}
+                            className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-white text-foreground hover:bg-surface"}`}
                           >
-                            {ceremony}
-                          </button>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              onChange={() =>
+                                update({
+                                  ceremonyTypes: active
+                                    ? setup.ceremonyTypes.filter((item) => item !== ceremony)
+                                    : [...setup.ceremonyTypes, ceremony],
+                                })
+                              }
+                              className="h-4 w-4 shrink-0 rounded border-input accent-primary"
+                              aria-label={ceremony}
+                            />
+                            <span className="flex-1 leading-none">{ceremony}</span>
+                            {active && (
+                              <span className="text-xs" aria-hidden>
+                                ✓
+                              </span>
+                            )}
+                          </label>
                         );
                       })}
                     </div>

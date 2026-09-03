@@ -411,24 +411,36 @@ export function AdatStep({
         <span className="mb-2 block text-sm font-medium">
           Upacara yang direncanakan (pilih semua yang perlu)
         </span>
-        <div className="flex flex-wrap gap-2">
+        {/* Best practice: checkbox list 44px min-hit, grid 2 kolom, bukan chip scroll kecil.
+            Alasan: target 44×44 (WCAG), keyboard & screen reader, tidak bentrok swipe. */}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {ceremonyOptions.map((c) => {
             const active = setup.ceremonyTypes.includes(c);
             return (
-              <button
+              <label
                 key={c}
-                type="button"
-                onClick={() =>
-                  onUpdate({
-                    ceremonyTypes: active
-                      ? setup.ceremonyTypes.filter((x) => x !== c)
-                      : [...setup.ceremonyTypes, c],
-                  })
-                }
-                className={`rounded-full border px-3 py-2 text-xs ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface text-muted-foreground hover:bg-surface-2"}`}
+                className={`flex min-h-[44px] cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring ${active ? "border-primary bg-primary/5 text-primary" : "border-border bg-white text-foreground hover:bg-surface"}`}
               >
-                {c}
-              </button>
+                <input
+                  type="checkbox"
+                  checked={active}
+                  onChange={() =>
+                    onUpdate({
+                      ceremonyTypes: active
+                        ? setup.ceremonyTypes.filter((x) => x !== c)
+                        : [...setup.ceremonyTypes, c],
+                    })
+                  }
+                  className="h-4 w-4 shrink-0 rounded border-input accent-primary"
+                  aria-label={c}
+                />
+                <span className="flex-1 leading-none">{c}</span>
+                {active && (
+                  <span className="text-xs" aria-hidden>
+                    ✓
+                  </span>
+                )}
+              </label>
             );
           })}
         </div>

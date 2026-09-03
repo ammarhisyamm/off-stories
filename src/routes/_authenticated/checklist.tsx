@@ -5,7 +5,14 @@ import { AddTaskModal } from "@/components/add-task-modal";
 import { ViewModal, Detail, DetailGrid } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import { daysUntil, type Task } from "@/lib/types";
-import { ArrowSquareOut, BellRinging, WarningCircle } from "@phosphor-icons/react";
+import { ArrowSquareOut, BellRinging, WarningCircle, X } from "@phosphor-icons/react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
@@ -118,20 +125,45 @@ function Checklist() {
         </QuietButton>
       }
     >
-      <div className="flex flex-wrap gap-1.5 mb-6">
-        {categories.map((c) => (
-          <button
-            key={c}
-            onClick={() => setFilter(c)}
-            className={`text-xs px-3 py-2 rounded-full border transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97] ${
-              filter === c
-                ? "bg-primary text-primary-foreground border-primary"
-                : "border-border bg-surface text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {c}
-          </button>
-        ))}
+      {/* Best practice 2026: Select dropdown > horizontal scroll chips
+          Chips punya masalah: overflow hidden tanpa affordance, swipe bentrok
+          scroll halaman, target kecil <44px, tidak keyboard-accessible.
+          Select: native picker di mobile, searchable, 44px, screen-reader. */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <label htmlFor="category-filter" className="text-sm font-medium text-foreground">
+            Filter kategori
+          </label>
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger id="category-filter" className="w-[200px] bg-white">
+              <SelectValue placeholder="Pilih kategori" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((c) => {
+                const count =
+                  c === "All" ? tasks.length : tasks.filter((t) => t.category === c).length;
+                return (
+                  <SelectItem key={c} value={c}>
+                    {c} ({count})
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+          {filter !== "All" && (
+            <button
+              type="button"
+              onClick={() => setFilter("All")}
+              className="inline-flex h-9 items-center gap-1 rounded-md border border-border bg-surface px-2 text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Hapus filter"
+            >
+              <X size={14} /> Reset
+            </button>
+          )}
+        </div>
+        <span className="text-xs text-muted-foreground tabular-nums">
+          {filtered.length} dari {tasks.length} tugas
+        </span>
       </div>
 
       {reminders.length > 0 && (
