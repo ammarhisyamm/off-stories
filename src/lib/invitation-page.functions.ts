@@ -5,6 +5,7 @@ import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware
 import { randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace, type EventData } from "@/lib/data.functions";
+import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
 
 const tokenSchema = z.string().min(1).max(80);
 
@@ -18,20 +19,15 @@ function slugify(value: string) {
     .slice(0, 40);
 }
 
-function randomSuffix(length = 4) {
-  const bytes = crypto.getRandomValues(new Uint8Array(length));
-  return Array.from(bytes, (byte) => "abcdefghijklmnopqrstuvwxyz0123456789"[byte % 36]).join("");
-}
-
 function appOrigin() {
-  const request = getRequest();
-  const host = request?.headers?.get("x-forwarded-host") ?? request?.headers?.get("host");
-  return host ? (host.startsWith("http") ? host : `https://${host}`) : "https://offstories.fun";
+  return getSafeAppOrigin();
 }
 
 function parseEvent(payload: string | null): EventData {
   try {
-    return payload ? JSON.parse(payload) as EventData : { name: "", type: "", date: "", location: "", guestEstimate: 0, budget: 0 };
+    return payload
+      ? (JSON.parse(payload) as EventData)
+      : { name: "", type: "", date: "", location: "", guestEstimate: 0, budget: 0 };
   } catch {
     return { name: "", type: "", date: "", location: "", guestEstimate: 0, budget: 0 };
   }
@@ -40,12 +36,20 @@ function parseEvent(payload: string | null): EventData {
 export const getOrCreateInvitationLink = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "create-invitation-link", limit: 10, windowMs: 60_000 });
     const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
     const database = getDatabase();
-    const existing = await database.prepare("SELECT token FROM invitation_pages WHERE workspace_id = ?").bind(workspaceId).first<{ token: string; revoked_at: string | null }>();
+    const existing = await database
+      .prepare("SELECT token FROM invitation_pages WHERE workspace_id = ?")
+      .bind(workspaceId)
+      .first<{ token: string; revoked_at: string | null }>();
     if (existing?.token) {
-      await database.prepare("UPDATE invitation_pages SET revoked_at = NULL WHERE workspace_id = ?").bind(workspaceId).run();
+      await database
+        .prepare("UPDATE invitation_pages SET revoked_at = NULL WHERE workspace_id = ?")
+        .bind(workspaceId)
+        .run();
       return { token: existing.token, url: `${appOrigin()}/undangan/${existing.token}` };
     }
 
@@ -54,11 +58,19 @@ export const getOrCreateInvitationLink = createServerFn({ method: "POST" })
       .bind(workspaceId)
       .first<{ payload: string }>();
     const event = eventRow ? parseEvent(eventRow.payload) : null;
-    const base = [event?.brideName, event?.groomName].filter(Boolean).join("-") || event?.name || "undangan";
+    const base =
+      [event?.brideName, event?.groomName].filter(Boolean).join("-") || event?.name || "undangan";
     const slug = slugify(base) || "undangan";
-    const token = `${slug}-${randomSuffix()}`;
+    // High-entropy token: slug + 12-char base36 suffix from 9 random bytes (~46 bits) + UUID fallback
+    // Previous 4-char suffix (20 bits / 1.6M combos) was brute-forceable on public endpoint.
+    const rand = crypto.getRandomValues(new Uint8Array(9));
+    const suffix = Array.from(rand, (b) => "abcdefghijklmnopqrstuvwxyz0123456789"[b % 36]).join("");
+    const token = `${slug}-${suffix}-${crypto.randomUUID().slice(0, 8)}`;
 
-    await database.prepare("INSERT INTO invitation_pages (id, workspace_id, token) VALUES (?, ?, ?)").bind(randomId(), workspaceId, token).run();
+    await database
+      .prepare("INSERT INTO invitation_pages (id, workspace_id, token) VALUES (?, ?, ?)")
+      .bind(randomId(), workspaceId, token)
+      .run();
     return { token, url: `${appOrigin()}/undangan/${token}` };
   });
 
@@ -67,7 +79,10 @@ export const revokeInvitationLink = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
-    await getDatabase().prepare("UPDATE invitation_pages SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ?").bind(workspaceId).run();
+    await getDatabase()
+      .prepare("UPDATE invitation_pages SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ?")
+      .bind(workspaceId)
+      .run();
     return { ok: true };
   });
 
@@ -76,20 +91,31 @@ export const getInvitationPageStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) return { exists: false as const };
-    const page = await getDatabase().prepare("SELECT token, revoked_at FROM invitation_pages WHERE workspace_id = ?").bind(workspaceId).first<{ token: string; revoked_at: string | null }>();
+    const page = await getDatabase()
+      .prepare("SELECT token, revoked_at FROM invitation_pages WHERE workspace_id = ?")
+      .bind(workspaceId)
+      .first<{ token: string; revoked_at: string | null }>();
     if (!page || page.revoked_at) return { exists: false as const };
-    return { exists: true as const, token: page.token, url: `${appOrigin()}/undangan/${page.token}` };
+    return {
+      exists: true as const,
+      token: page.token,
+      url: `${appOrigin()}/undangan/${page.token}`,
+    };
   });
 
 export const getPublicInvitation = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
-    const page = await getDatabase().prepare(
-      `SELECT invitation_pages.revoked_at, workspaces.name AS workspace_name, event.payload AS event_payload
+    checkRateLimit({ key: "public-invitation", limit: 30, windowMs: 60_000 });
+    const page = await getDatabase()
+      .prepare(
+        `SELECT invitation_pages.revoked_at, workspaces.name AS workspace_name, event.payload AS event_payload
        FROM invitation_pages JOIN workspaces ON workspaces.id = invitation_pages.workspace_id
        LEFT JOIN workspace_data AS event ON event.workspace_id = invitation_pages.workspace_id AND event.kind = 'event'
        WHERE invitation_pages.token = ?`,
-    ).bind(data.token).first<{ revoked_at: string | null; workspace_name: string; event_payload: string | null }>();
+      )
+      .bind(data.token)
+      .first<{ revoked_at: string | null; workspace_name: string; event_payload: string | null }>();
     if (!page) throw new Error("This invitation link is not available.");
     if (page.revoked_at) throw new Error("This invitation page has been turned off.");
     const event = parseEvent(page.event_payload);

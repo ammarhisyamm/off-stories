@@ -11,6 +11,7 @@ import {
   createGoogleAuthorizationUrl,
 } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
+import { assertSameOrigin, checkRateLimit } from "@/lib/security.server";
 
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
@@ -45,6 +46,8 @@ export const completeGoogleSignIn = createServerFn({ method: "GET" })
 export const signUp = createServerFn({ method: "POST" })
   .inputValidator((data) => credentialsSchema.parse(data))
   .handler(async ({ data }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "signup", limit: 5, windowMs: 60_000, scope: data.email });
     const database = getDatabase();
     const existing = await database
       .prepare("SELECT id FROM users WHERE email = ?")
@@ -76,6 +79,8 @@ export const signUp = createServerFn({ method: "POST" })
 export const signIn = createServerFn({ method: "POST" })
   .inputValidator((data) => credentialsSchema.parse(data))
   .handler(async ({ data }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "signin", limit: 8, windowMs: 60_000, scope: data.email });
     const user = await getDatabase()
       .prepare("SELECT id, email, display_name, password_hash FROM users WHERE email = ?")
       .bind(data.email)

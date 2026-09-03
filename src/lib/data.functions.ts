@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
 import { getDatabase } from "@/lib/cloudflare.server";
+import { assertSameOrigin, checkRateLimit } from "@/lib/security.server";
 import type {
   Task,
   BudgetItem,
@@ -92,7 +93,21 @@ export async function resolveWorkspace(userId: string): Promise<string | null> {
   return workspace?.id ?? null;
 }
 
-export async function resolveMemberRole(workspaceId: string, userId: string): Promise<string | null> {
+/** Workspace accessible to user as owner OR member (editor/viewer) */
+export async function resolveAccessibleWorkspace(userId: string): Promise<string | null> {
+  const owned = await resolveWorkspace(userId);
+  if (owned) return owned;
+  const member = await getDatabase()
+    .prepare("SELECT workspace_id FROM workspace_members WHERE user_id = ? LIMIT 1")
+    .bind(userId)
+    .first<{ workspace_id: string }>();
+  return member?.workspace_id ?? null;
+}
+
+export async function resolveMemberRole(
+  workspaceId: string,
+  userId: string,
+): Promise<string | null> {
   const member = await getDatabase()
     .prepare("SELECT role FROM workspace_members WHERE workspace_id = ? AND user_id = ?")
     .bind(workspaceId, userId)
@@ -100,11 +115,60 @@ export async function resolveMemberRole(workspaceId: string, userId: string): Pr
   return member?.role ?? null;
 }
 
+const MAX_PAYLOAD_BYTES = 1_000_000; // 1MB per kind
+
+function isSafeHttpUrlForData(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return (
+      u.protocol === "https:" ||
+      (u.protocol === "http:" && (u.hostname === "localhost" || u.hostname === "127.0.0.1"))
+    );
+  } catch {
+    return false;
+  }
+}
+
+function validatePayload(kind: DataKind, payload: unknown): void {
+  const json = JSON.stringify(payload);
+  if (json.length > MAX_PAYLOAD_BYTES) {
+    throw new Error(`Payload too large for ${kind} (max 1MB)`);
+  }
+  // Block prototype pollution keys at top level
+  if (payload && typeof payload === "object") {
+    const keys = Array.isArray(payload) ? [] : Object.keys(payload as Record<string, unknown>);
+    if (keys.includes("__proto__") || keys.includes("constructor") || keys.includes("prototype")) {
+      throw new Error("Invalid payload keys");
+    }
+  }
+  // Per-kind: validate DocRef URLs to prevent stored javascript: XSS
+  if (kind === "documents" && Array.isArray(payload)) {
+    for (const doc of payload as Array<Record<string, unknown>>) {
+      if (typeof doc.url === "string" && doc.url.length > 0) {
+        // Allow https: and same-origin /api/documents/... links (relative handled client-side),
+        // but reject javascript:, data:, etc.
+        if (
+          /^\s*javascript:/i.test(doc.url) ||
+          /^\s*data:/i.test(doc.url) ||
+          /^\s*vbscript:/i.test(doc.url)
+        ) {
+          throw new Error("Invalid document URL: only https:// and /api/documents/… are allowed.");
+        }
+        if (doc.url.startsWith("http://") || doc.url.startsWith("https://")) {
+          if (!isSafeHttpUrlForData(doc.url)) throw new Error("Invalid document URL.");
+        }
+        // also cap URL length
+        if (doc.url.length > 2048) throw new Error("Document URL too long.");
+      }
+    }
+  }
+}
+
 export const loadWorkspaceData = createServerFn({ method: "GET" })
   .middleware([requireCloudflareAuth])
   .handler(async ({ context }) => {
     const { userId } = context;
-    const workspaceId = await resolveWorkspace(userId);
+    const workspaceId = await resolveAccessibleWorkspace(userId);
     if (!workspaceId) {
       return {
         workspaceId: null as string | null,
@@ -132,8 +196,11 @@ export const saveWorkspaceData = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((d) => z.object({ kind: z.enum(KINDS), payload: z.unknown() }).parse(d))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "save-workspace", limit: 60, windowMs: 60_000 });
+    validatePayload(data.kind as DataKind, data.payload);
     const { userId } = context;
-    const workspaceId = await resolveWorkspace(userId);
+    const workspaceId = await resolveAccessibleWorkspace(userId);
     if (!workspaceId) throw new Error("No workspace found");
     const role = await resolveMemberRole(workspaceId, userId);
     if (role === "viewer") {

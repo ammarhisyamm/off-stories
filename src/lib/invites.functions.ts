@@ -1,19 +1,17 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
 import { getCurrentUser, randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace } from "@/lib/data.functions";
 import { sendPartnerInviteEmail } from "@/lib/email";
+import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const tokenSchema = z.string().uuid();
 
 function appOrigin() {
-  const request = getRequest();
-  const host = request?.headers?.get("x-forwarded-host") ?? request?.headers?.get("host");
-  return host ? (host.startsWith("http") ? host : `https://${host}`) : "https://offstories.fun";
+  return getSafeAppOrigin();
 }
 
 async function ownerWorkspace(userId: string) {
@@ -102,6 +100,8 @@ export const invitePartner = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((data) => z.object({ email: z.string().trim().email() }).parse(data))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "invite-partner", limit: 5, windowMs: 60_000 });
     const email = data.email.toLowerCase();
     if (!EMAIL_RE.test(email)) throw new Error("Enter a valid email address.");
     const invite = await createInvite(context.userId, email);
@@ -115,7 +115,11 @@ export const invitePartner = createServerFn({ method: "POST" })
 
 export const createLinkInvite = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .handler(({ context }) => createInvite(context.userId, null));
+  .handler(({ context }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "create-link-invite", limit: 10, windowMs: 60_000 });
+    return createInvite(context.userId, null);
+  });
 
 export const updateMemberRole = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
@@ -150,6 +154,7 @@ export const revokeInvite = createServerFn({ method: "POST" })
 export const getInvite = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ token: tokenSchema }).parse(data))
   .handler(async ({ data }) => {
+    checkRateLimit({ key: "get-invite", limit: 30, windowMs: 60_000 });
     const invite = await getDatabase()
       .prepare(
         `SELECT workspace_invites.id, workspace_invites.email, workspace_invites.role,
@@ -181,6 +186,8 @@ export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((data) => z.object({ token: tokenSchema }).parse(data))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "accept-invite", limit: 10, windowMs: 60_000 });
     const database = getDatabase();
     const invite = await database
       .prepare(

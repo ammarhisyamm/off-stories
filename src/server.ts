@@ -37,18 +37,48 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+function withSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  // Only set if not already set by route
+  if (!headers.has("x-frame-options")) headers.set("x-frame-options", "DENY");
+  if (!headers.has("x-content-type-options")) headers.set("x-content-type-options", "nosniff");
+  if (!headers.has("referrer-policy"))
+    headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  if (!headers.has("permissions-policy"))
+    headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  if (!headers.has("content-security-policy")) {
+    headers.set(
+      "content-security-policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com; connect-src 'self' https://oauth2.googleapis.com https://api.resend.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
+    );
+  }
+  // HSTS only on https
+  const url = response.url || "";
+  if (!headers.has("strict-transport-security")) {
+    headers.set("strict-transport-security", "max-age=63072000; includeSubDomains; preload");
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      return withSecurityHeaders(normalized);
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      return withSecurityHeaders(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };

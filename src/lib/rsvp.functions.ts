@@ -1,10 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
 import { randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
 import { resolveWorkspace } from "@/lib/data.functions";
+import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
 import type { EventData } from "@/lib/data.functions";
 import type { Guest } from "@/lib/types";
 
@@ -18,9 +18,7 @@ const responseSchema = z.object({
 });
 
 function appOrigin() {
-  const request = getRequest();
-  const host = request?.headers?.get("x-forwarded-host") ?? request?.headers?.get("host");
-  return host ? (host.startsWith("http") ? host : `https://${host}`) : "https://offstories.fun";
+  return getSafeAppOrigin();
 }
 
 function parsePayload<T>(payload: unknown, fallback: T): T {
@@ -68,7 +66,9 @@ export const createRsvpLink = createServerFn({ method: "POST" })
       .prepare("SELECT payload FROM workspace_data WHERE workspace_id = ? AND kind = 'guests'")
       .bind(workspaceId)
       .first<{ payload: string }>();
-    if (!asGuests(parsePayload(guestsRow?.payload, [])).some((guest) => guest.id === data.guestId)) {
+    if (
+      !asGuests(parsePayload(guestsRow?.payload, [])).some((guest) => guest.id === data.guestId)
+    ) {
       throw new Error("Guest group not found");
     }
 
@@ -95,7 +95,9 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
     const workspaceId = await resolveWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
     await getDatabase()
-      .prepare("UPDATE rsvp_links SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ? AND guest_id = ?")
+      .prepare(
+        "UPDATE rsvp_links SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ? AND guest_id = ?",
+      )
       .bind(workspaceId, data.guestId)
       .run();
     return { ok: true };
@@ -104,6 +106,7 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
 export const getPublicRsvp = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
+    checkRateLimit({ key: "get-public-rsvp", limit: 30, windowMs: 60_000 });
     const link = await getLink(data.token);
     if (!link || link.revoked_at) throw new Error("This RSVP link is no longer active.");
     const event = parsePayload<EventData>(link.event_payload, {
@@ -114,7 +117,9 @@ export const getPublicRsvp = createServerFn({ method: "GET" })
       guestEstimate: 0,
       budget: 0,
     });
-    const guest = asGuests(parsePayload(link.guests_payload, [])).find((item) => item.id === link.guest_id);
+    const guest = asGuests(parsePayload(link.guests_payload, [])).find(
+      (item) => item.id === link.guest_id,
+    );
     if (!guest?.name) throw new Error("This RSVP guest could not be found.");
     return {
       event: { name: event.name, date: event.date, location: event.location },
@@ -125,6 +130,8 @@ export const getPublicRsvp = createServerFn({ method: "GET" })
 export const submitPublicRsvp = createServerFn({ method: "POST" })
   .inputValidator((input) => responseSchema.parse(input))
   .handler(async ({ data }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "submit-public-rsvp", limit: 10, windowMs: 60_000 });
     const link = await getLink(data.token);
     if (!link || link.revoked_at) throw new Error("This RSVP link is no longer active.");
     const guests = asGuests(parsePayload(link.guests_payload, []));
@@ -145,6 +152,8 @@ export const submitPublicRsvp = createServerFn({ method: "POST" })
 export const submitPublicCheckIn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "submit-checkin", limit: 20, windowMs: 60_000 });
     const link = await getLink(data.token);
     if (!link || link.revoked_at) throw new Error("This check-in link is no longer active.");
     const guests = asGuests(parsePayload(link.guests_payload, []));
