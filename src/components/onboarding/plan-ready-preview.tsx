@@ -92,15 +92,15 @@ export function PlanReadyPreview({
     },
   ];
   const insights = [
-    `Untuk ${setup.guests} tamu di ${setup.location || "kota pilihan"} (${setup.guestsBride} dari mempelai 1, ${setup.guestsGroom} dari mempelai 2), catering ~40–50% budget — di ${setup.location || "Other"} estimasi Rp ${(setup.guests * (setup.location === "Jakarta" ? 90000 : setup.location === "Bali" ? 95000 : 70000)).toLocaleString("id-ID")}/pax.`,
+    `2026: Untuk ${setup.guests} tamu di ${setup.location || "kota pilihan"} (${setup.guestsBride} & ${setup.guestsGroom}), catering ~35–45% budget — 2026 prasmanan Gold ~Rp ${(setup.location === "Jakarta" ? 75000 : setup.location === "Bali" ? 80000 : setup.location === "Bandung" ? 70000 : 65000).toLocaleString("id-ID")}/pax (Setia Rasa 2026).`,
     setup.venueType === "outdoor"
       ? "Outdoor butuh plan B hujan, genset & toilet portable — alokasikan 10–20% extra untuk venue."
       : setup.venueStatus === "booked"
-        ? `Venue ${setup.venueName || setup.venueType || "terpilih"} sudah booking — kunci harga & konfirmasi kapasitas vs ${setup.guests} tamu.`
-        : "Booking venue 9–12 bulan sebelum (peak: sebelum Ramadan & tanggal cantik) — survei 3 venue & bandingkan paket bundling.",
+        ? `Venue ${setup.venueName || setup.venueType || "terpilih"} sudah booking — kunci harga 2026 & konfirmasi kapasitas vs ${setup.guests} tamu.`
+        : "Booking venue 9–12 bulan sebelum (peak Sabtu +10–20% vs Minggu/weekday) — survei 3 venue & bandingkan paket bundling 2026.",
     setup.adat !== "No specific adat yet"
-      ? `${setup.adat} punya ${setup.ceremonyTypes.length} upacara terpilih — lock urutan dengan sesepuh 6–8 bulan sebelum.`
-      : "Timeline kamu menyarankan mulai booking vendor dalam 30 hari ke depan.",
+      ? `${setup.adat} punya ${setup.ceremonyTypes.length} upacara terpilih — lock urutan dengan sesepuh 6–8 bulan sebelum (H-3 untuk Siraman).`
+      : "Timeline 2026: kunci vendor dalam 30 hari ke depan; buffer 5–10% wajib.",
   ];
   const budgetFloor = Math.round((estimatedBudget * 0.9) / 1_000_000) * 1_000_000;
   const budgetCeiling = Math.round((estimatedBudget * 1.2) / 1_000_000) * 1_000_000;

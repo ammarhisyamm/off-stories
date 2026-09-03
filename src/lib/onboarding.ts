@@ -254,29 +254,32 @@ export const adatProcessions: Record<string, { prosesi: string[]; seserahanNote:
 };
 
 /**
- * Riset harga 2024-2025 Indonesia (rangkuman websearch):
- * - Catering: 20k–150k/pax (standard 50–90k, premium 120–150k), Jabodetabek 40k–90k, Bandung 75–150k
- * - Venue gedung: 10–50jt (Jakarta 20–50jt, kota kecil 5–15jt), Ballroom hotel 25–100jt, Outdoor 15–100jt
- * - Total tier: 50pax 30–60jt, 100pax 60–120jt, 200pax 150–250jt, 500pax 400–800jt
- * - Catering ~40–50% total, Venue+dekor ~25%
+ * Riset harga 2026 Indonesia (update Sep 2026):
+ * Sumber: Setia Rasa Catering Jakarta 2026 (Silver 70k, Gold 75k, Platinum 80k/pax),
+ * Kupinang 2026 (standar 35–60k, menengah-atas 80–180k, premium hotel 250–400k),
+ * Weddingku/Kucantik 2026 (intimate 150–250jt / mid 300–500jt / grand 600jt+).
+ * - Catering 2026: prasmanan standar 60–80k Jabodetabek, 70–150k kota besar; hotel premium 250–400k
+ * - Venue 2026: rumahan 20–58jt, gedung serbaguna 53–120jt, hotel bintang 3–4 160–315jt, bintang 5 370jt–1.5M
+ * - Inflasi 2025→2026 ~7–10%; venue+ catering naik, peak Sabtu/Minggu +10–20%
+ * - Alokasi 2026: catering 35–45%, venue 15–25%, dekor 10–20%, busana 8–12%, foto 5–10%, buffer 5–10% (Kupinang)
  */
 export const cityPricing: Record<
   string,
   { cateringPerPax: number; venueBase: number; tier: string }
 > = {
-  Jakarta: { cateringPerPax: 90000, venueBase: 30000000, tier: "metro-tinggi" },
-  Tangerang: { cateringPerPax: 80000, venueBase: 25000000, tier: "metro-tinggi" },
-  Bekasi: { cateringPerPax: 75000, venueBase: 22000000, tier: "metro" },
-  Depok: { cateringPerPax: 75000, venueBase: 20000000, tier: "metro" },
-  Bogor: { cateringPerPax: 70000, venueBase: 18000000, tier: "metro" },
-  Bandung: { cateringPerPax: 75000, venueBase: 20000000, tier: "menengah-tinggi" },
-  Surabaya: { cateringPerPax: 80000, venueBase: 25000000, tier: "metro-tinggi" },
-  Bali: { cateringPerPax: 95000, venueBase: 35000000, tier: "premium" },
-  Yogyakarta: { cateringPerPax: 55000, venueBase: 12000000, tier: "menengah" },
-  Semarang: { cateringPerPax: 60000, venueBase: 15000000, tier: "menengah" },
-  Makassar: { cateringPerPax: 65000, venueBase: 15000000, tier: "menengah" },
-  Medan: { cateringPerPax: 60000, venueBase: 15000000, tier: "menengah" },
-  Other: { cateringPerPax: 50000, venueBase: 10000000, tier: "hemat" },
+  Jakarta: { cateringPerPax: 75000, venueBase: 35000000, tier: "metro-tinggi" },
+  Tangerang: { cateringPerPax: 70000, venueBase: 30000000, tier: "metro-tinggi" },
+  Bekasi: { cateringPerPax: 68000, venueBase: 27000000, tier: "metro" },
+  Depok: { cateringPerPax: 68000, venueBase: 25000000, tier: "metro" },
+  Bogor: { cateringPerPax: 65000, venueBase: 22000000, tier: "metro" },
+  Bandung: { cateringPerPax: 70000, venueBase: 25000000, tier: "menengah-tinggi" },
+  Surabaya: { cateringPerPax: 75000, venueBase: 30000000, tier: "metro-tinggi" },
+  Bali: { cateringPerPax: 80000, venueBase: 40000000, tier: "premium" },
+  Yogyakarta: { cateringPerPax: 60000, venueBase: 15000000, tier: "menengah" },
+  Semarang: { cateringPerPax: 62000, venueBase: 18000000, tier: "menengah" },
+  Makassar: { cateringPerPax: 62000, venueBase: 18000000, tier: "menengah" },
+  Medan: { cateringPerPax: 60000, venueBase: 18000000, tier: "menengah" },
+  Other: { cateringPerPax: 60000, venueBase: 12000000, tier: "hemat" },
 };
 
 export const blankSetup: SetupState = {
@@ -370,12 +373,12 @@ export function interpretLocation(location: string): PlanningInterpretation {
   const implications = pricing
     ? tier.includes("metro") || tier.includes("premium")
       ? [
-          `Catering ~Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax, venue base ~Rp ${(pricing.venueBase / 1_000_000).toFixed(0)}jt di ${label} (riset 2025).`,
-          `Gedung populer di ${label} penuh 8–12 bulan sebelum — booking & DP awal kunci harga.`,
+          `Catering 2026 ~Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax (Gold prasmanan), venue base ~Rp ${(pricing.venueBase / 1_000_000).toFixed(0)}jt di ${label} — Sabtu/Minggu +10–20%.`,
+          `Gedung populer di ${label} penuh 8–12 bulan sebelum — DP awal kunci harga 2026.`,
         ]
       : [
-          `Catering ~Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax di ${label} — lebih hemat dari Jabodetabek.`,
-          "Vendor lokal & paket gedung+catering bisa hemat 15–20%.",
+          `Catering 2026 ~Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax di ${label} — hemat vs Jabodetabek; paket rumahan 20–58jt.`,
+          "Paket gedung+catering bundling hemat 15–20%; cek Sabtu vs Minggu.",
         ]
     : [
         "Pilihan venue dan vendor lokal dapat membantu efisiensi biaya.",
@@ -438,35 +441,38 @@ export function interpretBudget(
   if (budgetChoice !== "yes") {
     const pricing = location ? cityPricing[location] : cityPricing["Other"]!;
     const hint = guests
-      ? ` Dengan ${guests} tamu di ${location || "Other"}, estimasi riset ~Rp ${(setupBudget(guests, "no", "", location) / 1_000_000).toFixed(0)}jt.`
+      ? ` Dengan ${guests} tamu di ${location || "Other"}, estimasi 2026 ~Rp ${(setupBudget(guests, "no", "", location) / 1_000_000).toFixed(0)}jt (Kupinang 2026: intimate 150–250jt, mid 300–500jt).`
       : "";
     return {
       title: "Budget readiness interpretation",
       interpretation:
-        `Budget belum dikunci; estimasi riset pakai catering Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax + venue base.` +
+        `Budget belum dikunci; estimasi 2026 pakai catering Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax + venue base. ` +
         hint,
       implications: [
-        "Mulai dari rentang, bukan 1 angka — siapkan buffer 10–15% untuk hidden cost.",
-        "Bandingkan 3 paket bundling gedung+catering+dekor sebelum DP.",
+        "2026: buffer 5–10% wajib (Kupinang) — 10–15% lebih aman untuk overtime & tambahan porsi.",
+        "Bandingkan 3 paket bundling gedung+catering+dekor sebelum DP; Minggu/weekday 10–20% lebih murah dr Sabtu.",
       ],
       recommendation:
-        "Tetapkan batas atas dan 3 prioritas (catering/venue/dokumentasi) sebelum quotation.",
+        "Tetapkan batas atas dan 3 prioritas (catering/venue/dokumentasi) sebelum quotation; RSVP akurat hemat 700k–1.2jt per 10 pax.",
     };
   }
   const amount = Number(budget) || 0;
+  // Tier 2026: intimate 150–250jt, mid 300–500jt, grand 600jt+ (Kucantik/Weddingku/Kupinang 2026)
   const tier =
-    amount < 100_000_000
-      ? "Lean (100 tamu intimate)"
+    amount < 150_000_000
+      ? "Rumahan / Intimate (50–150 pax)"
       : amount < 300_000_000
-        ? "Balanced (200–300 tamu)"
-        : "Premium (500+ tamu)";
+        ? "Gedung Intimate (150–300 pax)"
+        : amount < 600_000_000
+          ? "Premium Hotel 3–4 (300–600 pax)"
+          : "Grand Bintang 5 (600–2000 pax)";
   return {
     title: "Budget readiness interpretation",
     interpretation: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount)} — ${tier}.`,
     tier,
     implications: [
-      "Jaga venue+catering ≤65% total; sisakan 10–15% buffer.",
-      "Pisahkan committed vs paid vs buffer sejak quotation pertama.",
+      `2026 proporsi ideal: catering 35–45%, venue 15–25%, dekor 10–20% (Kupinang 2026) — jaga venue+catering ≤65%.`,
+      "Sisakan buffer 5–10% (minimal) — sering bengkak overtime & keluarga.",
     ],
     recommendation:
       "Alokasikan catering 40–50%, venue+dekor 25%, foto 10%, sisanya souvenir/MC/cadangan.",
