@@ -21,23 +21,25 @@ import { ToastViewport } from "@/components/toast";
 import { getSessionUser, signOut as signOutFn } from "@/lib/auth.functions";
 import { clearSessionCache } from "@/lib/session-cache";
 import { useServerFn } from "@tanstack/react-start";
+import { LanguageSwitch } from "@/components/language-switch";
+import { useI18n } from "@/lib/i18n";
 
-const primaryNav = [
-  { to: "/dashboard", label: "Dashboard", Icon: SidebarHouse },
-  { to: "/checklist", label: "Checklist", Icon: SidebarChecklist },
-  { to: "/budget", label: "Budget", Icon: SidebarBudget },
-  { to: "/seserahan", label: "Seserahan", Icon: SidebarChecklist },
-  { to: "/vendors", label: "Vendors", Icon: SidebarVendors },
-  { to: "/guests", label: "Guests", Icon: SidebarGuests },
-  { to: "/notes", label: "Notes", Icon: SidebarNotes },
-  { to: "/documents", label: "Documents", Icon: SidebarDocuments },
-  { to: "/settings", label: "Settings", Icon: SidebarSettings },
+const primaryNavKeys = [
+  { to: "/dashboard", key: "nav.dashboard", Icon: SidebarHouse },
+  { to: "/checklist", key: "nav.checklist", Icon: SidebarChecklist },
+  { to: "/budget", key: "nav.budget", Icon: SidebarBudget },
+  { to: "/seserahan", key: "nav.seserahan", Icon: SidebarChecklist },
+  { to: "/vendors", key: "nav.vendors", Icon: SidebarVendors },
+  { to: "/guests", key: "nav.guests", Icon: SidebarGuests },
+  { to: "/notes", key: "nav.notes", Icon: SidebarNotes },
+  { to: "/documents", key: "nav.documents", Icon: SidebarDocuments },
+  { to: "/settings", key: "nav.settings", Icon: SidebarSettings },
 ] as const;
 
-const weddingDayNav = [
-  { to: "/timeline", label: "Timeline" },
-  { to: "/rundown", label: "Rundown" },
-  { to: "/command-center", label: "Command center" },
+const weddingDayNavKeys = [
+  { to: "/timeline", key: "nav.timeline" },
+  { to: "/rundown", key: "nav.rundown" },
+  { to: "/command-center", key: "nav.commandCenter" },
 ] as const;
 
 function useCurrentUser() {
@@ -67,7 +69,8 @@ function NavList({
   onNavigate?: () => void;
   collapsed?: boolean;
 }) {
-  const weddingDayActive = weddingDayNav.some(({ to }) => pathname.startsWith(to));
+  const { t } = useI18n();
+  const weddingDayActive = weddingDayNavKeys.some(({ to }) => pathname.startsWith(to));
   const [weddingDayOpen, setWeddingDayOpen] = useState(weddingDayActive);
 
   useEffect(() => {
@@ -85,8 +88,9 @@ function NavList({
 
   return (
     <nav className="flex-1 px-3 py-5 space-y-1">
-      {primaryNav.map(({ to, label, Icon }) => {
+      {primaryNavKeys.map(({ to, key, Icon }) => {
         const active = pathname.startsWith(to);
+        const label = t(key);
         return (
           <Link
             key={to}
@@ -129,7 +133,7 @@ function NavList({
             <SidebarCalendar
               className={weddingDayActive ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"}
             />
-            <span className="min-w-0 flex-1 truncate text-left">Wedding day</span>
+            <span className="min-w-0 flex-1 truncate text-left">{t("nav.weddingDay")}</span>
             <CaretDown
               size={15}
               className={`shrink-0 transition-transform duration-200 ${weddingDayOpen ? "rotate-180" : ""}`}
@@ -139,7 +143,7 @@ function NavList({
             className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${weddingDayOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
           >
             <div className="min-h-0 overflow-hidden pt-1">
-              {weddingDayNav.map(({ to, label }) => {
+              {weddingDayNavKeys.map(({ to, key }) => {
                 const active = pathname.startsWith(to);
                 return (
                   <Link
@@ -150,7 +154,7 @@ function NavList({
                     onClick={onNavigate}
                     className={itemClass(active, true)}
                   >
-                    {label}
+                    {t(key)}
                   </Link>
                 );
               })}
@@ -172,6 +176,7 @@ function UserFooter({
   const user = useCurrentUser();
   const navigate = useNavigate();
   const signOutRequest = useServerFn(signOutFn);
+  const { t } = useI18n();
   async function signOut() {
     await signOutRequest();
     clearSessionCache();
@@ -191,18 +196,25 @@ function UserFooter({
         )}
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <div className="text-sm text-foreground truncate">{user?.name ?? "Loading…"}</div>
+            <div className="text-sm text-foreground truncate">
+              {user?.name ?? t("common.loading")}
+            </div>
             <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
           </div>
         )}
       </div>
+      {!collapsed && (
+        <div className="mb-3 flex justify-center">
+          <LanguageSwitch compact />
+        </div>
+      )}
       <button
         onClick={signOut}
         aria-label="Sign out"
         className={`${collapsed ? "w-10 px-0" : "w-full px-3"} inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface py-2.5 text-sm text-muted-foreground shadow-[0_1px_2px_rgb(17_24_39_/_0.04)] transition duration-150 hover:text-foreground hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.97]`}
       >
         <SignOut size={14} />
-        {!collapsed && "Sign out"}
+        {!collapsed && t("common.signOut")}
       </button>
     </div>
   );
@@ -221,6 +233,7 @@ export function AppLayout({
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data, canEdit } = useWorkspaceData();
+  const { t } = useI18n();
   const event = data.event;
   const hasEvent = Boolean(event.date && event.name);
   const days = daysUntil(event.date);
@@ -293,14 +306,14 @@ export function AppLayout({
           )}
           {!sidebarCollapsed && (
             <>
-              <div className="eyebrow mb-2 mt-7">Workspace</div>
+              <div className="eyebrow mb-2 mt-7">{t("common.workspace")}</div>
               <div className="serif text-lg leading-tight text-foreground">
-                {event.name || "Your wedding"}
+                {event.name || t("common.yourWedding")}
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
                 {hasEvent
-                  ? `${days} days until ${event.type.toLowerCase()}`
-                  : "Set up your event in Settings"}
+                  ? `${days} ${t("common.daysUntil")} ${event.type.toLowerCase()}`
+                  : t("common.setupEvent")}
               </div>
             </>
           )}
@@ -326,12 +339,12 @@ export function AppLayout({
           <div className="px-5 py-5 border-b border-border flex items-start justify-between gap-3">
             <div className="min-w-0">
               <BrandLogo className="mb-5 scale-[0.78] origin-left" />
-              <div className="eyebrow mb-1">Workspace</div>
+              <div className="eyebrow mb-1">{t("common.workspace")}</div>
               <div className="serif text-base leading-tight text-foreground truncate">
-                {event.name || "Your wedding"}
+                {event.name || t("common.yourWedding")}
               </div>
               <div className="mt-1.5 text-xs text-muted-foreground">
-                {hasEvent ? `${days} days to go` : "Set up your event"}
+                {hasEvent ? `${days} ${t("common.daysToGo")}` : t("common.setupEventShort")}
               </div>
             </div>
             <button
@@ -360,13 +373,18 @@ export function AppLayout({
             >
               <ListIcon size={22} />
             </button>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-xs text-muted-foreground truncate">
-                {event.name || "Your wedding"}
+                {event.name || t("common.yourWedding")}
               </div>
               <div className="text-sm text-foreground truncate">
-                {hasEvent ? `${days} days to ${event.type.toLowerCase()}` : "Set up your event"}
+                {hasEvent
+                  ? `${days} ${t("common.daysUntil")} ${event.type.toLowerCase()}`
+                  : t("common.setupEventShort")}
               </div>
+            </div>
+            <div className="hidden sm:block">
+              <LanguageSwitch compact />
             </div>
           </div>
         </div>

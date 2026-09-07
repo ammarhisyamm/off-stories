@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/checklist")({
   head: () => ({
@@ -24,10 +25,15 @@ export const Route = createFileRoute("/_authenticated/checklist")({
       },
     ],
   }),
-  component: Checklist,
+  component: ChecklistWrapper,
 });
 
+function ChecklistWrapper() {
+  return <Checklist />;
+}
+
 function Checklist() {
+  const { t } = useI18n();
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filter, setFilter] = useState<string>("All");
   const { data, setKind, canEdit } = useWorkspaceData();
@@ -117,11 +123,11 @@ function Checklist() {
 
   return (
     <AppLayout
-      eyebrow="Operational"
-      title="Master checklist"
+      eyebrow={t("checklist.eyebrow")}
+      title={t("checklist.title")}
       actions={
         <QuietButton variant="primary" onClick={() => setIsModalOpen(true)}>
-          Add task
+          {t("checklist.addTask")}
         </QuietButton>
       }
     >
@@ -132,19 +138,20 @@ function Checklist() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <label htmlFor="category-filter" className="text-sm font-medium text-foreground">
-            Filter kategori
+            {t("checklist.filterCategory")}
           </label>
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger id="category-filter" className="w-[200px] bg-white">
-              <SelectValue placeholder="Pilih kategori" />
+              <SelectValue placeholder={t("checklist.filterCategory")} />
             </SelectTrigger>
             <SelectContent>
               {categories.map((c) => {
                 const count =
                   c === "All" ? tasks.length : tasks.filter((t) => t.category === c).length;
+                const label = c === "All" ? t("checklist.all") : c;
                 return (
                   <SelectItem key={c} value={c}>
-                    {c} ({count})
+                    {label} ({count})
                   </SelectItem>
                 );
               })}
@@ -155,14 +162,14 @@ function Checklist() {
               type="button"
               onClick={() => setFilter("All")}
               className="inline-flex h-9 items-center gap-1 rounded-md border border-border bg-surface px-2 text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label="Hapus filter"
+              aria-label={t("checklist.reset")}
             >
-              <X size={14} /> Reset
+              <X size={14} /> {t("checklist.reset")}
             </button>
           )}
         </div>
         <span className="text-xs text-muted-foreground tabular-nums">
-          {filtered.length} dari {tasks.length} tugas
+          {filtered.length} {t("checklist.of")} {tasks.length} {t("checklist.tasks")}
         </span>
       </div>
 
