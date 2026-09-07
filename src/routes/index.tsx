@@ -112,8 +112,8 @@ function LandingHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-white/85 backdrop-blur-md">
       <div className="container-landing flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="text-foreground">
-          <BrandLogo />
+        <Link to="/" className="text-foreground" aria-label="OffStories home">
+          <BrandLogo compact />
         </Link>
         <nav className="hidden items-center gap-1 text-sm text-muted-foreground md:flex">
           <a

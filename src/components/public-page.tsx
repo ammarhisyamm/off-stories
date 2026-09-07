@@ -10,8 +10,8 @@ export function PublicHeader({ wide = false }: { wide?: boolean }) {
   return (
     <header className="border-b border-border bg-white/85 backdrop-blur-md">
       <div className={`${width} mx-auto py-5 flex items-center justify-between gap-4`}>
-        <Link to="/" className="text-foreground">
-          <BrandLogo />
+        <Link to="/" className="text-foreground" aria-label="OffStories home">
+          <BrandLogo compact />
         </Link>
         <nav className="flex items-center gap-3 text-sm text-muted-foreground">
           <Link
