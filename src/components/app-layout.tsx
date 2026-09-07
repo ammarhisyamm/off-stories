@@ -79,11 +79,11 @@ function NavList({
 
   const itemClass = (active: boolean, nested = false) =>
     [
-      "sidebar-nav-link flex items-center gap-3 rounded-[14px] border py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      "sidebar-nav-link flex items-center gap-3 rounded-[14px] py-2.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       collapsed ? "justify-center px-2" : nested ? "ml-7 px-3" : "px-3",
       active
-        ? "is-active border-transparent bg-sidebar-accent font-medium text-sidebar-foreground shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_4px_12px_rgb(15_23_42_/_0.035)]"
-        : "border-transparent text-sidebar-foreground hover:border-sidebar-border hover:bg-surface/75 hover:text-foreground",
+        ? "is-active bg-sidebar-accent font-medium text-sidebar-foreground"
+        : "text-sidebar-foreground hover:bg-surface/75 hover:text-foreground",
     ].join(" ");
 
   return (
@@ -183,9 +183,7 @@ function UserFooter({
     navigate({ to: "/auth", replace: true });
   }
   return (
-    <div
-      className={`border-t border-sidebar-border ${collapsed ? "px-3 py-4" : compact ? "px-4 py-4" : "px-6 py-5"}`}
-    >
+    <div className={`${collapsed ? "px-3 py-4" : compact ? "px-4 py-4" : "px-6 py-5"}`}>
       <div className={`flex items-center gap-3 mb-3 ${collapsed ? "justify-center" : ""}`}>
         {user?.avatar ? (
           <img src={user.avatar} alt="" className="h-8 w-8 rounded-full" />
@@ -204,7 +202,7 @@ function UserFooter({
         )}
       </div>
       {!collapsed && (
-        <div className="mb-3 flex justify-center">
+        <div className="mb-3 flex justify-start">
           <LanguageSwitch compact />
         </div>
       )}
@@ -269,13 +267,11 @@ export function AppLayout({
 
   return (
     <div className="app-shell min-h-screen bg-background flex">
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — no border per design */}
       <aside
-        className={`hidden md:flex shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-out ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
+        className={`hidden md:flex shrink-0 flex-col bg-sidebar transition-[width] duration-300 ease-out ${sidebarCollapsed ? "w-[76px]" : "w-64"}`}
       >
-        <div
-          className={`border-b border-sidebar-border py-6 ${sidebarCollapsed ? "px-3" : "px-6"}`}
-        >
+        <div className={`py-6 ${sidebarCollapsed ? "px-3" : "px-6"}`}>
           <div
             className={`flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between"}`}
           >
@@ -332,11 +328,11 @@ export function AppLayout({
           id="mobile-nav"
           inert={!mobileOpen}
           aria-hidden={!mobileOpen}
-          className={`absolute left-0 top-0 h-full w-72 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform duration-200 ease-out ${
+          className={`absolute left-0 top-0 h-full w-72 bg-sidebar flex flex-col transition-transform duration-200 ease-out ${
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="px-5 py-5 border-b border-border flex items-start justify-between gap-3">
+          <div className="px-5 py-5 flex items-start justify-between gap-3">
             <div className="min-w-0">
               <BrandLogo className="mb-5 scale-[0.78] origin-left" />
               <div className="eyebrow mb-1">{t("common.workspace")}</div>
@@ -403,12 +399,7 @@ export function AppLayout({
           </div>
         </header>
         <div className="editorial-page max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-14">
-          <div
-            key={pathname}
-            className="page-stagger animate-in fade-in slide-in-from-bottom-2 duration-200 ease-out"
-          >
-            {children}
-          </div>
+          <div>{children}</div>
         </div>
       </main>
 

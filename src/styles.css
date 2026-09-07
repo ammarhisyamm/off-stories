@@ -479,15 +479,9 @@
       box-shadow 180ms ease-out,
       color 180ms ease-out;
   }
+  /* left border removed per design request — no border on active */
   .sidebar-nav-link.is-active::before {
-    position: absolute;
-    left: -1px;
-    top: 0.55rem;
-    bottom: 0.55rem;
-    width: 2px;
-    border-radius: 999px;
-    background: var(--color-primary);
-    content: "";
+    content: none;
   }
   .sidebar-nav-link .sidebar-icon {
     transition:
@@ -509,14 +503,14 @@
   .sidebar-nav-link:hover .sidebar-nav-label {
     transform: translateX(2px);
   }
+  /* page transition removed — instant switch between menus */
   .page-stagger > * {
-    animation: page-stagger-in 200ms ease-out both;
-    animation-delay: calc(var(--stagger, 0) * 30ms + 30ms);
+    animation: none;
   }
   @keyframes page-stagger-in {
     from {
-      opacity: 0;
-      transform: translateY(8px);
+      opacity: 1;
+      transform: none;
     }
     to {
       opacity: 1;
