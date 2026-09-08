@@ -1260,6 +1260,473 @@ export const blogPosts: BlogPost[] = [
     tags: ["games", "hiburan", "resepsi"],
     published: true,
   },
+  {
+    slug: "template-budget-pernikahan-excel",
+    title: "Template Budget Pernikahan Excel: Contoh Alokasi + Cara Menyusun",
+    excerpt:
+      "Template budget pernikahan siap pakai: contoh alokasi venue, catering, dekor, dan dana cadangan, plus cara menyusun anggaran nikah di Excel agar tidak over budget.",
+    categoryId: "planning-budget",
+    publishedAt: "2026-09-01",
+    updatedAt: "2026-09-01",
+    readingTime: "7 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Template budget pernikahan adalah alat paling sederhana untuk mencegah anggaran jebol: satu tabel berisi semua komponen biaya, estimasi, realisasi, dan status pembayaran. Kabar baiknya, kamu tidak perlu template rumit — spreadsheet dengan 6–7 kolom yang diisi disiplin sudah jauh lebih baik daripada mengandalkan ingatan dan chat vendor. Artikel ini memberi contoh alokasi yang realistis untuk pasar Indonesia plus cara menyusunnya langkah demi langkah.",
+    sections: [
+      {
+        heading: "Isi template budget pernikahan yang ideal",
+        paragraphs: [
+          "Template anggaran nikah yang bagus selalu punya kolom yang sama untuk setiap baris biaya: nama komponen, estimasi awal, biaya aktual, DP terbayar, sisa pelunasan, tenggat bayar, dan PIC. Dengan struktur ini, kamu bisa langsung melihat selisih estimasi versus realisasi setiap kali ada kontrak baru ditandatangani.",
+          "Pisahkan juga dana cadangan 10–15% sebagai baris tersendiri di paling bawah, bukan sisa yang tidak tertulis. Kalau cadangan tidak dicatat sebagai pos resmi, ia akan habis tanpa terasa untuk hal-hal kecil.",
+        ],
+        bullets: [
+          "Kolom wajib: komponen, estimasi, aktual, DP, sisa, tenggat, PIC, status.",
+          "Satu baris dana cadangan 10–15% yang tidak boleh dipakai tanpa diskusi.",
+          "Satu file yang sama untuk pasangan, keluarga, dan WO agar tidak ada dua versi angka.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Update template setiap ada pembayaran atau kontrak baru, idealnya seminggu sekali. Template yang tidak diupdate sama saja dengan tidak punya template.",
+        },
+      },
+      {
+        heading: "Contoh alokasi template budget untuk 200 tamu",
+        paragraphs: [
+          "Contoh di bawah memakai total Rp 200 juta untuk resepsi 200 tamu di kota besar. Sesuaikan persentasenya dengan prioritas kamu — yang penting total dan cadangannya selalu terlihat.",
+        ],
+        table: {
+          headers: ["Komponen", "Alokasi", "Catatan"],
+          rows: [
+            ["Venue + catering", "Rp 90 juta (45%)", "Porsi terbesar, kunci dulu"],
+            ["Dekorasi + dokumentasi", "Rp 40 juta (20%)", "Prioritas visual"],
+            ["Busana, MUA, hiburan", "Rp 30 juta (15%)", "Sesuaikan gaya acara"],
+            ["Seserahan, undangan, souvenir", "Rp 20 juta (10%)", "Bisa dikompres"],
+            ["Dana cadangan", "Rp 20 juta (10%)", "Wajib, jangan diganggu"],
+          ],
+        },
+      },
+      {
+        heading: "Cara menyusun template agar tidak over budget",
+        paragraphs: [
+          "Urutannya menentukan hasil. Mulai dari total maksimal yang nyaman, bukan dari daftar keinginan vendor. Setelah total dikunci, baru alokasikan per komponen dan bandingkan dengan harga pasar di kotamu sebelum menghubungi vendor mana pun.",
+        ],
+        ordered: [
+          "Tetapkan total budget maksimal bersama pasangan dan keluarga.",
+          "Sisihkan dana cadangan 10–15% sebelum membagi ke komponen lain.",
+          "Isi estimasi tiap komponen berdasarkan riset 3–5 vendor sejenis.",
+          "Catat setiap DP dan tenggat pelunasan begitu kontrak ditandatangani.",
+          "Review selisih estimasi vs aktual tiap minggu dan sesuaikan prioritas.",
+        ],
+        quote:
+          "Budget yang ditulis rapi membuat keputusan vendor 10 menit, bukan 10 hari penuh drama.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Di mana bisa download template budget pernikahan Excel?",
+        answer:
+          "Kamu bisa membuatnya sendiri dalam 10 menit dengan kolom komponen, estimasi, aktual, DP, sisa, tenggat, dan status. Alternatifnya, gunakan budget tracker digital agar angkanya sinkron dengan checklist dan vendor.",
+      },
+      {
+        question: "Berapa persen dana cadangan yang ideal?",
+        answer:
+          "Sekitar 10–15% dari total budget. Cadangan menutup revisi desain, tambahan pax catering, overtime venue, dan biaya kecil yang muncul di minggu terakhir.",
+      },
+      {
+        question: "Apakah template untuk 100 tamu dan 300 tamu berbeda?",
+        answer:
+          "Strukturnya sama, tetapi porsi catering dan venue berubah paling besar. Untuk tamu di atas 250, naikkan porsi catering dan siapkan buffer tambahan untuk logistik.",
+      },
+    ],
+    relatedSlugs: ["budget-pernikahan-indonesia", "nikah-jakarta-budget-50-juta", "checklist-12-bulan-sebelum-nikah"],
+    keywords: ["template budget pernikahan", "template anggaran nikah excel", "contoh budget wedding", "cara menyusun budget nikah"],
+    tags: ["budget", "template", "excel"],
+    published: true,
+  },
+  {
+    slug: "template-undangan-pernikahan-digital",
+    title: "Template Undangan Pernikahan Digital: Cara Membuat + Contoh Kata",
+    excerpt:
+      "Template undangan pernikahan digital siap edit: cara membuat undangan online, contoh kata-kata untuk akad dan resepsi, plus checklist sebelum disebar ke tamu.",
+    categoryId: "acara-tamu",
+    publishedAt: "2026-09-02",
+    updatedAt: "2026-09-02",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Template undangan pernikahan digital memangkas biaya cetak dan mempercepat penyebaran, apalagi kalau daftar tamu kamu tersebar di banyak kota. Satu link undangan online bisa memuat jadwal akad dan resepsi, peta lokasi, galeri, amplop digital, sampai tombol RSVP. Tantangannya tinggal satu: kata-katanya harus sopan dan informasinya tidak boleh kurang.",
+    sections: [
+      {
+        heading: "Kenapa undangan digital makin populer",
+        paragraphs: [
+          "Selain hemat, undangan digital bisa diupdate kalau ada perubahan jadwal atau lokasi — sesuatu yang mustahil dilakukan undangan cetak. Tamu juga lebih mudah menyimpan link dan meneruskannya ke keluarga. Untuk keluarga besar yang terbiasa undangan fisik, solusinya bukan menolak digital, melainkan mencetak sebagian kecil khusus untuk orang tua dan sesepuh.",
+        ],
+        bullets: [
+          "Hemat biaya cetak dan ongkos kirim, terutama untuk tamu luar kota.",
+          "Bisa direvisi kapan saja tanpa cetak ulang.",
+          "Terhubung langsung ke RSVP, peta, dan amplop digital.",
+          "Cetak 20–50 pcs fisik khusus keluarga inti dan sesepuh.",
+        ],
+      },
+      {
+        heading: "Contoh kata-kata undangan pernikahan digital",
+        paragraphs: [
+          "Struktur yang sopan selalu sama: pembuka, nama kedua mempelai beserta orang tua, jadwal akad dan resepsi yang jelas, lokasi lengkap, dan penutup. Bedakan dengan tegas antara tamu akad dan tamu resepsi supaya tidak ada yang salah datang.",
+          "Contoh ringkas untuk resepsi: awali dengan salam, tulis nama lengkap kedua mempelai dan orang tua masing-masing, lalu cantumkan hari, tanggal, jam, dan alamat venue dalam satu blok yang mudah dibaca. Akhiri dengan ucapan terima kasih dan nama keluarga yang mengundang.",
+        ],
+        bullets: [
+          "Cantumkan nama orang tua kedua mempelai untuk kesopanan.",
+          "Pisahkan info akad dan resepsi jika tamunya berbeda.",
+          "Tulis alamat lengkap plus titik peta, bukan cuma nama gedung.",
+          "Letakkan nomor rekening di halaman dalam, bukan halaman depan.",
+        ],
+        callout: {
+          title: "Common mistake",
+          body: "Menyebar link undangan tanpa testing: tombol RSVP error, peta salah titik, atau tanggal akad dan resepsi tertukar.",
+        },
+      },
+      {
+        heading: "Checklist sebelum undangan disebar",
+        paragraphs: [
+          "Lakukan pemeriksaan akhir bersama pasangan sebelum link dikirim ke grup keluarga. Sekali tersebar, koreksi kecil pun akan membingungkan tamu yang sudah menyimpan versi lama.",
+        ],
+        ordered: [
+          "Cek ejaan nama, gelar, dan nama orang tua kedua pihak.",
+          "Klik semua tombol: RSVP, peta, galeri, dan amplop digital.",
+          "Pastikan jam, tanggal, dan alamat sama dengan rundown final.",
+          "Kirim dulu ke keluarga inti untuk koreksi sebelum sebar massal.",
+          "Jadwalkan pengiriman H-30 dan pengingat H-7.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Apakah undangan digital sopan untuk keluarga besar?",
+        answer:
+          "Sopan, selama bahasanya formal dan mencantumkan nama orang tua. Untuk sesepuh yang tidak terbiasa dengan link, kirimkan juga undangan cetak atau sampaikan langsung.",
+      },
+      {
+        question: "Kapan undangan digital sebaiknya disebar?",
+        answer:
+          "Sekitar H-30 untuk undangan utama dan H-7 untuk pengingat. Jangan terlalu awal karena tamu bisa lupa, jangan terlalu mepet karena tamu luar kota butuh persiapan.",
+      },
+      {
+        question: "Bagaimana menghubungkan undangan digital dengan RSVP?",
+        answer:
+          "Tempelkan tombol RSVP di halaman utama undangan yang mengarah ke satu formulir. Dengan begitu jawaban tamu langsung masuk ke daftar utama dan bisa dipakai untuk seating.",
+      },
+    ],
+    relatedSlugs: ["rsvp-seating-check-in-pernikahan", "rundown-resepsi-wedding-4-jam", "checklist-12-bulan-sebelum-nikah"],
+    keywords: ["template undangan pernikahan", "undangan digital wedding", "contoh kata undangan nikah", "cara buat undangan online"],
+    tags: ["undangan", "digital", "template"],
+    published: true,
+  },
+  {
+    slug: "syarat-nikah-kua-2026",
+    title: "Syarat Nikah di KUA 2026: Dokumen, Biaya & Alur Lengkap",
+    excerpt:
+      "Syarat nikah di KUA 2026 lengkap: dokumen yang dibawa, biaya resmi akad di dalam dan luar KUA, alur pendaftaran, plus tips agar tidak bolak-balik.",
+    categoryId: "tradisi-adat",
+    publishedAt: "2026-09-03",
+    updatedAt: "2026-09-03",
+    readingTime: "7 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Syarat nikah di KUA sebenarnya tidak rumit, tetapi banyak pasangan bolak-balik karena satu dokumen kurang atau salah memahami alur. Kuncinya adalah mengurus surat pengantar dari RT, RW, dan kelurahan jauh sebelum tanggal akad, karena pendaftaran ke KUA paling lambat dilakukan 10 hari kerja sebelum hari H. Berikut daftar dokumen, biaya resmi 2026, dan alurnya dari awal sampai buku nikah terbit.",
+    sections: [
+      {
+        heading: "Dokumen syarat nikah di KUA",
+        paragraphs: [
+          "Siapkan dokumen kedua calon dalam map terpisah agar tidak tertukar. Semua fotokopi sebaiknya dibuat rangkap karena tiap tingkatan administrasi meminta arsipnya sendiri.",
+        ],
+        ordered: [
+          "KTP dan Kartu Keluarga kedua calon beserta fotokopinya.",
+          "Akta kelahiran atau surat kenal lahir.",
+          "Pas foto 2x3 dan 4x6 dengan background sesuai ketentuan KUA setempat.",
+          "Surat pengantar RT dan RW untuk keperluan numpang nikah atau nikah setempat.",
+          "Formulir N1 sampai N4 dari kelurahan: keterangan untuk nikah, asal-usul, persetujuan orang tua, dan keterangan kematian jika relevan.",
+          "Surat rekomendasi nikah dari KUA asal jika akad di luar kecamatan domisili.",
+          "Surat dispensasi pengadilan jika salah satu calon belum cukup umur.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Fotokopi KTP dan KK dari kedua keluarga besar sekalian — wali dan saksi juga diminta identitasnya saat akad.",
+        },
+      },
+      {
+        heading: "Biaya nikah di KUA 2026",
+        paragraphs: [
+          "Biaya resmi akad nikah diatur negara dan sama di seluruh Indonesia. Yang membedakan hanyalah lokasi dan waktunya.",
+        ],
+        table: {
+          headers: ["Lokasi akad", "Biaya resmi", "Catatan"],
+          rows: [
+            ["Di dalam KUA, jam kerja", "Rp 0 (gratis)", "Hari Senin sampai Jumat"],
+            ["Di luar KUA atau di luar jam kerja", "Rp 600.000", "Disetor ke kas negara via bank"],
+            ["Gedung atau rumah", "Rp 600.000 + biaya penghulu transport", "Sesuai kesepakatan wajar"],
+          ],
+        },
+      },
+      {
+        heading: "Alur pendaftaran sampai buku nikah terbit",
+        paragraphs: [
+          "Urutannya selalu sama: kelurahan dulu, baru KUA. Jangan datang langsung ke KUA tanpa surat pengantar karena pasti diminta kembali.",
+        ],
+        ordered: [
+          "Minta surat pengantar RT dan RW di domisili masing-masing.",
+          "Urus formulir N1 sampai N4 di kelurahan.",
+          "Daftarkan berkas ke KUA kecamatan tempat akad, minimal H-10 hari kerja.",
+          "Ikuti pemeriksaan berkas dan bimbingan pranikah (suscatin) jika diwajibkan.",
+          "Laksanakan akad sesuai jadwal, lalu terima buku nikah setelah pencatatan.",
+        ],
+        quote:
+          "Yang bikin ribet bukan aturannya, tapi dokumen yang disiapkan mepet. Urus dari H-2 bulan dan semuanya terasa enteng.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Berapa lama proses daftar nikah di KUA?",
+        answer:
+          "Pendaftaran berkasnya sendiri biasanya selesai dalam 1–2 kunjungan kalau dokumen lengkap. Aturannya, berkas harus masuk minimal 10 hari kerja sebelum akad, jadi amannya mulai mengurus 1–2 bulan sebelumnya.",
+      },
+      {
+        question: "Apakah bisa akad di luar KUA, misalnya di gedung atau rumah?",
+        answer:
+          "Bisa. Akad di luar KUA atau di luar jam kerja dikenai biaya resmi Rp 600.000 yang disetor ke kas negara. Pastikan jadwal penghulu sudah dikonfirmasi jauh hari.",
+      },
+      {
+        question: "Bagaimana kalau KTP beda domisili dengan lokasi akad?",
+        answer:
+          "Minta surat rekomendasi nikah dari KUA kecamatan asal, lalu daftarkan ke KUA tempat akad dilangsungkan. Prosesnya sama, hanya ada satu langkah tambahan.",
+      },
+    ],
+    relatedSlugs: ["nikah-adat-vs-nikah-sipil", "panduan-adat-pernikahan-jawa", "checklist-12-bulan-sebelum-nikah"],
+    keywords: ["syarat nikah di KUA", "biaya nikah KUA 2026", "cara daftar nikah KUA", "dokumen akad nikah"],
+    tags: ["KUA", "akad", "administrasi"],
+    published: true,
+  },
+  {
+    slug: "souvenir-pernikahan-murah-berkesan",
+    title: "15 Ide Souvenir Pernikahan Murah tapi Berkesan (Update 2026)",
+    excerpt:
+      "15 ide souvenir pernikahan murah mulai Rp 3 ribuan: tumbler, lilin aromaterapi, madu, sampai bibit tanaman — plus cara menghitung jumlah dan budgetnya.",
+    categoryId: "acara-tamu",
+    publishedAt: "2026-09-05",
+    updatedAt: "2026-09-05",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Souvenir pernikahan murah bukan berarti murahan — yang menentukan kesan adalah kegunaan dan kemasannya, bukan harganya. Di 2026, souvenir fungsional seperti tumbler kecil, lilin aromaterapi, dan madu kemasan sachet jauh lebih diingat tamu daripada pajangan yang berakhir di laci. Berikut 15 ide yang ramah budget beserta cara menghitung jumlahnya agar tidak kurang dan tidak mubazir.",
+    sections: [
+      {
+        heading: "Souvenir murah yang benar-benar dipakai tamu",
+        paragraphs: [
+          "Prinsipnya sederhana: kalau barangnya dipakai seminggu setelah acara, souvenir kamu berhasil. Pilih yang netral agar cocok untuk semua umur dan tidak bentrok dengan selera.",
+        ],
+        bullets: [
+          "Tumbler kecil atau botol minum (Rp 8–15 ribu): paling aman dan awet.",
+          "Lilin aromaterapi mini (Rp 10–20 ribu): kesan premium dengan harga menengah.",
+          "Madu atau sambal kemasan kecil (Rp 5–12 ribu): unik dan pasti habis dipakai.",
+          "Bibit tanaman atau sukulen mini (Rp 5–10 ribu): berkesan untuk tema outdoor.",
+          "Tote bag kanvas sablon nama (Rp 7–12 ribu): berguna dan jadi media kenangan.",
+          "Sendok-garpu set atau sumpit (Rp 4–8 ribu): klasik tapi tetap dipakai.",
+          "Sabun handmade atau hand sanitizer spray (Rp 3–7 ribu): termurah yang tetap elegan.",
+        ],
+      },
+      {
+        heading: "Cara menghitung jumlah dan budget souvenir",
+        paragraphs: [
+          "Rumus amannya: jumlah undangan yang hadir dikali 1,1, ditambah cadangan untuk keluarga inti dan tamu tak terduga. Jangan samakan jumlah souvenir dengan jumlah undangan kertas, karena satu undangan sering mewakili 2–3 tamu.",
+        ],
+        ordered: [
+          "Ambil estimasi hadir dari data RSVP, bukan dari jumlah undangan.",
+          "Kalikan 1,1 untuk cadangan, lalu bulatkan ke atas ke kelipatan order vendor.",
+          "Minta harga grosir per 100 pcs dan bandingkan minimal 3 vendor.",
+          "Sisihkan 10% budget souvenir untuk kemasan dan kartu ucapan.",
+          "Pesan H-2 bulan agar ada waktu revisi sablon atau kemasan.",
+        ],
+      },
+      {
+        heading: "Kesalahan yang bikin souvenir mubazir",
+        paragraphs: [
+          "Souvenir yang terlalu personal seperti foto wajah pengantin ukuran besar cenderung tidak dipakai. Begitu juga barang musiman yang kedaluwarsa atau pudar sebelum hari H. Selalu minta sampel fisik sebelum order massal, karena warna sablon di layar dan di barang asli sering berbeda jauh.",
+        ],
+        quote: "Souvenir terbaik adalah yang tamu pakai tanpa ingat harganya.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Berapa budget souvenir per pcs yang wajar?",
+        answer:
+          "Untuk 200–300 tamu, kisaran Rp 5–15 ribu per pcs sudah menghasilkan souvenir yang bagus. Totalnya sekitar 3–5% dari keseluruhan budget pernikahan.",
+      },
+      {
+        question: "Kapan souvenir harus dipesan?",
+        answer:
+          "Idealnya H-2 bulan, terutama yang custom sablon atau kemasan khusus. Produksi massal butuh 2–4 minggu plus waktu revisi.",
+      },
+      {
+        question: "Apakah souvenir untuk anak-anak perlu dibedakan?",
+        answer:
+          "Tidak wajib, tetapi snack box kecil atau mainan edukatif murah membuat keluarga dengan anak merasa diperhatikan.",
+      },
+    ],
+    relatedSlugs: ["budget-pernikahan-indonesia", "rundown-resepsi-wedding-4-jam", "nikah-jakarta-budget-50-juta"],
+    keywords: ["souvenir pernikahan murah", "ide souvenir nikah unik", "souvenir wedding hemat"],
+    tags: ["souvenir", "tamu", "hemat"],
+    published: true,
+  },
+  {
+    slug: "biaya-prewedding-2026",
+    title: "Biaya Prewedding 2026: Paket Foto, Lokasi & Tips Hemat",
+    excerpt:
+      "Rincian biaya prewedding 2026: kisaran paket foto studio vs outdoor, sewa busana dan MUA, plus tips hemat tanpa mengorbankan hasil.",
+    categoryId: "fashion-prewedding",
+    publishedAt: "2026-09-06",
+    updatedAt: "2026-09-06",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Biaya prewedding 2026 sangat bervariasi tergantung konsep: sesi studio bisa mulai Rp 3 jutaan, sementara outdoor dengan beberapa lokasi dan ganti busana bisa menembus Rp 25 juta. Karena prewedding bukan kebutuhan wajib, kuncinya adalah memutuskan dulu fungsinya — untuk undangan, dekorasi, atau sekadar kenangan — baru menyesuaikan paketnya.",
+    sections: [
+      {
+        heading: "Kisaran biaya prewedding 2026",
+        paragraphs: [
+          "Harga di bawah adalah kisaran umum di kota besar untuk paket yang sudah termasuk fotografer, busana, dan MUA dasar. Selalu minta rincian tertulis karena istilah paket hemat bisa sangat berbeda antar vendor.",
+        ],
+        table: {
+          headers: ["Paket", "Kisaran", "Cocok untuk"],
+          rows: [
+            ["Studio 1 konsep", "Rp 3–8 juta", "Undangan dan dekorasi simpel"],
+            ["Outdoor 1 lokasi", "Rp 8–15 juta", "Galeri dan media sosial"],
+            ["Outdoor multi-lokasi + sinematik", "Rp 15–25 juta", "Dokumentasi premium"],
+          ],
+        },
+      },
+      {
+        heading: "Komponen yang sering luput dihitung",
+        paragraphs: [
+          "Banyak pasangan kaget karena total membengkak bukan dari paket fotonya, melainkan dari biaya pendukung yang tidak masuk penawaran awal.",
+        ],
+        bullets: [
+          "Tiket masuk dan izin foto lokasi wisata atau gedung.",
+          "Transport, konsumsi tim, dan penginapan jika lokasi jauh.",
+          "Sewa busana tambahan di luar paket dan retouch makeup.",
+          "Biaya overtime jika sesi molor dari jadwal.",
+          "Cetak foto dan album yang biasanya dijual terpisah.",
+        ],
+      },
+      {
+        heading: "Tips hemat prewedding tanpa hasil murahan",
+        paragraphs: [
+          "Hemat bukan berarti murahan — artinya memotong pos yang tidak terlihat di hasil akhir. Satu lokasi yang dieksplorasi maksimal hampir selalu mengalahkan tiga lokasi yang terburu-buru.",
+        ],
+        ordered: [
+          "Pilih satu lokasi dengan banyak sudut, bukan banyak lokasi.",
+          "Pakai busana sendiri untuk satu konsep agar hemat sewa.",
+          "Jadwalkan sesi pagi hari untuk cahaya terbaik dan waktu efisien.",
+          "Batasi cetak album, perbanyak file digital untuk undangan.",
+          "Booking di weekday atau low season untuk harga lebih lentur.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Kapan waktu terbaik foto prewedding?",
+        answer:
+          "Idealnya 3–4 bulan sebelum hari H agar hasilnya bisa dipakai untuk undangan dan dekorasi tanpa terburu-buru.",
+      },
+      {
+        question: "Apakah prewedding outdoor butuh izin lokasi?",
+        answer:
+          "Sering ya, terutama taman kota, pantai wisata, dan gedung bersejarah. Tanyakan biaya izinnya di awal karena bisa jutaan rupiah.",
+      },
+    ],
+    relatedSlugs: ["tips-pose-natural-prewedding", "cara-negosiasi-harga-vendor", "budget-pernikahan-indonesia"],
+    keywords: ["biaya prewedding", "paket prewedding murah", "harga foto prewedding", "tips hemat prewedding"],
+    tags: ["prewedding", "fotografi", "budget"],
+    published: true,
+  },
+  {
+    slug: "menu-catering-prasmanan-pernikahan",
+    title: "Menu Catering Prasmanan Pernikahan: Contoh Susunan + Harga per Pax",
+    excerpt:
+      "Contoh susunan menu catering prasmanan pernikahan untuk 200 tamu, kisaran harga per pax 2026, dan cara memilih menu yang disukai semua umur.",
+    categoryId: "vendor-venue",
+    publishedAt: "2026-09-08",
+    updatedAt: "2026-09-08",
+    readingTime: "7 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Menu catering prasmanan pernikahan menentukan kesan tamu lebih dari dekorasi mana pun — orang lupa bunga, tapi ingat rasa. Susunan yang aman selalu punya pola yang sama: karbohidrat, dua lauk, sayur, sup atau soto, dessert, buah, dan minuman, plus 1–2 stall untuk variasi. Berikut contoh susunan per tier harga dan cara menyesuaikannya dengan jumlah tamu.",
+    sections: [
+      {
+        heading: "Anatomi menu prasmanan yang lengkap",
+        paragraphs: [
+          "Prasmanan yang terasa mewah bukan yang menunya paling banyak, melainkan yang alurnya lengkap dari pembuka sampai penutup. Pastikan ada pilihan yang aman untuk anak-anak dan tamu sepuh, karena merekalah yang paling rewel soal rasa.",
+        ],
+        bullets: [
+          "Karbohidrat: nasi putih plus satu pendamping seperti mie atau nasi goreng.",
+          "Lauk utama: satu ayam dan satu daging atau ikan agar ada pilihan.",
+          "Sayur dan sup: capcay plus soto atau sop sebagai penyegar.",
+          "Penutup: dessert manis, buah potong, dan minuman dingin.",
+          "Stall tambahan: siomay, bakso, atau sate untuk antrean yang hidup.",
+        ],
+      },
+      {
+        heading: "Contoh susunan menu dan harga per pax 2026",
+        paragraphs: [
+          "Kisaran harga per pax 2026 di kota besar untuk prasmanan lengkap umumnya seperti di bawah ini. Harga sudah termasuk peralatan dan pramusaji pada paket standar.",
+        ],
+        table: {
+          headers: ["Tier", "Harga per pax", "Isi paket"],
+          rows: [
+            ["Hemat", "Rp 75–100 ribu", "Prasmanan dasar + 1 stall + minuman"],
+            ["Standar", "Rp 120–175 ribu", "Prasmanan lengkap + 2 stall + dessert premium"],
+            ["Premium", "Rp 200 ribu ke atas", "Bahan premium + live cooking + banyak stall"],
+          ],
+        },
+      },
+      {
+        heading: "Cara memilih menu yang aman untuk semua tamu",
+        paragraphs: [
+          "Selalu lakukan food tasting sebelum tanda tangan, dan bawa 2–3 anggota keluarga dengan selera berbeda. Menu yang lolos di lidah banyak orang mengalahkan menu yang terlihat mewah di brosur.",
+        ],
+        ordered: [
+          "Pilih satu menu familiar dan satu menu favorit sebagai jangkar rasa.",
+          "Minta label untuk menu pedas, seafood, dan kacang-kacangan.",
+          "Siapkan porsi anak atau menu lembut untuk tamu sepuh.",
+          "Hitung pax dari RSVP hadir plus 5–10% cadangan, bukan dari undangan.",
+          "Konfirmasi jam refill dan durasi stand by pramusaji di kontrak.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Jangan tambah stall berlebihan demi gengsi — tiap stall menambah antrean, biaya, dan kebutuhan pramusaji.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: "Berapa pax catering untuk 200 undangan?",
+        answer:
+          "Umumnya yang hadir 70–80% dari undangan. Untuk 200 undangan, pesan sekitar 150–170 pax lalu sesuaikan setelah RSVP terkumpul dan mendekati hari H.",
+      },
+      {
+        question: "Apakah food stall dihitung terpisah dari prasmanan?",
+        answer:
+          "Tergantung paket. Sebagian vendor menggabungkan 1–2 stall ke paket standar, selebihnya dihitung per stall. Tanyakan selalu sebelum menandatangani penawaran.",
+      },
+      {
+        question: "Kapan food tasting dilakukan?",
+        answer:
+          "Setelah shortlist 2–3 vendor dan sebelum membayar DP. Tasting adalah momen terbaik untuk negosiasi penyesuaian menu.",
+      },
+    ],
+    relatedSlugs: ["interview-vendor-katering", "cara-negosiasi-harga-vendor", "budget-pernikahan-indonesia"],
+    keywords: ["menu prasmanan pernikahan", "contoh menu catering wedding", "harga catering per pax", "tips pilih menu prasmanan"],
+    tags: ["catering", "menu", "prasmanan"],
+    published: true,
+  },
 ];
 
 export const blogCategories: BlogCategory[] = [
