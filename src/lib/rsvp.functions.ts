@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
 import { randomId } from "@/lib/auth.server";
 import { getDatabase } from "@/lib/cloudflare.server";
-import { resolveWorkspace } from "@/lib/data.functions";
+import { resolveAccessibleWorkspace, resolveMemberRole } from "@/lib/data.functions";
 import { assertSameOrigin, checkRateLimit, getSafeAppOrigin } from "@/lib/security.server";
 import { logAudit } from "@/lib/audit.server";
 import type { EventData } from "@/lib/data.functions";
@@ -61,8 +61,13 @@ export const createRsvpLink = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((input) => z.object({ guestId: guestIdSchema }).parse(input))
   .handler(async ({ data, context }) => {
-    const workspaceId = await resolveWorkspace(context.userId);
+    assertSameOrigin();
+    checkRateLimit({ key: "create-rsvp-link", limit: 20, windowMs: 60_000 });
+    const workspaceId = await resolveAccessibleWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
+    if ((await resolveMemberRole(workspaceId, context.userId)) === "viewer") {
+      throw new Error("You have read-only access to this workspace.");
+    }
     const guestsRow = await getDatabase()
       .prepare("SELECT payload FROM workspace_data WHERE workspace_id = ? AND kind = 'guests'")
       .bind(workspaceId)
@@ -100,8 +105,12 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ guestId: guestIdSchema }).parse(input))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
-    const workspaceId = await resolveWorkspace(context.userId);
+    checkRateLimit({ key: "revoke-rsvp-link", limit: 20, windowMs: 60_000 });
+    const workspaceId = await resolveAccessibleWorkspace(context.userId);
     if (!workspaceId) throw new Error("No workspace found");
+    if ((await resolveMemberRole(workspaceId, context.userId)) === "viewer") {
+      throw new Error("You have read-only access to this workspace.");
+    }
     await getDatabase()
       .prepare(
         "UPDATE rsvp_links SET revoked_at = CURRENT_TIMESTAMP WHERE workspace_id = ? AND guest_id = ?",

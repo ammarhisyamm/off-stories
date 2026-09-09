@@ -69,6 +69,18 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:8799",
 ]);
 
+function isAllowedOrigin(value: string): boolean {
+  const normalized = value.replace(/\/+$/, "");
+  if (ALLOWED_ORIGINS.has(normalized)) return true;
+
+  try {
+    const url = new URL(normalized);
+    return url.protocol === "https:" && url.hostname.endsWith(".off-stories.pages.dev");
+  } catch {
+    return false;
+  }
+}
+
 /**
  * CSRF mitigation for state-changing POSTs.
  * If Origin header is present, it must be in the allowlist.
@@ -78,23 +90,19 @@ export function assertSameOrigin(): void {
   const req = getRequest();
   if (!req) return;
   const origin = req.headers.get("origin");
-  if (!origin) return; // same-origin navigations often omit Origin
-  // normalize origin (strip trailing slash)
-  const normalized = origin.replace(/\/+$/, "");
-  if (ALLOWED_ORIGINS.has(normalized)) return;
-  // also allow origins whose host is allowed (e.g. preview deploys on pages.dev subdomains)
-  try {
-    const u = new URL(normalized);
-    if (
-      u.hostname.endsWith(".pages.dev") ||
-      u.hostname.endsWith("offstories.fun") ||
-      u.hostname === "localhost" ||
-      u.hostname === "127.0.0.1"
-    ) {
-      return;
+  if (origin && isAllowedOrigin(origin)) return;
+
+  // Some browser form submissions omit Origin. Referer is only a fallback;
+  // requests without either trusted header are rejected rather than assumed safe.
+  if (!origin) {
+    const referer = req.headers.get("referer");
+    if (referer) {
+      try {
+        if (isAllowedOrigin(new URL(referer).origin)) return;
+      } catch {
+        // fall through to throw
+      }
     }
-  } catch {
-    // fall through to throw
   }
   throw new Error("Forbidden: invalid origin.");
 }

@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireCloudflareAuth } from "@/integrations/cloudflare/auth-middleware";
+import { assertSameOrigin, checkRateLimit } from "@/lib/security.server";
 
 const reportSchema = z.object({
   source: z.string().max(120),
@@ -15,6 +16,8 @@ export const reportClientError = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
   .inputValidator((d) => reportSchema.parse(d))
   .handler(async ({ data, context }) => {
+    assertSameOrigin();
+    checkRateLimit({ key: "client-error-report", limit: 20, windowMs: 60_000 });
     const { userId } = context;
     console.error(
       JSON.stringify({

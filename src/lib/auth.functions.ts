@@ -54,7 +54,9 @@ export const signUp = createServerFn({ method: "POST" })
       .bind(data.email)
       .first<{ id: string }>();
     if (existing)
-      throw new Error("An account already exists for this email. Please sign in instead.");
+      throw new Error(
+        "Unable to create an account with these details. Please try signing in instead.",
+      );
 
     const userId = randomId();
     const workspaceId = randomId();
@@ -93,6 +95,7 @@ export const signIn = createServerFn({ method: "POST" })
   });
 
 export const signOut = createServerFn({ method: "POST" }).handler(async () => {
+  assertSameOrigin();
   await destroySession();
   return { ok: true };
 });

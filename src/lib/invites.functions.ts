@@ -240,18 +240,40 @@ export const acceptInvite = createServerFn({ method: "POST" })
       .bind(invite.workspace_id)
       .first<{ owner_id: string }>();
     if (owner?.owner_id === context.userId) throw new Error("You already own this workspace.");
-    await database.batch([
-      database
+    const claimed = await database
+      .prepare(
+        `UPDATE workspace_invites
+         SET accepted_at = CURRENT_TIMESTAMP, accepted_by = ?
+         WHERE id = ?
+           AND accepted_at IS NULL
+           AND revoked_at IS NULL
+           AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)
+           AND NOT EXISTS (
+             SELECT 1 FROM workspace_members
+             WHERE workspace_id = ? AND role IN ('editor', 'viewer')
+           )`,
+      )
+      .bind(context.userId, invite.id, invite.workspace_id)
+      .run();
+    if (claimed.meta.changes !== 1) {
+      throw new Error(
+        "This invitation is no longer active or the workspace already has a partner.",
+      );
+    }
+    try {
+      await database
+        .prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)")
+        .bind(invite.workspace_id, context.userId, invite.role)
+        .run();
+    } catch (error) {
+      await database
         .prepare(
-          "INSERT OR REPLACE INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)",
+          "UPDATE workspace_invites SET accepted_at = NULL, accepted_by = NULL WHERE id = ? AND accepted_by = ?",
         )
-        .bind(invite.workspace_id, context.userId, invite.role),
-      database
-        .prepare(
-          "UPDATE workspace_invites SET accepted_at = CURRENT_TIMESTAMP, accepted_by = ? WHERE id = ?",
-        )
-        .bind(context.userId, invite.id),
-    ]);
+        .bind(invite.id, context.userId)
+        .run();
+      throw error;
+    }
     await logAudit({
       workspaceId: invite.workspace_id,
       actorId: context.userId,

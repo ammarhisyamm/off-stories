@@ -50,14 +50,14 @@ export function LocationVenueStep({
     >
       <h3 className="display text-2xl">Di mana pernikahan akan digelar?</h3>
       <p className="mt-3 text-sm text-muted-foreground">
-        Kota & venue menentukan harga catering, dekor, dan logistik — riset 2025 bawa beda 2×.
+        Kota dan venue memengaruhi ketersediaan vendor, logistik, serta gambaran biaya awal.
       </p>
       <label className="mt-6 block">
         <span className="mb-2 block text-sm font-medium">Kota *</span>
         <select
           value={setup.location}
           onChange={(event) => onUpdate({ location: event.target.value })}
-          className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+          className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
         >
           <option value="">Pilih kota</option>
           {locations.map((location) => (
@@ -71,7 +71,7 @@ export function LocationVenueStep({
           <select
             value={setup.venueType}
             onChange={(e) => onUpdate({ venueType: e.target.value as SetupState["venueType"] })}
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm text-foreground"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           >
             <option value="">Pilih tipe</option>
             {venueTypes.map((v) => (
@@ -86,7 +86,7 @@ export function LocationVenueStep({
           <select
             value={setup.venueStatus}
             onChange={(e) => onUpdate({ venueStatus: e.target.value as SetupState["venueStatus"] })}
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm text-foreground"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           >
             <option value="not_decided">Belum menentukan</option>
             <option value="shortlisted">Sudah shortlist</option>
@@ -101,7 +101,7 @@ export function LocationVenueStep({
             value={setup.venueName}
             onChange={(e) => onUpdate({ venueName: e.target.value })}
             placeholder="Contoh: Balai Kartini, The Ritz-Carlton Bali"
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm text-foreground"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           />
         </label>
       )}
@@ -134,7 +134,8 @@ export function GuestsStep({
     <QuestionShell question={2} total={7} onBack={onBack} onNext={onNext}>
       <h3 className="display text-2xl">Berapa tamu yang diundang?</h3>
       <p className="mt-3 text-sm text-muted-foreground">
-        Pisahkan per pihak — ngaruh kapasitas gedung & catering 40–50% budget.
+        Pisahkan per pihak agar kapasitas venue, catering, parkir, dan RSVP bisa direncanakan lebih
+        akurat.
       </p>
       <div className="mt-6 rounded-2xl bg-[#f6f6f6] p-4 sm:p-5">
         <div className="flex items-end justify-between gap-3">
@@ -144,7 +145,7 @@ export function GuestsStep({
         <input
           type="range"
           min={20}
-          max={1000}
+          max={3000}
           step={10}
           value={setup.guests}
           onChange={(e) => onTotal(Number(e.target.value))}
@@ -152,7 +153,7 @@ export function GuestsStep({
         />
         <div className="mt-2 flex justify-between text-xs text-muted-foreground">
           <span>20</span>
-          <span>1000 tamu</span>
+          <span>3000 tamu</span>
         </div>
         <div className="mt-6 grid grid-cols-2 gap-3">
           <label className="block">
@@ -160,17 +161,18 @@ export function GuestsStep({
             <input
               type="number"
               min={0}
-              max={1000}
+              max={3000}
               value={setup.guestsBride}
               onChange={(e) => {
-                const b = Math.max(0, Number(e.target.value));
+                const b = Math.min(3000, Math.max(0, Number(e.target.value)));
+                const nextTotal = Math.min(3000, Math.max(b + setup.guestsGroom, 20));
                 onUpdate({
                   guestsBride: b,
-                  guestsGroom: Math.max(0, setup.guests - b),
-                  guests: Math.max(b + setup.guestsGroom, 20),
+                  guestsGroom: Math.max(0, nextTotal - b),
+                  guests: nextTotal,
                 });
               }}
-              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm"
+              className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
             />
           </label>
           <label className="block">
@@ -178,17 +180,18 @@ export function GuestsStep({
             <input
               type="number"
               min={0}
-              max={1000}
+              max={3000}
               value={setup.guestsGroom}
               onChange={(e) => {
-                const g = Math.max(0, Number(e.target.value));
+                const g = Math.min(3000, Math.max(0, Number(e.target.value)));
+                const nextTotal = Math.min(3000, Math.max(setup.guestsBride + g, 20));
                 onUpdate({
                   guestsGroom: g,
-                  guestsBride: Math.max(0, setup.guests - g),
-                  guests: Math.max(setup.guestsBride + g, 20),
+                  guestsBride: Math.max(0, nextTotal - g),
+                  guests: nextTotal,
                 });
               }}
-              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm"
+              className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
             />
           </label>
         </div>
@@ -231,7 +234,7 @@ export function DateTimeStep({
                 resepsiDate: setup.resepsiDate || e.target.value,
               })
             }
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           />
         </label>
         <label className="block">
@@ -240,7 +243,7 @@ export function DateTimeStep({
             type="date"
             value={setup.resepsiDate || setup.akadDate || setup.weddingDate}
             onChange={(e) => onUpdate({ resepsiDate: e.target.value })}
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           />
           <span className="mt-1 block text-xs text-muted-foreground">
             Kosongkan jika sama dengan akad
@@ -253,7 +256,7 @@ export function DateTimeStep({
           <select
             value={setup.timeSlot}
             onChange={(e) => onUpdate({ timeSlot: e.target.value as SetupState["timeSlot"] })}
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           >
             <option value="">Pilih jam</option>
             {timeSlots.map((t) => (
@@ -268,7 +271,7 @@ export function DateTimeStep({
           <select
             value={setup.religion}
             onChange={(e) => onUpdate({ religion: e.target.value as SetupState["religion"] })}
-            className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm"
+            className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
           >
             {religions.map((r) => (
               <option key={r.value} value={r.value}>
@@ -342,7 +345,7 @@ export function BudgetStep({
               onChange={(e) => onUpdate({ budget: e.target.value.replace(/\D/g, "") })}
               inputMode="numeric"
               placeholder="250.000.000"
-              className="h-12 w-full border border-[#eaeaea] bg-white pl-11 pr-4 text-sm"
+              className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white pl-11 pr-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
             />
           </div>
         </label>
@@ -352,7 +355,7 @@ export function BudgetStep({
         <select
           value={setup.budgetPayer}
           onChange={(e) => onUpdate({ budgetPayer: e.target.value as SetupState["budgetPayer"] })}
-          className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm"
+          className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
         >
           {Object.entries(payerLabels).map(([v, l]) => (
             <option key={v} value={v}>
@@ -391,7 +394,7 @@ export function AdatStep({
         <select
           value={setup.adat}
           onChange={(e) => onUpdate({ adat: e.target.value })}
-          className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-sm"
+          className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5"
         >
           {adatOptions.map((a) => (
             <option key={a}>{a}</option>
@@ -521,14 +524,15 @@ export function OrganizerStep({
     >
       <h3 className="display text-2xl">Pakai Wedding Organizer?</h3>
       <p className="mt-3 text-sm text-muted-foreground">
-        WO membantu di peak season (Ramadan & tanggal cantik) — cepat penuh 9–12 bulan sebelum.
+        WO membantu koordinasi vendor, keluarga, dan rundown; tanpa WO, peran operasional perlu
+        dibagi lebih awal.
       </p>
       <div className="mt-6 space-y-3">
         {[
           {
             value: "yes" as const,
             label: "Ya — WO full / day-of",
-            desc: "Rekomendasi: booking 9–12 bulan sebelum",
+            desc: "Koordinasi vendor dan hari-H lebih terpusat",
           },
           {
             value: "no" as const,
@@ -572,7 +576,7 @@ function InterpretationPanel({ data }: { data: PlanningInterpretation }) {
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-          Quick planning note
+          Practical planning note
         </div>
         {(data.tier || data.complexity) && (
           <div className="text-xs font-medium text-foreground">{data.tier ?? data.complexity}</div>

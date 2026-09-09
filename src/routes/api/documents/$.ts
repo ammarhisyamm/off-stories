@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { requireCurrentUser } from "@/lib/auth.server";
+import { getCurrentUser } from "@/lib/auth.server";
 import { getDocumentsBucket } from "@/lib/cloudflare.server";
 import { resolveAccessibleWorkspace, resolveMemberRole } from "@/lib/data.functions";
 
@@ -7,7 +7,13 @@ export const Route = createFileRoute("/api/documents/$")({
   server: {
     handlers: {
       GET: async ({ params }) => {
-        const user = await requireCurrentUser();
+        const user = await getCurrentUser();
+        if (!user) {
+          return new Response("Unauthorized", {
+            status: 401,
+            headers: { "cache-control": "no-store" },
+          });
+        }
         const workspaceId = await resolveAccessibleWorkspace(user.id);
         const key = params._splat;
         if (!workspaceId || !key || !key.startsWith(`${workspaceId}/`)) {

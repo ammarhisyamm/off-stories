@@ -191,7 +191,7 @@ export function DashboardOnboarding({
           />
         </div>
         {mode && (
-          <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-white p-5 sm:p-6">
+          <div className="mx-auto mt-7 max-w-5xl rounded-[20px] border border-[#eaeaea] bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42_/_0.03)] sm:p-6">
             <div>
               <div className="text-sm font-medium text-foreground">
                 Start with your wedding details
@@ -228,7 +228,7 @@ export function DashboardOnboarding({
                     }))
                   }
                   placeholder="Contoh: Andra"
-                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                  className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
                 />
               </label>
               <label className="block">
@@ -245,7 +245,7 @@ export function DashboardOnboarding({
                     }))
                   }
                   placeholder="Contoh: Kirana"
-                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                  className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
                 />
               </label>
               <label className="block">
@@ -260,7 +260,7 @@ export function DashboardOnboarding({
                       weddingDate: event.target.value,
                     }))
                   }
-                  className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                  className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
                 />
               </label>
               {mode === "blank" && (
@@ -308,7 +308,7 @@ export function DashboardOnboarding({
                       onChange={(event) =>
                         update({ venueStatus: event.target.value as SetupState["venueStatus"] })
                       }
-                      className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                      className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
                     >
                       <option value="not_decided">Belum menentukan</option>
                       <option value="shortlisted">Sudah shortlist</option>
@@ -324,7 +324,7 @@ export function DashboardOnboarding({
                       onChange={(event) =>
                         update({ budgetPayer: event.target.value as SetupState["budgetPayer"] })
                       }
-                      className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                      className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
                     >
                       {Object.entries(payerLabels).map(([value, label]) => (
                         <option key={value} value={value}>
@@ -342,7 +342,7 @@ export function DashboardOnboarding({
                       value={setup.venueName}
                       onChange={(event) => update({ venueName: event.target.value })}
                       placeholder="Contoh: Gedung Serbaguna Jakarta"
-                      className="h-12 w-full border border-[#eaeaea] bg-white px-4 text-base text-foreground sm:text-sm"
+                      className="h-12 w-full rounded-[14px] border border-[#eaeaea] bg-white px-4 text-base text-foreground transition-colors focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/5 sm:text-sm"
                     />
                   </label>
                 </>
@@ -366,7 +366,7 @@ export function DashboardOnboarding({
             type="button"
             onClick={continueFromStart}
             disabled={!mode}
-            className="ml-auto rounded-[14px] bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-35"
+            className="ml-auto inline-flex h-11 items-center justify-center rounded-[14px] bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-35"
           >
             {mode === "blank" ? "Finish and open workspace" : "Start smart setup"}
           </button>

@@ -23,7 +23,13 @@ import {
   Wallet,
 } from "@phosphor-icons/react";
 import { formatIDR } from "@/lib/types";
-import { getPlanningDate, getPlanningDurationMonths, type SetupState } from "@/lib/onboarding";
+import {
+  getIndonesiaPlanningRecommendations,
+  getPlanningDate,
+  getPlanningDurationMonths,
+  getSuggestedBudgetAllocation,
+  type SetupState,
+} from "@/lib/onboarding";
 
 export function PlanReadyPreview({
   setup,
@@ -53,16 +59,27 @@ export function PlanReadyPreview({
   const showTwoDates = resepsiDateRaw !== primaryDate;
   const planningDurationMonths = getPlanningDurationMonths(primaryDate);
   const planningDuration = `${planningDurationMonths} ${planningDurationMonths === 1 ? "Month" : "Months"}`;
-  const allocation = [
-    { label: "Venue", percent: 28, icon: Buildings },
-    { label: "Catering", percent: 33, icon: UsersThree },
-    { label: "Decoration", percent: 12, icon: FlowerLotus },
-    { label: "Photography & Videography", percent: 8, icon: Heart },
-    { label: "Makeup & Attire", percent: 5, icon: Sparkle },
-    { label: "Entertainment", percent: 4, icon: MagicWand },
-    { label: "Invitation & Souvenirs", percent: 4, icon: FileText },
-    { label: "Miscellaneous", percent: 6, icon: Notebook },
-  ];
+  const allocation = getSuggestedBudgetAllocation(setup).map((item) => ({
+    ...item,
+    icon:
+      item.id === "venue"
+        ? Buildings
+        : item.id === "catering"
+          ? UsersThree
+          : item.id === "decoration"
+            ? FlowerLotus
+            : item.id === "photography"
+              ? Heart
+              : item.id === "attire"
+                ? Sparkle
+                : item.id === "entertainment"
+                  ? MagicWand
+                  : item.id === "stationery"
+                    ? FileText
+                    : item.id === "contingency"
+                      ? Wallet
+                      : Notebook,
+  }));
   const prepared = [
     {
       title: "Personalized Timeline",
@@ -91,17 +108,7 @@ export function PlanReadyPreview({
       icon: FolderOpen,
     },
   ];
-  const insights = [
-    `2026: Untuk ${setup.guests} tamu di ${setup.location || "kota pilihan"} (${setup.guestsBride} & ${setup.guestsGroom}), catering ~35–45% budget — 2026 prasmanan Gold ~Rp ${(setup.location === "Jakarta" ? 75000 : setup.location === "Bali" ? 80000 : setup.location === "Bandung" ? 70000 : 65000).toLocaleString("id-ID")}/pax (Setia Rasa 2026).`,
-    setup.venueType === "outdoor"
-      ? "Outdoor butuh plan B hujan, genset & toilet portable — alokasikan 10–20% extra untuk venue."
-      : setup.venueStatus === "booked"
-        ? `Venue ${setup.venueName || setup.venueType || "terpilih"} sudah booking — kunci harga 2026 & konfirmasi kapasitas vs ${setup.guests} tamu.`
-        : "Booking venue 9–12 bulan sebelum (peak Sabtu +10–20% vs Minggu/weekday) — survei 3 venue & bandingkan paket bundling 2026.",
-    setup.adat !== "No specific adat yet"
-      ? `${setup.adat} punya ${setup.ceremonyTypes.length} upacara terpilih — lock urutan dengan sesepuh 6–8 bulan sebelum (H-3 untuk Siraman).`
-      : "Timeline 2026: kunci vendor dalam 30 hari ke depan; buffer 5–10% wajib.",
-  ];
+  const recommendations = getIndonesiaPlanningRecommendations(setup, estimatedBudget);
   const budgetFloor = Math.round((estimatedBudget * 0.9) / 1_000_000) * 1_000_000;
   const budgetCeiling = Math.round((estimatedBudget * 1.2) / 1_000_000) * 1_000_000;
   const workspaceStatus = [
@@ -113,7 +120,7 @@ export function PlanReadyPreview({
 
   return (
     <div className="mx-auto min-w-0 max-w-6xl animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
-      <header className="rounded-[24px] border border-[#eaeaea] bg-[#f6f6f6] px-4 py-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_6px_20px_rgb(15_23_42_/_0.04)] sm:rounded-[28px] sm:px-9 sm:py-9">
+      <header className="rounded-[20px] border border-[#eaeaea] bg-[#f8f8f8] px-5 py-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.03),0_6px_20px_rgb(15_23_42_/_0.04)] sm:px-8 sm:py-8">
         <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-center">
           <div>
             <div className="eyebrow">Wedding Workspace</div>
@@ -153,7 +160,7 @@ export function PlanReadyPreview({
             <button
               type="button"
               onClick={onFinish}
-              className="mt-7 inline-flex h-10 items-center justify-center rounded-[14px] bg-primary px-4 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+              className="mt-7 inline-flex h-11 items-center justify-center rounded-[14px] bg-primary px-5 text-sm font-medium text-primary-foreground transition duration-200 hover:bg-[#430a17] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             >
               Continue Planning
             </button>
@@ -178,7 +185,7 @@ export function PlanReadyPreview({
       </header>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-[24px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-7">
+        <div className="rounded-[20px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-7">
           <SectionHeading
             icon={<CalendarBlank size={20} />}
             eyebrow="A quick look"
@@ -238,7 +245,7 @@ export function PlanReadyPreview({
           </div>
         </div>
 
-        <div className="rounded-[24px] border border-[#eaeaea] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-8">
+        <div className="rounded-[20px] border border-[#eaeaea] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-7">
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-semibold text-[#222222]">Estimated Budget</div>
@@ -293,7 +300,7 @@ export function PlanReadyPreview({
         </div>
       </section>
 
-      <section className="mt-6 rounded-[24px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-8">
+      <section className="mt-6 rounded-[20px] border border-[#ececec] bg-white p-6 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-7">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <SectionHeading
             icon={<ChartDonut size={20} />}
@@ -336,7 +343,7 @@ export function PlanReadyPreview({
         </div>
       </section>
 
-      <section className="mt-16">
+      <section className="mt-12">
         <SectionHeading eyebrow="Prepared for you" title="Your Planning Workspace is Ready" />
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {prepared.map((item) => {
@@ -353,20 +360,20 @@ export function PlanReadyPreview({
         </div>
       </section>
 
-      <section className="mt-16">
+      <section className="mt-12">
         <SectionHeading
           icon={<Lightbulb size={20} />}
-          eyebrow="A little guidance"
-          title="Planning Insights"
+          eyebrow="Built around your choices"
+          title="Recommendations for your plan"
         />
         <div className="mt-6 grid gap-3 lg:grid-cols-3">
-          {insights.map((insight, index) => (
-            <InsightCard key={insight} number={`0${index + 1}`} text={insight} />
+          {recommendations.map((recommendation) => (
+            <InsightCard key={recommendation.id} recommendation={recommendation} />
           ))}
         </div>
       </section>
 
-      <section className="mt-16 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+      <section className="mt-12 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <SectionHeading
             icon={<ArrowRight size={20} />}
@@ -377,7 +384,7 @@ export function PlanReadyPreview({
             A simple order of operations to help you build momentum without the overwhelm.
           </p>
         </div>
-        <div className="rounded-[24px] border border-[#ececec] bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-6">
+        <div className="rounded-[20px] border border-[#ececec] bg-white p-5 shadow-[0_1px_2px_rgb(15_23_42_/_0.04),0_6px_20px_rgb(15_23_42_/_0.05)] sm:p-6">
           {[
             "Set your wedding date",
             "Finalize your estimated budget",
@@ -487,14 +494,19 @@ function PreparedCard({
   );
 }
 
-function InsightCard({ number, text }: { number: string; text: string }) {
+function InsightCard({
+  recommendation,
+}: {
+  recommendation: { label: string; title: string; detail: string };
+}) {
   return (
     <div className="rounded-[20px] border border-[#ececec] bg-[#fafafa] p-5">
-      <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+      <div className="flex items-center justify-between text-xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
         <Lightbulb size={18} weight="thin" />
-        <span>{number}</span>
+        <span>{recommendation.label}</span>
       </div>
-      <p className="mt-7 text-sm leading-6 text-[#444444]">{text}</p>
+      <h4 className="mt-5 text-sm font-semibold text-foreground">{recommendation.title}</h4>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{recommendation.detail}</p>
     </div>
   );
 }

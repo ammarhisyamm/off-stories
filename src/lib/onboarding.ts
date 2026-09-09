@@ -254,14 +254,8 @@ export const adatProcessions: Record<string, { prosesi: string[]; seserahanNote:
 };
 
 /**
- * Riset harga 2026 Indonesia (update Sep 2026):
- * Sumber: Setia Rasa Catering Jakarta 2026 (Silver 70k, Gold 75k, Platinum 80k/pax),
- * Kupinang 2026 (standar 35–60k, menengah-atas 80–180k, premium hotel 250–400k),
- * Weddingku/Kucantik 2026 (intimate 150–250jt / mid 300–500jt / grand 600jt+).
- * - Catering 2026: prasmanan standar 60–80k Jabodetabek, 70–150k kota besar; hotel premium 250–400k
- * - Venue 2026: rumahan 20–58jt, gedung serbaguna 53–120jt, hotel bintang 3–4 160–315jt, bintang 5 370jt–1.5M
- * - Inflasi 2025→2026 ~7–10%; venue+ catering naik, peak Sabtu/Minggu +10–20%
- * - Alokasi 2026: catering 35–45%, venue 15–25%, dekor 10–20%, busana 8–12%, foto 5–10%, buffer 5–10% (Kupinang)
+ * Baseline internal untuk estimasi awal. Harga aktual perlu dikonfirmasi langsung
+ * kepada venue dan vendor karena paket, pajak, service, dan kondisi kota berbeda.
  */
 export const cityPricing: Record<
   string,
@@ -366,34 +360,71 @@ export type PlanningInterpretation = {
   complexity?: string;
 };
 
+export type SuggestedBudgetAllocation = {
+  id: string;
+  label: string;
+  percent: number;
+};
+
+export type PlanningRecommendation = {
+  id: string;
+  label: string;
+  title: string;
+  detail: string;
+};
+
+const highDemandLocations = new Set(["Jakarta", "Tangerang", "Surabaya", "Bali"]);
+
+function formatShortIDR(amount: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+export function getSuggestedBudgetAllocation(setup: SetupState): SuggestedBudgetAllocation[] {
+  const isLargeWedding = setup.guests >= 300;
+  const isOutdoor = setup.venueType === "outdoor";
+  const cateringPercent = isLargeWedding ? 30 : 28;
+  const venuePercent = isOutdoor ? 20 : isLargeWedding ? 16 : 17;
+  const contingencyPercent = isOutdoor ? (isLargeWedding ? 5 : 7) : isLargeWedding ? 9 : 10;
+
+  return [
+    { id: "venue", label: "Venue", percent: venuePercent },
+    { id: "catering", label: "Catering", percent: cateringPercent },
+    { id: "decoration", label: "Decoration", percent: 12 },
+    { id: "photography", label: "Photography & Videography", percent: 10 },
+    { id: "attire", label: "Makeup & Attire", percent: 10 },
+    { id: "entertainment", label: "Entertainment & MC", percent: 4 },
+    { id: "stationery", label: "Invitation & Souvenirs", percent: 4 },
+    { id: "family", label: "Family & transport", percent: 5 },
+    { id: "contingency", label: "Contingency", percent: contingencyPercent },
+  ];
+}
+
 export function interpretLocation(location: string): PlanningInterpretation {
   const pricing = location ? cityPricing[location] : undefined;
-  const tier = pricing?.tier ?? (location ? "Menengah" : "Belum dapat ditentukan");
+  const tier = !location
+    ? "Belum dipilih"
+    : highDemandLocations.has(location)
+      ? "Permintaan tinggi"
+      : "Biaya relatif seimbang";
   const label = location || "kota belum dipilih";
-  const implications = pricing
-    ? tier.includes("metro") || tier.includes("premium")
-      ? [
-          `Catering 2026 ~Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax (Gold prasmanan), venue base ~Rp ${(pricing.venueBase / 1_000_000).toFixed(0)}jt di ${label} — Sabtu/Minggu +10–20%.`,
-          `Gedung populer di ${label} penuh 8–12 bulan sebelum — DP awal kunci harga 2026.`,
-        ]
-      : [
-          `Catering 2026 ~Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax di ${label} — hemat vs Jabodetabek; paket rumahan 20–58jt.`,
-          "Paket gedung+catering bundling hemat 15–20%; cek Sabtu vs Minggu.",
-        ]
-    : [
-        "Pilihan venue dan vendor lokal dapat membantu efisiensi biaya.",
-        "Akses keluarga, pengiriman barang, dan ketersediaan vendor perlu dikonfirmasi.",
-      ];
   return {
-    title: "Location interpretation",
+    title: "Konteks lokasi",
     interpretation: location
-      ? `${label} (${tier}) memberi konteks harga pasar lokal untuk venue, catering, dan logistik.`
-      : "Lokasi belum ditentukan, jadi estimasi masih pakai asumsi nasional (Other).",
+      ? `${label} menjadi acuan awal untuk ketersediaan venue, biaya logistik, dan pilihan vendor.`
+      : "Lokasi belum dipilih, jadi estimasi saat ini hanya memakai asumsi nasional yang konservatif.",
     tier,
-    implications,
+    implications: [
+      pricing && highDemandLocations.has(location)
+        ? "Tanggal akhir pekan dan venue populer biasanya membutuhkan keputusan lebih awal."
+        : "Bandingkan paket lokal, kapasitas, akses keluarga, parkir, dan jadwal loading vendor.",
+    ],
     recommendation: location
-      ? `Shortlist 3 venue di ${label} dan minta paket catering+dekor bundling untuk bandingkan.`
-      : "Tentukan kota utama dulu — selisih catering antar kota bisa 2×.",
+      ? `Shortlist tiga venue di ${label}; minta harga nett dan rincian fasilitas yang sama untuk dibandingkan.`
+      : "Tentukan kota utama sebelum mengunci budget atau mulai membandingkan vendor.",
   };
 }
 
@@ -403,32 +434,27 @@ export function interpretGuests(
   groom?: number,
 ): PlanningInterpretation {
   const scale =
-    guests < 100 ? "Intimate" : guests < 300 ? "Menengah" : guests < 500 ? "Besar" : "Sangat besar";
+    guests < 100 ? "Intimate" : guests < 300 ? "Menengah" : guests < 700 ? "Besar" : "Sangat besar";
   const splitNote = bride && groom ? ` (${bride} dari mempelai 1, ${groom} dari mempelai 2)` : "";
   const implications =
     guests < 100
       ? [
-          "Venue kecil / restoran / rumah cukup — catering 40 porsi + stall 2 cukup.",
-          "Undang digital + souvenir simple hemat 3–5jt.",
+          "Prioritaskan suasana, alur keluarga inti, dan minimum order vendor daripada kapasitas besar.",
         ]
       : guests < 300
-        ? [
-            "Kapasitas gedung 300–500, buffet 2 line, parkir & toilet jadi faktor.",
-            `Catering ~${guests}×Rp 70–90k = Rp ${Math.round((guests * 80000) / 1_000_000)}jt — pos terbesar (40–50%).`,
-          ]
+        ? ["Venue, catering, kursi, parkir, dan RSVP mulai menjadi penggerak biaya utama."]
         : [
-            "Butuh gedung 600+ kapasitas, alur tamu, 3–4 stall, usher & keamanan.",
-            `Catering ${guests} pax bisa 150–250jt — validasi kapasitas & flow sebelum DP.`,
+            "Pastikan alur kedatangan, kapasitas parkir, titik makan, dan PIC tamu disepakati sebelum booking.",
           ];
   return {
-    title: "Guest count interpretation",
+    title: "Konteks jumlah tamu",
     interpretation: `${guests || 0} tamu${splitNote} — skala ${scale.toLowerCase()} di konteks Indonesia.`,
     tier: scale,
     implications,
     recommendation:
       guests >= 300
-        ? "Finalkan guest list per pihak (Bride/Groom/Keluarga) sebelum survei venue."
-        : "Pisahkan tamu inti vs cadangan; RSVP 1 bulan sebelum untuk lock porsi.",
+        ? "Bagi target tamu per pihak dan gunakan angka total itu saat meminta proposal venue serta catering."
+        : "Pisahkan tamu inti dan cadangan agar kapasitas venue serta porsi catering tetap terkendali.",
   };
 }
 
@@ -439,43 +465,33 @@ export function interpretBudget(
   guests?: number,
 ): PlanningInterpretation {
   if (budgetChoice !== "yes") {
-    const pricing = location ? cityPricing[location] : cityPricing["Other"]!;
-    const hint = guests
-      ? ` Dengan ${guests} tamu di ${location || "Other"}, estimasi 2026 ~Rp ${(setupBudget(guests, "no", "", location) / 1_000_000).toFixed(0)}jt (Kupinang 2026: intimate 150–250jt, mid 300–500jt).`
-      : "";
     return {
-      title: "Budget readiness interpretation",
+      title: "Kesiapan budget",
       interpretation:
-        `Budget belum dikunci; estimasi 2026 pakai catering Rp ${pricing.cateringPerPax.toLocaleString("id-ID")}/pax + venue base. ` +
-        hint,
+        "Budget belum dikunci. Mulai dari total dana yang benar-benar tersedia, termasuk kontribusi keluarga yang sudah disepakati.",
       implications: [
-        "2026: buffer 5–10% wajib (Kupinang) — 10–15% lebih aman untuk overtime & tambahan porsi.",
-        "Bandingkan 3 paket bundling gedung+catering+dekor sebelum DP; Minggu/weekday 10–20% lebih murah dr Sabtu.",
+        `${guests ?? 0} tamu tetap menjadi penggerak utama untuk biaya venue dan catering${location ? ` di ${location}` : ""}.`,
       ],
       recommendation:
-        "Tetapkan batas atas dan 3 prioritas (catering/venue/dokumentasi) sebelum quotation; RSVP akurat hemat 700k–1.2jt per 10 pax.",
+        "Sepakati batas total, pembayar tiap pos, dan dana cadangan sebelum membayar DP pertama.",
     };
   }
   const amount = Number(budget) || 0;
-  // Tier 2026: intimate 150–250jt, mid 300–500jt, grand 600jt+ (Kucantik/Weddingku/Kupinang 2026)
   const tier =
     amount < 150_000_000
-      ? "Rumahan / Intimate (50–150 pax)"
-      : amount < 300_000_000
-        ? "Gedung Intimate (150–300 pax)"
-        : amount < 600_000_000
-          ? "Premium Hotel 3–4 (300–600 pax)"
-          : "Grand Bintang 5 (600–2000 pax)";
+      ? "Perlu prioritas ketat"
+      : amount < 400_000_000
+        ? "Ruang lingkup terarah"
+        : "Ruang lingkup luas";
   return {
-    title: "Budget readiness interpretation",
-    interpretation: `${new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(amount)} — ${tier}.`,
+    title: "Kesiapan budget",
+    interpretation: `${formatShortIDR(amount)} sudah menjadi batas kerja awal untuk menyaring pilihan venue, jumlah tamu, dan vendor.`,
     tier,
     implications: [
-      `2026 proporsi ideal: catering 35–45%, venue 15–25%, dekor 10–20% (Kupinang 2026) — jaga venue+catering ≤65%.`,
-      "Sisakan buffer 5–10% (minimal) — sering bengkak overtime & keluarga.",
+      "Biaya venue dan catering perlu dibahas lebih dulu karena biasanya menyerap porsi terbesar dari keseluruhan dana.",
     ],
     recommendation:
-      "Alokasikan catering 40–50%, venue+dekor 25%, foto 10%, sisanya souvenir/MC/cadangan.",
+      "Pisahkan setidaknya 10% sebagai cadangan dan pastikan setiap quotation menyebutkan harga nett.",
   };
 }
 
@@ -493,17 +509,17 @@ export function interpretWeddingType(weddingType: string, adat: string): Plannin
         ? "Rendah–menengah"
         : "Menengah";
   return {
-    title: "Wedding style interpretation",
-    interpretation: `${style}${tradition} urutan prosesi & vendor mengikuti adat.`,
+    title: "Konteks gaya & adat",
+    interpretation: `${style}${tradition} urutan prosesi, kebutuhan vendor, dan keputusan keluarga perlu diselaraskan sejak awal.`,
     complexity,
     implications: [
-      "Gaya memengaruhi layout, rundown, PIC keluarga, dan vendor (rias adat, dekor).",
+      "Gaya memengaruhi layout, rundown, PIC keluarga, serta kebutuhan rias dan dekor.",
       proc
-        ? `${adat}: ${proc.prosesi.join(" → ")}. Konfirmasi urutan & penanggung jawab dengan sesepuh.`
+        ? `${adat}: konfirmasi urutan ${proc.prosesi.slice(0, 3).join(" → ")} dan penanggung jawabnya dengan keluarga.`
         : "Jika ada prosesi keluarga, masukkan sebagai ceremony terpisah di rundown.",
     ],
     recommendation:
-      "Lock prosesi adat dengan kedua keluarga 6–8 bulan sebelum, sebelum fitting & dekor.",
+      "Tetapkan prosesi yang benar-benar dipakai dan siapa pengambil keputusan untuk setiap sesi.",
   };
 }
 
@@ -512,24 +528,23 @@ export function interpretOrganizer(organizer: SetupState["organizer"]): Planning
     return {
       title: "WO interpretation",
       interpretation:
-        "WO jadi pusat koordinasi vendor, keluarga, dan timeline — riset: vendor WO penuh 9–12 bulan sebelum peak season.",
+        "WO dapat menjadi pusat koordinasi vendor, keluarga, dan timeline agar pasangan tidak memegang semua detail operasional.",
       implications: [
-        "WO kelola arrival, rundown, dan eskalasi hari-H — minta scope tertulis + jumlah kru + overtime.",
-        "Tetap butuh PIC keluarga untuk keputusan adat & sambutan tamu VIP.",
+        "Tetap tetapkan PIC keluarga untuk keputusan adat dan kebutuhan tamu penting.",
       ],
-      recommendation: "Tanya WO: breakdown scope, PIC utama, simulasi hari-H, dan paket bundling.",
+      recommendation:
+        "Minta scope tertulis, PIC utama, jumlah kru, dan ketentuan overtime sebelum menandatangani kontrak.",
       complexity: "Risiko lebih rendah",
     };
   }
   return {
     title: "WO interpretation",
-    interpretation: "Tanpa WO, pasangan & keluarga pegang koordinasi — butuh family coordinator.",
+    interpretation:
+      "Tanpa WO, pasangan dan keluarga memegang koordinasi sehingga pembagian peran harus lebih jelas.",
     implications: [
-      "Tunjuk 1 PIC operasional yang tidak jadi pengantin di hari-H.",
-      "Call sheet, kontak vendor, rundown per menit, dan plan B cuaca harus siap H-7.",
+      "Tunjuk satu PIC operasional yang bukan pengantin untuk mengelola vendor di hari-H.",
     ],
-    recommendation:
-      "Susun call sheet sejak booking vendor; technical meeting H-14 dengan semua vendor.",
+    recommendation: "Buat call sheet, kontak vendor, dan rundown bersama semua PIC sebelum hari-H.",
     complexity: "Risiko lebih tinggi",
   };
 }
@@ -544,7 +559,7 @@ export function interpretVenue(
       ? "Sudah booking — kunci harga & tanggal."
       : venueStatus === "shortlisted"
         ? "Sudah shortlist — bandingkan 3 paket."
-        : "Belum menentukan — survei segera (venue penuh 8–12 bulan di kota besar).";
+        : "Belum menentukan — gunakan shortlist agar kapasitas dan biaya bisa dibandingkan secara setara.";
   return {
     title: "Venue interpretation",
     interpretation: `${typeLabel}: ${statusNote}`,
@@ -558,10 +573,7 @@ export function interpretVenue(
             : "Belum ditentukan",
     implications:
       venueType === "outdoor"
-        ? [
-            "Siapkan tenda, genset, toilet portable, dan izin hujan.",
-            "Sound & lighting outdoor butuh 10–20% extra.",
-          ]
+        ? ["Siapkan plan B cuaca, tenda, listrik cadangan, dan fasilitas tamu."]
         : venueType === "rumah"
           ? [
               "Bisa gotong royong, tapi cek listrik, parkir, dan izin tetangga.",
@@ -569,13 +581,78 @@ export function interpretVenue(
             ]
           : [
               "Cek rekanan vendor gedung, jam loading, dan overtime.",
-              "DP awal kunci harga tahun berjalan.",
+              "Pastikan harga tertulis sudah mencakup fasilitas, pajak, dan service.",
             ],
     recommendation:
       venueStatus === "not_decided"
         ? "Survei 3 venue minggu ini; bawa checklist kapasitas & fasilitas."
         : "Konfirmasi kapasitas vs guest list + parkir.",
   };
+}
+
+export function getIndonesiaPlanningRecommendations(
+  setup: SetupState,
+  estimatedBudget: number,
+): PlanningRecommendation[] {
+  const planningMonths = getPlanningDurationMonths(setup.akadDate || setup.weddingDate);
+  const cityLabel = setup.location || "kota pilihanmu";
+  const venueRecommendation: PlanningRecommendation =
+    setup.venueStatus === "booked"
+      ? {
+          id: "venue-terms",
+          label: "Venue",
+          title: "Review detail booking venue",
+          detail: `Cocokkan kapasitas ${setup.guests} tamu, jam penggunaan, rekanan vendor, dan harga nett sebelum melanjutkan ke vendor lain.`,
+        }
+      : {
+          id: "venue-shortlist",
+          label: planningMonths > 0 && planningMonths <= 6 ? "Prioritas minggu ini" : "Venue",
+          title: `Shortlist venue di ${cityLabel}`,
+          detail:
+            planningMonths > 0 && planningMonths <= 6
+              ? "Fokus pada tanggal tersedia, kapasitas, parkir, dan fasilitas yang benar-benar sudah termasuk."
+              : "Bandingkan tiga opsi dengan format proposal yang sama—kapasitas, paket, biaya tambahan, dan aturan vendor luar.",
+        };
+  const budgetRecommendation: PlanningRecommendation =
+    setup.budgetChoice === "yes"
+      ? {
+          id: "budget-buffer",
+          label: "Budget",
+          title: `Jaga ${formatShortIDR(Math.round(estimatedBudget * 0.1))} sebagai cadangan`,
+          detail:
+            "Pisahkan dari dana vendor agar tambahan porsi, transportasi, dan kebutuhan keluarga tidak mengganggu rencana utama.",
+        }
+      : {
+          id: "budget-alignment",
+          label: "Budget",
+          title: "Sepakati batas dana sebelum membayar DP",
+          detail:
+            "Catat kontribusi pasangan dan keluarga per pos, lalu gunakan total tersebut untuk menyaring paket venue serta catering.",
+        };
+  const operationsRecommendation: PlanningRecommendation =
+    setup.adat && setup.adat !== "No specific adat yet"
+      ? {
+          id: "family-adat",
+          label: "Keluarga & adat",
+          title: `Selaraskan prosesi ${setup.adat}`,
+          detail: `Tetapkan ${setup.ceremonyTypes.length || 1} prosesi yang dipakai, urutannya, dan PIC keluarga sebelum rundown dibuat.`,
+        }
+      : setup.organizer === "no"
+        ? {
+            id: "day-of-pic",
+            label: "Operasional",
+            title: "Tunjuk PIC hari-H sejak sekarang",
+            detail:
+              "Pilih orang yang tidak menjadi pengantin untuk memegang kontak vendor, rundown, dan keputusan cepat di lokasi.",
+          }
+        : {
+            id: "guest-flow",
+            label: "Tamu",
+            title: "Kunci target tamu per pihak",
+            detail: `Gunakan pembagian ${setup.guestsBride} dan ${setup.guestsGroom} tamu saat mengecek kapasitas serta menyiapkan porsi catering.`,
+          };
+
+  return [venueRecommendation, budgetRecommendation, operationsRecommendation];
 }
 
 export function getPlanningDate(weddingDate?: string) {
@@ -591,9 +668,7 @@ export function smartData(setup: SetupState) {
   const date = getPlanningDate(primaryDate);
   const resepsiDate = setup.resepsiDate ? getPlanningDate(setup.resepsiDate) : date;
   const coupleName = [setup.partnerOneName, setup.partnerTwoName].filter(Boolean).join(" & ");
-  const pricing = cityPricing[setup.location] ?? cityPricing["Other"]!;
-  // Riset: alokasi 2025 — catering 40-50%, venue 20-30%, dekor 12%, foto 8%, etc.
-  const cateringPct = setup.guests >= 300 ? 0.42 : 0.38;
+  const budgetAllocation = getSuggestedBudgetAllocation(setup);
   const starterTasks: Task[] = [
     {
       id: "setup-venue",
@@ -616,7 +691,7 @@ export function smartData(setup: SetupState) {
     },
     {
       id: "setup-catering",
-      title: `Food tasting catering — estimasi ${setup.guests}×Rp ${pricing.cateringPerPax.toLocaleString("id-ID")} = Rp ${Math.round((setup.guests * pricing.cateringPerPax) / 1_000_000)}jt`,
+      title: `Food tasting dan lock porsi untuk ${setup.guests} tamu`,
       category: "Catering",
       due: date,
       priority: "high",
@@ -624,49 +699,20 @@ export function smartData(setup: SetupState) {
     },
   ];
   const localPack = createLocalPlanningPack(setup);
-  // Budget alokasi riset-based
-  const starterBudget: BudgetItem[] = [
-    {
-      id: "setup-catering-budget",
-      category: "Catering",
-      amount: Math.round(budget * cateringPct),
-      paid: 0,
+  const starterBudget: BudgetItem[] = budgetAllocation.map((item) => {
+    const isBookedVenue = item.id === "venue" && setup.venueStatus === "booked";
+    const amount = Math.round((budget * item.percent) / 100);
+
+    return {
+      id: `setup-${item.id}-budget`,
+      category: item.label,
+      amount,
+      paid: isBookedVenue ? Math.round(amount * 0.1) : 0,
       committed: 0,
-      status: "planned",
-    },
-    {
-      id: "setup-venue-budget",
-      category: "Venue",
-      amount: Math.round(budget * 0.25),
-      paid: setup.venueStatus === "booked" ? Math.round(budget * 0.1) : 0,
-      committed: 0,
-      status: setup.venueStatus === "booked" ? "partial" : "planned",
-    },
-    {
-      id: "setup-decoration-budget",
-      category: "Decoration",
-      amount: Math.round(budget * 0.12),
-      paid: 0,
-      committed: 0,
-      status: "planned",
-    },
-    {
-      id: "setup-photo-budget",
-      category: "Photography",
-      amount: Math.round(budget * 0.08),
-      paid: 0,
-      committed: 0,
-      status: "planned",
-    },
-    {
-      id: "setup-buffer-budget",
-      category: "Buffer (10%)",
-      amount: Math.round(budget * 0.1),
-      paid: 0,
-      committed: 0,
-      status: "planned",
-    },
-  ];
+      status: isBookedVenue ? "partial" : "planned",
+      payer: setup.budgetPayer,
+    };
+  });
   const starterMilestones: Milestone[] = [
     {
       id: "setup-milestone-venue",
@@ -771,7 +817,7 @@ export function createLocalPlanningPack(setup: SetupState): Task[] {
   }
   if (setup.ceremonyTypes.includes("Resepsi")) {
     add(
-      `Lock catering ${setup.guests} pax + 2 stall (riset: ${setup.location || "Other"} Rp ${(cityPricing[setup.location]?.cateringPerPax ?? 50000).toLocaleString("id-ID")}/pax)`,
+      `Minta proposal catering untuk ${setup.guests} tamu dengan harga nett dan detail porsi`,
       "Catering",
       "high",
     );
