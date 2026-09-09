@@ -235,7 +235,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       window.localStorage.setItem("offstories-lang", l);
       document.documentElement.lang = l;
       document.cookie = `offstories-lang=${l}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
-    } catch {}
+    } catch {
+      return;
+    }
   };
 
   useEffect(() => {

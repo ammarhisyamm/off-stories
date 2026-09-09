@@ -93,6 +93,28 @@ function AdminPage() {
       </section>
 
       <section className="panel mt-6 p-5">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="eyebrow">Organic activation funnel</div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              First-party, aggregate events only. Activated means workspace created and a first
+              planning action completed.
+            </p>
+          </div>
+          <Pill tone="taupe">No personal form data</Pill>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <FunnelMetric label="Organic sessions" value={stats.organicFunnel.sessions} />
+          <FunnelMetric label="CTA clicks" value={stats.organicFunnel.ctaClicks} />
+          <FunnelMetric label="Completed signups" value={stats.organicFunnel.signups} />
+          <FunnelMetric label="Workspaces created" value={stats.organicFunnel.workspaces} />
+          <FunnelMetric label="First planning action" value={stats.organicFunnel.firstActions} />
+          <FunnelMetric label="Partner invites" value={stats.organicFunnel.partnerInvites} />
+          <FunnelMetric label="Activated couples" value={stats.organicFunnel.activatedCouples} />
+        </div>
+      </section>
+
+      <section className="panel mt-6 p-5">
         <div className="eyebrow">Latest users</div>
         <div className="mt-4 divide-y divide-border">
           {stats.recentUsers.map((u) => (
@@ -127,6 +149,15 @@ function StatCard({ label, value }: { label: string; value: string }) {
     <div className="panel p-5">
       <div className="eyebrow">{label}</div>
       <div className="serif mt-2 text-4xl tabular-nums">{value}</div>
+    </div>
+  );
+}
+
+function FunnelMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-2 text-2xl font-semibold tabular-nums text-foreground">{value}</div>
     </div>
   );
 }

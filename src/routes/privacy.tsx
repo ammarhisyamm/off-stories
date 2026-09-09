@@ -44,6 +44,15 @@ function Privacy() {
           </p>
         </section>
         <section>
+          <h2 className="serif text-lg text-foreground mb-2">Product analytics</h2>
+          <p>
+            We record limited first-party product events, such as an organic visit, a planning CTA,
+            signup completion, workspace creation, and partner invitation. These events help us
+            understand whether OffStories is useful. They do not include your wedding details, guest
+            names, budget values, document contents, or email address.
+          </p>
+        </section>
+        <section>
           <h2 className="serif text-lg text-foreground mb-2">Sharing</h2>
           <p>
             Your workspace is only visible to you and the one partner you invite by email.
@@ -66,7 +75,7 @@ function Privacy() {
             and we'll respond as soon as possible.
           </p>
         </section>
-        <p className="text-xs">Last updated: August 2026</p>
+        <p className="text-xs">Last updated: September 2026</p>
       </div>
     </PublicPage>
   );

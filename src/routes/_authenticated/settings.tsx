@@ -14,6 +14,7 @@ import {
   updateMemberRole,
 } from "@/lib/invites.functions";
 import { getBrowserStorage } from "@/lib/browser-storage";
+import { trackSeoEvent } from "@/lib/seo-growth";
 import { formatIDRInput, formatIDR, parseIDRInput } from "@/lib/types";
 import { showToast } from "@/components/toast";
 import {
@@ -551,6 +552,7 @@ function CollaboratorsPanel() {
       };
       setInvites((prev) => [optimistic, ...prev]);
       setEmail("");
+      trackSeoEvent("partner_invited", { invite_method: "email" });
       showToast("Invitation sent to your partner");
       fetchState().catch(() => {});
     } catch (e) {
@@ -587,6 +589,7 @@ function CollaboratorsPanel() {
       };
       setLink(created.url);
       setCopied(false);
+      trackSeoEvent("partner_invited", { invite_method: "link" });
       showToast("Invite link created");
       fetchState().catch(() => {});
     } catch (e) {

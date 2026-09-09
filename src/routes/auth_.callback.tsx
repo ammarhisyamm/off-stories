@@ -23,7 +23,9 @@ function AuthCallback() {
     }
     completeGoogle({ data: { code, state } })
       .then(() => navigate({ to: "/dashboard", replace: true }))
-      .catch((reason) => setError(reason instanceof Error ? reason.message : "Google sign-in failed."));
+      .catch((reason) =>
+        setError(reason instanceof Error ? reason.message : "Google sign-in failed."),
+      );
   }, [completeGoogle, navigate]);
 
   return (
@@ -33,7 +35,11 @@ function AuthCallback() {
       </div>
       <h1 className="serif text-2xl text-foreground mb-2">Signing you in...</h1>
       <p className="text-sm text-muted-foreground">{error ?? "Please wait a moment."}</p>
-      {error && <a href="/auth" className="mt-4 text-sm text-primary underline underline-offset-2">Back to sign in</a>}
+      {error && (
+        <a href="/auth" className="mt-4 text-sm text-primary underline underline-offset-2">
+          Back to sign in
+        </a>
+      )}
     </div>
   );
 }

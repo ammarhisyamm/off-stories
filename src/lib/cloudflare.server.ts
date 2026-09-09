@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 
 export function getDatabase() {
   if (!env.DB) {
-    throw new Error("Cloudflare D1 binding \"DB\" is not configured.");
+    throw new Error('Cloudflare D1 binding "DB" is not configured.');
   }
 
   return env.DB;

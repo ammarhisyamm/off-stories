@@ -17,6 +17,7 @@ import {
   trackSeoEvent,
   type SeoPlanningDraft,
 } from "@/lib/seo-growth";
+import type { Note, Task } from "@/lib/types";
 import { ChoiceCard } from "./onboarding/choice-card";
 import { OnboardingModal } from "./onboarding/onboarding-modal";
 import {
@@ -36,7 +37,7 @@ export function DashboardOnboarding({
   onClose,
 }: {
   setKind: (
-    kind: "event" | "tasks" | "budget" | "vendors" | "milestones" | "seserahan",
+    kind: "event" | "tasks" | "budget" | "vendors" | "milestones" | "notes" | "seserahan",
     payload: unknown,
     opts?: { success?: string | null },
   ) => void;
@@ -135,11 +136,13 @@ export function DashboardOnboarding({
 
   function finishSetup() {
     const prepared = smartData(setup);
+    const imported = importSeoTemplate(seoDraft, prepared.event.date);
     setKind("event", prepared.event, { success: null });
-    setKind("tasks", prepared.tasks, { success: null });
+    setKind("tasks", [...prepared.tasks, ...imported.tasks], { success: null });
     setKind("budget", prepared.budget, { success: null });
     setKind("vendors", prepared.vendors, { success: null });
     setKind("milestones", prepared.milestones, { success: null });
+    if (imported.notes.length) setKind("notes", imported.notes, { success: null });
     setKind("seserahan", createStarterSeserahan(), { success: null });
     trackSeoEvent("workspace_created", { content_cluster: seoDraft?.contentCluster });
     trackSeoEvent("wedding_date_added", { content_cluster: seoDraft?.contentCluster });
@@ -434,4 +437,44 @@ export function DashboardOnboarding({
       </OnboardingModal>
     </div>
   );
+}
+
+function importSeoTemplate(draft: SeoPlanningDraft | null, due: string) {
+  if (!draft?.templateType || !draft.checkedTasks?.length) {
+    return { tasks: [] as Task[], notes: [] as Note[] };
+  }
+
+  const selected = draft.checkedTasks.slice(0, 20);
+  const title =
+    draft.templateType === "checklist"
+      ? "Checklist pilihan dari template"
+      : draft.templateType === "budget"
+        ? "Kategori budget pilihan dari template"
+        : "Struktur guest list pilihan dari template";
+  const note: Note = {
+    id: `seo-template-${draft.templateType}`,
+    title,
+    body: selected.map((item) => `• ${item}`).join("\n"),
+    tag: "Template",
+    date: new Date().toISOString().slice(0, 10),
+  };
+  const tasks = selected.map((item, index) => ({
+    id: `seo-template-${draft.templateType}-${index}`,
+    title:
+      draft.templateType === "checklist"
+        ? item
+        : draft.templateType === "budget"
+          ? `Review alokasi ${item}`
+          : `Mulai daftar tamu: ${item}`,
+    category:
+      draft.templateType === "budget"
+        ? "Budget"
+        : draft.templateType === "guests"
+          ? "Guests"
+          : "Planning",
+    due,
+    priority: "medium" as const,
+    status: "todo" as const,
+  }));
+  return { tasks, notes: [note] };
 }

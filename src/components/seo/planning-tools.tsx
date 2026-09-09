@@ -422,6 +422,7 @@ export function InteractiveTemplate({ type }: { type: "checklist" | "budget" | "
             contentCluster: details.cluster,
             ctaVariant: `continue_${type}`,
             checkedTasks: checked,
+            templateType: type,
           }}
         />
         <p className="mt-3 text-xs text-muted-foreground">

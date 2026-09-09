@@ -27,6 +27,7 @@ import { Route as CheckInTokenRouteImport } from './routes/check-in.$token'
 import { Route as BlogCategoriesRouteImport } from './routes/blog/categories'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
+import { Route as ApiAnalyticsRouteImport } from './routes/api/analytics'
 import { Route as AuthenticatedVendorsRouteImport } from './routes/_authenticated/vendors'
 import { Route as AuthenticatedTimelineRouteImport } from './routes/_authenticated/timeline'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -136,6 +137,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth_/callback',
   path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAnalyticsRoute = ApiAnalyticsRouteImport.update({
+  id: '/api/analytics',
+  path: '/api/analytics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedVendorsRoute = AuthenticatedVendorsRouteImport.update({
@@ -269,6 +275,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
   '/vendors': typeof AuthenticatedVendorsRoute
+  '/api/analytics': typeof ApiAnalyticsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/categories': typeof BlogCategoriesRouteWithChildren
@@ -308,6 +315,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/timeline': typeof AuthenticatedTimelineRoute
   '/vendors': typeof AuthenticatedVendorsRoute
+  '/api/analytics': typeof ApiAnalyticsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/check-in/$token': typeof CheckInTokenRoute
@@ -349,6 +357,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/timeline': typeof AuthenticatedTimelineRoute
   '/_authenticated/vendors': typeof AuthenticatedVendorsRoute
+  '/api/analytics': typeof ApiAnalyticsRoute
   '/auth_/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/categories': typeof BlogCategoriesRouteWithChildren
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/timeline'
     | '/vendors'
+    | '/api/analytics'
     | '/auth/callback'
     | '/blog/$slug'
     | '/blog/categories'
@@ -430,6 +440,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/timeline'
     | '/vendors'
+    | '/api/analytics'
     | '/auth/callback'
     | '/blog/$slug'
     | '/check-in/$token'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/timeline'
     | '/_authenticated/vendors'
+    | '/api/analytics'
     | '/auth_/callback'
     | '/blog/$slug'
     | '/blog/categories'
@@ -499,6 +511,7 @@ export interface RootRouteChildren {
   IdRoute: typeof IdRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
+  ApiAnalyticsRoute: typeof ApiAnalyticsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   CheckInTokenRoute: typeof CheckInTokenRoute
   InviteTokenRoute: typeof InviteTokenRoute
@@ -633,6 +646,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/callback'
       fullPath: '/auth/callback'
       preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/analytics': {
+      id: '/api/analytics'
+      path: '/api/analytics'
+      fullPath: '/api/analytics'
+      preLoaderRoute: typeof ApiAnalyticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/vendors': {
@@ -900,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   IdRoute: IdRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
+  ApiAnalyticsRoute: ApiAnalyticsRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   CheckInTokenRoute: CheckInTokenRoute,
   InviteTokenRoute: InviteTokenRoute,

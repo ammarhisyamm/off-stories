@@ -48,7 +48,9 @@ function InvitePage() {
   const [inviteLoaded, setInviteLoaded] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  function applySession(user: { email: string; displayName: string; avatarUrl: string | null } | null) {
+  function applySession(
+    user: { email: string; displayName: string; avatarUrl: string | null } | null,
+  ) {
     setSessionEmail(user?.email ?? null);
     setSessionName(user?.displayName ?? null);
     setSessionAvatar(user?.avatarUrl ?? null);
@@ -290,7 +292,6 @@ function InvitePage() {
                 </>
               )}
             </p>
-
           </div>
         )}
 

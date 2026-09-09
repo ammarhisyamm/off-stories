@@ -67,7 +67,11 @@ const TOTAL = testimonials.length;
 
 function Stars() {
   return (
-    <span role="img" aria-label="Rated 5 out of 5" className="flex items-center gap-0.5 text-[#E8A33D]">
+    <span
+      role="img"
+      aria-label="Rated 5 out of 5"
+      className="flex items-center gap-0.5 text-[#E8A33D]"
+    >
       {Array.from({ length: 5 }).map((_, i) => (
         <Star key={i} size={14} weight="fill" />
       ))}
