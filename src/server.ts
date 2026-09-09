@@ -52,7 +52,7 @@ function withSecurityHeaders(response: Response): Response {
   if (!headers.has("content-security-policy")) {
     headers.set(
       "content-security-policy",
-      "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://static.cloudflareinsights.com; script-src-elem 'self' 'unsafe-inline' https://accounts.google.com https://static.cloudflareinsights.com; connect-src 'self' https://oauth2.googleapis.com https://api.resend.com https://cloudflareinsights.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; trusted-types offstories; require-trusted-types-for 'script'; upgrade-insecure-requests",
+      "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://static.cloudflareinsights.com; script-src-elem 'self' 'unsafe-inline' https://accounts.google.com https://static.cloudflareinsights.com; connect-src 'self' https://oauth2.googleapis.com https://api.resend.com https://cloudflareinsights.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
     );
   }
   // HSTS only on https
