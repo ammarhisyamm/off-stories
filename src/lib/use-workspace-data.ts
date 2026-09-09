@@ -10,6 +10,7 @@ import {
 } from "@/lib/data.functions";
 import { reportClientError } from "@/lib/telemetry";
 import { trackSeoEvent } from "@/lib/seo-growth";
+import { clearSessionCache } from "@/lib/session-cache";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -26,6 +27,16 @@ const POLL_INTERVAL_MS = 20_000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let pollInFlight = false;
 let pendingSaves = 0;
+let syncError: string | null = null;
+const saveQueues = new Map<DataKind, SaveJob[]>();
+const savingKinds = new Set<DataKind>();
+
+type SaveJob = {
+  payload: unknown;
+  previous: unknown;
+  success?: string | null;
+  attempts: number;
+};
 
 function normalizeWorkspaceData(value: unknown): WorkspaceData {
   const fallback = emptyWorkspaceData();
@@ -88,6 +99,74 @@ function publish(kind: DataKind, payload: unknown) {
   notify();
 }
 
+function isSessionError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /unauthorized|not authenticated|session (expired|not found)|login required/i.test(message);
+}
+
+function redirectToSignIn() {
+  if (typeof window === "undefined" || window.location.pathname === "/auth") return;
+  clearSessionCache();
+  window.location.assign(`/auth?reason=session-expired`);
+}
+
+async function flushSaveQueue(kind: DataKind) {
+  if (savingKinds.has(kind) || !boundSave) return;
+  const queue = saveQueues.get(kind);
+  const job = queue?.[0];
+  if (!job) return;
+
+  savingKinds.add(kind);
+  try {
+    await boundSave({ data: { kind, payload: job.payload } });
+    queue?.shift();
+    pendingSaves = Math.max(0, pendingSaves - 1);
+    syncError = null;
+    if (job.success !== null) showToast(job.success ?? "Saved");
+  } catch (error) {
+    if (isSessionError(error)) redirectToSignIn();
+    job.attempts += 1;
+    syncError = error instanceof Error ? error.message : String(error);
+    report("save", error, { kind, attempt: job.attempts });
+    if (job.attempts >= 3) {
+      showToast("Couldn't sync yet. We'll keep retrying automatically.", "error");
+    }
+  } finally {
+    savingKinds.delete(kind);
+    notify();
+  }
+
+  if (saveQueues.get(kind)?.length) {
+    const attempts = saveQueues.get(kind)?.[0]?.attempts ?? 0;
+    const delay = Math.min(30_000, 1_000 * 2 ** Math.min(attempts, 5));
+    window.setTimeout(() => void flushSaveQueue(kind), delay);
+  } else {
+    saveQueues.delete(kind);
+  }
+}
+
+function enqueueSave(
+  kind: DataKind,
+  payload: unknown,
+  previous: unknown,
+  opts?: { success?: string | null },
+) {
+  const queue = saveQueues.get(kind) ?? [];
+  const last = queue[queue.length - 1];
+  if (last && !savingKinds.has(kind)) {
+    last.payload = payload;
+    last.previous = previous;
+    last.success = opts?.success;
+    last.attempts = 0;
+  } else {
+    queue.push({ payload, previous, success: opts?.success, attempts: 0 });
+    pendingSaves += 1;
+  }
+  saveQueues.set(kind, queue);
+  notify();
+  void flushSaveQueue(kind);
+}
+
 async function pollRefresh() {
   if (pollInFlight || pendingSaves > 0 || !boundLoad) return;
   if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
@@ -105,9 +184,10 @@ async function pollRefresh() {
     loaded = true;
     loadError = null;
     notify();
-  } catch {
+  } catch (error) {
     // keep last known good state on transient failures
-    report("poll_refresh", new Error("Poll refresh failed"));
+    if (isSessionError(error)) redirectToSignIn();
+    report("poll_refresh", error);
   } finally {
     pollInFlight = false;
   }
@@ -133,6 +213,10 @@ export function resetWorkspaceDataCache() {
   myRole = null;
   loaded = false;
   loadError = null;
+  syncError = null;
+  saveQueues.clear();
+  savingKinds.clear();
+  pendingSaves = 0;
   stopPolling();
   notify();
 }
@@ -164,6 +248,11 @@ export function useWorkspaceData() {
       }));
     listeners.add(listener);
 
+    const retryPending = () => {
+      for (const kind of saveQueues.keys()) void flushSaveQueue(kind);
+    };
+    window.addEventListener("online", retryPending);
+
     if (!loaded) {
       let cancelled = false;
       loadFn()
@@ -185,18 +274,21 @@ export function useWorkspaceData() {
         .catch((e) => {
           if (cancelled) return;
           loadError = e instanceof Error ? e.message : String(e);
+          if (isSessionError(e)) redirectToSignIn();
           report("initial_load", e, { phase: "mount" });
           notify();
         });
       return () => {
         cancelled = true;
         listeners.delete(listener);
+        window.removeEventListener("online", retryPending);
       };
     }
 
     startPolling();
     return () => {
       listeners.delete(listener);
+      window.removeEventListener("online", retryPending);
     };
   }, [loadFn, saveFn, reportFn]);
 
@@ -240,23 +332,7 @@ export function useWorkspaceData() {
       ) {
         trackSeoEvent("vendor_added");
       }
-      if (!boundSave) return;
-      pendingSaves += 1;
-      boundSave({ data: { kind, payload } })
-        .then(() => {
-          if (opts?.success !== null) {
-            showToast(opts?.success ?? "Saved");
-          }
-        })
-        .catch((e) => {
-          loadError = e instanceof Error ? e.message : String(e);
-          report("save", e, { kind });
-          notify();
-          showToast(loadError ?? "Couldn't save", "error");
-        })
-        .finally(() => {
-          pendingSaves = Math.max(0, pendingSaves - 1);
-        });
+      enqueueSave(kind, payload, previous, opts);
     },
     [],
   );
@@ -278,6 +354,7 @@ export function useWorkspaceData() {
       loadError = null;
     } catch (e) {
       loadError = e instanceof Error ? e.message : String(e);
+      if (isSessionError(e)) redirectToSignIn();
       report("refresh", e);
     }
     notify();
@@ -290,6 +367,11 @@ export function useWorkspaceData() {
     canEdit: myRole !== "viewer",
     loading: state.loading,
     error: state.error,
+    syncing: pendingSaves > 0,
+    syncError,
+    retryPending: () => {
+      for (const kind of saveQueues.keys()) void flushSaveQueue(kind);
+    },
     setKind,
     refresh,
   };

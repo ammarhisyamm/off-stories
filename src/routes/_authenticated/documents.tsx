@@ -3,7 +3,7 @@ import { AppLayout, EmptyState, Pill, QuietButton } from "@/components/app-layou
 import { ViewModal, Detail, DetailGrid, ConfirmDelete } from "@/components/modal-shell";
 import { useWorkspaceData } from "@/lib/use-workspace-data";
 import type { DocRef } from "@/lib/types";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { X, Trash, ArrowSquareOut, FileText, FolderOpen } from "@phosphor-icons/react";
 import { showToast } from "@/components/toast";
 import { uploadDocument } from "@/lib/document.functions";
@@ -35,6 +35,8 @@ function Documents() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedKind, setSelectedKind] = useState<DocRef["kind"] | "all">("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<"newest" | "oldest" | "name">("newest");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const saveDocs = (newDocs: DocRef[], opts?: { success?: string | null }) => {
@@ -161,8 +163,23 @@ function Documents() {
   };
 
   const kinds = Array.from(new Set(docs.map((doc) => doc.kind)));
-  const visibleDocs =
-    selectedKind === "all" ? docs : docs.filter((doc) => doc.kind === selectedKind);
+  const visibleDocs = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return docs
+      .filter((doc) => selectedKind === "all" || doc.kind === selectedKind)
+      .filter(
+        (doc) =>
+          !normalizedQuery ||
+          [doc.title, doc.vendor, documentKindLabel(doc.kind)].some((value) =>
+            value?.toLowerCase().includes(normalizedQuery),
+          ),
+      )
+      .sort((a, b) => {
+        if (sort === "name") return a.title.localeCompare(b.title);
+        const direction = sort === "newest" ? -1 : 1;
+        return direction * (new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime());
+      });
+  }, [docs, query, selectedKind, sort]);
 
   return (
     <AppLayout
@@ -206,6 +223,31 @@ function Documents() {
                   onClick={() => setSelectedKind(kind)}
                 />
               ))}
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <label className="block min-w-0 flex-1">
+                <span className="sr-only">Search documents</span>
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search title, vendor, or type"
+                  className="w-full rounded-md border border-border bg-surface px-3 py-2 text-base sm:text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </label>
+              <label className="block shrink-0">
+                <span className="sr-only">Sort documents</span>
+                <select
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value as typeof sort)}
+                  className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="name">Name A–Z</option>
+                </select>
+              </label>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -263,6 +305,11 @@ function Documents() {
                   </div>
                 </div>
               ))}
+              {visibleDocs.length === 0 && (
+                <p className="col-span-full py-8 text-center text-sm text-muted-foreground">
+                  No documents match your search.
+                </p>
+              )}
             </div>
           </>
         )}

@@ -261,7 +261,7 @@ export function AppLayout({
   actions?: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { data, canEdit } = useWorkspaceData();
+  const { data, canEdit, syncing, syncError, retryPending } = useWorkspaceData();
   const { t } = useI18n();
   const event = data.event;
   const hasEvent = Boolean(event.date && event.name);
@@ -424,9 +424,26 @@ export function AppLayout({
                 {title}
               </h1>
             </div>
-            {canEdit && actions && (
-              <div className="flex items-center gap-2 shrink-0">{actions}</div>
-            )}
+            <div className="flex items-center gap-2 shrink-0">
+              {syncError ? (
+                <button
+                  type="button"
+                  onClick={retryPending}
+                  className="rounded-full border border-destructive/30 bg-destructive/5 px-2.5 py-1 text-xs text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  title={syncError}
+                >
+                  Changes not synced · Retry
+                </button>
+              ) : syncing ? (
+                <span
+                  className="rounded-full border border-border bg-surface px-2.5 py-1 text-xs text-muted-foreground"
+                  aria-live="polite"
+                >
+                  Saving…
+                </span>
+              ) : null}
+              {canEdit && actions}
+            </div>
           </div>
         </header>
         <div className="editorial-page max-w-7xl mx-auto px-4 md:px-10 py-10 md:py-14">

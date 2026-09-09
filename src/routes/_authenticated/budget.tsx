@@ -37,6 +37,9 @@ function Budget() {
   const [viewing, setViewing] = useState<BudgetItem | null>(null);
   const [paymentTarget, setPaymentTarget] = useState<BudgetItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [payerFilter, setPayerFilter] = useState("All");
   const total = wedding.budget;
   const paid = items.reduce((s, b) => s + b.paid, 0);
   const committed = items.reduce((s, b) => s + b.committed, 0);
@@ -65,6 +68,20 @@ function Budget() {
       }))
       .sort((a, b) => b.committed - a.committed);
   }, [items]);
+  const categories = useMemo(
+    () => ["All", ...Array.from(new Set(items.map((item) => item.category)))],
+    [items],
+  );
+  const filteredItems = useMemo(
+    () =>
+      items.filter(
+        (item) =>
+          (categoryFilter === "All" || item.category === categoryFilter) &&
+          (statusFilter === "All" || item.status === statusFilter) &&
+          (payerFilter === "All" || (item.payer ?? "shared") === payerFilter),
+      ),
+    [categoryFilter, items, payerFilter, statusFilter],
+  );
 
   function handleSave(item: BudgetItem) {
     const exists = items.some((i) => i.id === item.id);
@@ -205,9 +222,33 @@ function Budget() {
       )}
 
       <div className="panel overflow-x-auto">
-        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-          <h2 className="serif text-lg">Line items</h2>
-          <span className="text-xs text-muted-foreground">{items.length} entries</span>
+        <div className="flex flex-col gap-3 border-b border-border px-5 py-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="serif text-lg">Line items</h2>
+            <span className="text-xs text-muted-foreground">
+              {filteredItems.length} of {items.length} entries
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <FilterSelect
+              label="Category"
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              options={categories}
+            />
+            <FilterSelect
+              label="Status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={["All", "planned", "due", "partial", "paid"]}
+            />
+            <FilterSelect
+              label="Payer"
+              value={payerFilter}
+              onChange={setPayerFilter}
+              options={["All", "shared", "couple", "bride_family", "groom_family", "other"]}
+            />
+          </div>
         </div>
         {items.length === 0 ? (
           <EmptyState
@@ -222,6 +263,10 @@ function Budget() {
               ) : undefined
             }
           />
+        ) : filteredItems.length === 0 ? (
+          <p className="px-5 py-8 text-center text-sm text-muted-foreground">
+            No expenses match these filters.
+          </p>
         ) : (
           <table className="w-full text-sm min-w-[680px]">
             <thead>
@@ -236,7 +281,7 @@ function Budget() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {items.map((b) => (
+              {filteredItems.map((b) => (
                 <tr
                   key={b.id}
                   onClick={() => openView(b)}
@@ -431,6 +476,35 @@ function Stat({
       <div className="eyebrow">{label}</div>
       <div className={`serif text-2xl mt-2 tabular-nums ${colors[tone]}`}>{value}</div>
     </div>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
+  return (
+    <label className="block">
+      <span className="sr-only">Filter by {label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-md border border-border bg-surface px-2.5 py-2 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option === "All" ? `All ${label.toLowerCase()}` : option.replaceAll("_", " ")}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 

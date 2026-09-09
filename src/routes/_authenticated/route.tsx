@@ -1,10 +1,16 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { getCachedSessionUser } from "@/lib/session-cache";
+import { clearSessionCache, getCachedSessionUser } from "@/lib/session-cache";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const user = await getCachedSessionUser();
+    let user;
+    try {
+      user = await getCachedSessionUser();
+    } catch {
+      clearSessionCache();
+      throw redirect({ to: "/auth" });
+    }
     if (!user) throw redirect({ to: "/auth" });
     return { user };
   },

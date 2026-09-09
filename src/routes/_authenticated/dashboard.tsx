@@ -115,6 +115,12 @@ function Dashboard() {
     .sort((a, b) => +new Date(a.date) - +new Date(b.date))
     .slice(0, 4);
   const recentNotes = [...notes].sort((a, b) => +new Date(b.date) - +new Date(a.date)).slice(0, 3);
+  const nextAction =
+    tasks.find((task) => task.status !== "done" && new Date(task.due) < nextWeek) ??
+    tasks.find((task) => task.status !== "done") ??
+    (budgetItems.length === 0
+      ? { title: "Add your first budget item", category: "Budget", href: "/budget" as const }
+      : null);
 
   function handleSaveTask(task: Task) {
     const exists = tasks.some((t) => t.id === task.id);
@@ -261,6 +267,28 @@ function Dashboard() {
             >
               <ProgressBar value={confirmedPct} tone="sage" />
             </SummaryCard>
+          </section>
+
+          <section className="panel editorial-panel mb-10 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="min-w-0">
+              <div className="eyebrow">Next best step</div>
+              <h2 className="serif mt-1 text-xl text-balance">
+                {nextAction ? nextAction.title : "Your workspace is in good shape."}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {nextAction
+                  ? `${nextAction.category} is the most useful place to keep momentum.`
+                  : "Review your timeline or add a note when plans change."}
+              </p>
+            </div>
+            <Link
+              to={nextAction && "href" in nextAction ? nextAction.href : "/timeline"}
+              preload="intent"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {nextAction ? "Open next step" : "Review timeline"}
+              <ArrowRight size={15} />
+            </Link>
           </section>
 
           {/* Priority area */}
