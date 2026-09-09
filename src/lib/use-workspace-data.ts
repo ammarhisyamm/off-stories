@@ -57,7 +57,20 @@ function normalizeWorkspaceData(value: unknown): WorkspaceData {
   const normalized = { ...fallback, event: fallback.event } as WorkspaceData;
 
   if (source.event && typeof source.event === "object" && !Array.isArray(source.event)) {
-    normalized.event = { ...fallback.event, ...(source.event as Partial<WorkspaceData["event"]>) };
+    const rawEvent = source.event as Record<string, unknown>;
+    normalized.event = {
+      ...fallback.event,
+      ...(source.event as Partial<WorkspaceData["event"]>),
+      name: typeof rawEvent.name === "string" ? rawEvent.name : fallback.event.name,
+      type: typeof rawEvent.type === "string" ? rawEvent.type : fallback.event.type,
+      date: typeof rawEvent.date === "string" ? rawEvent.date : fallback.event.date,
+      location: typeof rawEvent.location === "string" ? rawEvent.location : fallback.event.location,
+      guestEstimate:
+        typeof rawEvent.guestEstimate === "number"
+          ? rawEvent.guestEstimate
+          : fallback.event.guestEstimate,
+      budget: typeof rawEvent.budget === "number" ? rawEvent.budget : fallback.event.budget,
+    };
   }
   for (const kind of arrays) {
     if (Array.isArray(source[kind])) normalized[kind] = source[kind] as never;

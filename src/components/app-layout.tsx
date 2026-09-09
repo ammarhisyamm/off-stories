@@ -263,9 +263,12 @@ export function AppLayout({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data, canEdit, syncing, syncError, retryPending } = useWorkspaceData();
   const { t } = useI18n();
-  const event = data.event;
-  const hasEvent = Boolean(event.date && event.name);
-  const days = daysUntil(event.date);
+  const event = data.event ?? {};
+  const eventName = typeof event.name === "string" ? event.name : "";
+  const eventType = typeof event.type === "string" ? event.type : "";
+  const eventDate = typeof event.date === "string" ? event.date : "";
+  const hasEvent = Boolean(eventDate && eventName);
+  const days = eventDate ? daysUntil(eventDate) : 0;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -335,11 +338,11 @@ export function AppLayout({
             <>
               <div className="eyebrow mb-2 mt-7">{t("common.workspace")}</div>
               <div className="serif text-lg leading-tight text-foreground">
-                {event.name || t("common.yourWedding")}
+                {eventName || t("common.yourWedding")}
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
                 {hasEvent
-                  ? `${days} ${t("common.daysUntil")} ${event.type.toLowerCase()}`
+                  ? `${days} ${t("common.daysUntil")} ${eventType.toLowerCase() || "wedding"}`
                   : t("common.setupEvent")}
               </div>
             </>
@@ -368,7 +371,7 @@ export function AppLayout({
               <BrandLogo className="mb-5 scale-[0.78] origin-left" />
               <div className="eyebrow mb-1">{t("common.workspace")}</div>
               <div className="serif text-base leading-tight text-foreground truncate">
-                {event.name || t("common.yourWedding")}
+                {eventName || t("common.yourWedding")}
               </div>
               <div className="mt-1.5 text-xs text-muted-foreground">
                 {hasEvent ? `${days} ${t("common.daysToGo")}` : t("common.setupEventShort")}
@@ -402,11 +405,11 @@ export function AppLayout({
             </button>
             <div className="min-w-0 flex-1">
               <div className="text-xs text-muted-foreground truncate">
-                {event.name || t("common.yourWedding")}
+                {eventName || t("common.yourWedding")}
               </div>
               <div className="text-sm text-foreground truncate">
                 {hasEvent
-                  ? `${days} ${t("common.daysUntil")} ${event.type.toLowerCase()}`
+                  ? `${days} ${t("common.daysUntil")} ${eventType.toLowerCase() || "wedding"}`
                   : t("common.setupEventShort")}
               </div>
             </div>
