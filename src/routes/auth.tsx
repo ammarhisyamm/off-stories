@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { BrandLogo } from "@/components/brand-logo";
 import { getSessionUser, signIn, signUp, startGoogleSignIn } from "@/lib/auth.functions";
 import { clearSessionCache } from "@/lib/session-cache";
+import { trackSeoEvent } from "@/lib/seo-growth";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -61,12 +62,14 @@ function AuthPage() {
     setLoading(true);
     try {
       const action = mode === "signup" ? signUpFn : signInFn;
+      if (mode === "signup") trackSeoEvent("signup_started");
       if (mode === "signup" && !passwordOk) {
         setError("Password does not meet all requirements.");
         return;
       }
       await action({ data: { email, password } });
       clearSessionCache();
+      if (mode === "signup") trackSeoEvent("signup_completed");
       navigate({ to: "/dashboard", replace: true });
     } catch (reason) {
       setError(
@@ -81,6 +84,7 @@ function AuthPage() {
     setError(null);
     setLoading(true);
     try {
+      trackSeoEvent("signup_started", { signup_method: "google" });
       const { url } = await startGoogleFn();
       window.location.assign(url);
     } catch (reason) {

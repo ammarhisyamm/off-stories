@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as IdRouteImport } from './routes/id'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -19,6 +20,9 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UndanganTokenRouteImport } from './routes/undangan.$token'
 import { Route as RsvpTokenRouteImport } from './routes/rsvp.$token'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as IdWeddingPlannerRouteImport } from './routes/id/wedding-planner'
+import { Route as IdToolsRouteImport } from './routes/id/tools'
+import { Route as IdTemplatesRouteImport } from './routes/id/templates'
 import { Route as CheckInTokenRouteImport } from './routes/check-in.$token'
 import { Route as BlogCategoriesRouteImport } from './routes/blog/categories'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -37,6 +41,11 @@ import { Route as AuthenticatedChecklistRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as BlogCategoriesIndexRouteImport } from './routes/blog/categories.index'
+import { Route as IdToolsWeddingTimelineRouteImport } from './routes/id/tools/wedding-timeline'
+import { Route as IdToolsKalkulatorBudgetPernikahanRouteImport } from './routes/id/tools/kalkulator-budget-pernikahan'
+import { Route as IdTemplatesWeddingGuestListRouteImport } from './routes/id/templates/wedding-guest-list'
+import { Route as IdTemplatesWeddingChecklistRouteImport } from './routes/id/templates/wedding-checklist'
+import { Route as IdTemplatesWeddingBudgetRouteImport } from './routes/id/templates/wedding-budget'
 import { Route as BlogCategoriesSlugRouteImport } from './routes/blog/categories.$slug'
 import { Route as ApiDocumentsSplatRouteImport } from './routes/api/documents/$'
 
@@ -48,6 +57,11 @@ const TermsRoute = TermsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdRoute = IdRouteImport.update({
+  id: '/id',
+  path: '/id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogRoute = BlogRouteImport.update({
@@ -88,6 +102,21 @@ const InviteTokenRoute = InviteTokenRouteImport.update({
   id: '/invite/$token',
   path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const IdWeddingPlannerRoute = IdWeddingPlannerRouteImport.update({
+  id: '/wedding-planner',
+  path: '/wedding-planner',
+  getParentRoute: () => IdRoute,
+} as any)
+const IdToolsRoute = IdToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => IdRoute,
+} as any)
+const IdTemplatesRoute = IdTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => IdRoute,
 } as any)
 const CheckInTokenRoute = CheckInTokenRouteImport.update({
   id: '/check-in/$token',
@@ -180,6 +209,35 @@ const BlogCategoriesIndexRoute = BlogCategoriesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BlogCategoriesRoute,
 } as any)
+const IdToolsWeddingTimelineRoute = IdToolsWeddingTimelineRouteImport.update({
+  id: '/wedding-timeline',
+  path: '/wedding-timeline',
+  getParentRoute: () => IdToolsRoute,
+} as any)
+const IdToolsKalkulatorBudgetPernikahanRoute =
+  IdToolsKalkulatorBudgetPernikahanRouteImport.update({
+    id: '/kalkulator-budget-pernikahan',
+    path: '/kalkulator-budget-pernikahan',
+    getParentRoute: () => IdToolsRoute,
+  } as any)
+const IdTemplatesWeddingGuestListRoute =
+  IdTemplatesWeddingGuestListRouteImport.update({
+    id: '/wedding-guest-list',
+    path: '/wedding-guest-list',
+    getParentRoute: () => IdTemplatesRoute,
+  } as any)
+const IdTemplatesWeddingChecklistRoute =
+  IdTemplatesWeddingChecklistRouteImport.update({
+    id: '/wedding-checklist',
+    path: '/wedding-checklist',
+    getParentRoute: () => IdTemplatesRoute,
+  } as any)
+const IdTemplatesWeddingBudgetRoute =
+  IdTemplatesWeddingBudgetRouteImport.update({
+    id: '/wedding-budget',
+    path: '/wedding-budget',
+    getParentRoute: () => IdTemplatesRoute,
+  } as any)
 const BlogCategoriesSlugRoute = BlogCategoriesSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -195,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
+  '/id': typeof IdRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -214,17 +273,26 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/categories': typeof BlogCategoriesRouteWithChildren
   '/check-in/$token': typeof CheckInTokenRoute
+  '/id/templates': typeof IdTemplatesRouteWithChildren
+  '/id/tools': typeof IdToolsRouteWithChildren
+  '/id/wedding-planner': typeof IdWeddingPlannerRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
   '/blog/': typeof BlogIndexRoute
   '/api/documents/$': typeof ApiDocumentsSplatRoute
   '/blog/categories/$slug': typeof BlogCategoriesSlugRoute
+  '/id/templates/wedding-budget': typeof IdTemplatesWeddingBudgetRoute
+  '/id/templates/wedding-checklist': typeof IdTemplatesWeddingChecklistRoute
+  '/id/templates/wedding-guest-list': typeof IdTemplatesWeddingGuestListRoute
+  '/id/tools/kalkulator-budget-pernikahan': typeof IdToolsKalkulatorBudgetPernikahanRoute
+  '/id/tools/wedding-timeline': typeof IdToolsWeddingTimelineRoute
   '/blog/categories/': typeof BlogCategoriesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/id': typeof IdRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -243,12 +311,20 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/check-in/$token': typeof CheckInTokenRoute
+  '/id/templates': typeof IdTemplatesRouteWithChildren
+  '/id/tools': typeof IdToolsRouteWithChildren
+  '/id/wedding-planner': typeof IdWeddingPlannerRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
   '/blog': typeof BlogIndexRoute
   '/api/documents/$': typeof ApiDocumentsSplatRoute
   '/blog/categories/$slug': typeof BlogCategoriesSlugRoute
+  '/id/templates/wedding-budget': typeof IdTemplatesWeddingBudgetRoute
+  '/id/templates/wedding-checklist': typeof IdTemplatesWeddingChecklistRoute
+  '/id/templates/wedding-guest-list': typeof IdTemplatesWeddingGuestListRoute
+  '/id/tools/kalkulator-budget-pernikahan': typeof IdToolsKalkulatorBudgetPernikahanRoute
+  '/id/tools/wedding-timeline': typeof IdToolsWeddingTimelineRoute
   '/blog/categories': typeof BlogCategoriesIndexRoute
 }
 export interface FileRoutesById {
@@ -257,6 +333,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRouteWithChildren
+  '/id': typeof IdRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -276,12 +353,20 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/blog/categories': typeof BlogCategoriesRouteWithChildren
   '/check-in/$token': typeof CheckInTokenRoute
+  '/id/templates': typeof IdTemplatesRouteWithChildren
+  '/id/tools': typeof IdToolsRouteWithChildren
+  '/id/wedding-planner': typeof IdWeddingPlannerRoute
   '/invite/$token': typeof InviteTokenRoute
   '/rsvp/$token': typeof RsvpTokenRoute
   '/undangan/$token': typeof UndanganTokenRoute
   '/blog/': typeof BlogIndexRoute
   '/api/documents/$': typeof ApiDocumentsSplatRoute
   '/blog/categories/$slug': typeof BlogCategoriesSlugRoute
+  '/id/templates/wedding-budget': typeof IdTemplatesWeddingBudgetRoute
+  '/id/templates/wedding-checklist': typeof IdTemplatesWeddingChecklistRoute
+  '/id/templates/wedding-guest-list': typeof IdTemplatesWeddingGuestListRoute
+  '/id/tools/kalkulator-budget-pernikahan': typeof IdToolsKalkulatorBudgetPernikahanRoute
+  '/id/tools/wedding-timeline': typeof IdToolsWeddingTimelineRoute
   '/blog/categories/': typeof BlogCategoriesIndexRoute
 }
 export interface FileRouteTypes {
@@ -290,6 +375,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/blog'
+    | '/id'
     | '/privacy'
     | '/terms'
     | '/admin'
@@ -309,17 +395,26 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/blog/categories'
     | '/check-in/$token'
+    | '/id/templates'
+    | '/id/tools'
+    | '/id/wedding-planner'
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
     | '/blog/'
     | '/api/documents/$'
     | '/blog/categories/$slug'
+    | '/id/templates/wedding-budget'
+    | '/id/templates/wedding-checklist'
+    | '/id/templates/wedding-guest-list'
+    | '/id/tools/kalkulator-budget-pernikahan'
+    | '/id/tools/wedding-timeline'
     | '/blog/categories/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/id'
     | '/privacy'
     | '/terms'
     | '/admin'
@@ -338,12 +433,20 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/check-in/$token'
+    | '/id/templates'
+    | '/id/tools'
+    | '/id/wedding-planner'
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
     | '/blog'
     | '/api/documents/$'
     | '/blog/categories/$slug'
+    | '/id/templates/wedding-budget'
+    | '/id/templates/wedding-checklist'
+    | '/id/templates/wedding-guest-list'
+    | '/id/tools/kalkulator-budget-pernikahan'
+    | '/id/tools/wedding-timeline'
     | '/blog/categories'
   id:
     | '__root__'
@@ -351,6 +454,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/blog'
+    | '/id'
     | '/privacy'
     | '/terms'
     | '/_authenticated/admin'
@@ -370,12 +474,20 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/blog/categories'
     | '/check-in/$token'
+    | '/id/templates'
+    | '/id/tools'
+    | '/id/wedding-planner'
     | '/invite/$token'
     | '/rsvp/$token'
     | '/undangan/$token'
     | '/blog/'
     | '/api/documents/$'
     | '/blog/categories/$slug'
+    | '/id/templates/wedding-budget'
+    | '/id/templates/wedding-checklist'
+    | '/id/templates/wedding-guest-list'
+    | '/id/tools/kalkulator-budget-pernikahan'
+    | '/id/tools/wedding-timeline'
     | '/blog/categories/'
   fileRoutesById: FileRoutesById
 }
@@ -384,6 +496,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BlogRoute: typeof BlogRouteWithChildren
+  IdRoute: typeof IdRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -408,6 +521,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/id': {
+      id: '/id'
+      path: '/id'
+      fullPath: '/id'
+      preLoaderRoute: typeof IdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog': {
@@ -465,6 +585,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/invite/$token'
       preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/id/wedding-planner': {
+      id: '/id/wedding-planner'
+      path: '/wedding-planner'
+      fullPath: '/id/wedding-planner'
+      preLoaderRoute: typeof IdWeddingPlannerRouteImport
+      parentRoute: typeof IdRoute
+    }
+    '/id/tools': {
+      id: '/id/tools'
+      path: '/tools'
+      fullPath: '/id/tools'
+      preLoaderRoute: typeof IdToolsRouteImport
+      parentRoute: typeof IdRoute
+    }
+    '/id/templates': {
+      id: '/id/templates'
+      path: '/templates'
+      fullPath: '/id/templates'
+      preLoaderRoute: typeof IdTemplatesRouteImport
+      parentRoute: typeof IdRoute
     }
     '/check-in/$token': {
       id: '/check-in/$token'
@@ -592,6 +733,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogCategoriesIndexRouteImport
       parentRoute: typeof BlogCategoriesRoute
     }
+    '/id/tools/wedding-timeline': {
+      id: '/id/tools/wedding-timeline'
+      path: '/wedding-timeline'
+      fullPath: '/id/tools/wedding-timeline'
+      preLoaderRoute: typeof IdToolsWeddingTimelineRouteImport
+      parentRoute: typeof IdToolsRoute
+    }
+    '/id/tools/kalkulator-budget-pernikahan': {
+      id: '/id/tools/kalkulator-budget-pernikahan'
+      path: '/kalkulator-budget-pernikahan'
+      fullPath: '/id/tools/kalkulator-budget-pernikahan'
+      preLoaderRoute: typeof IdToolsKalkulatorBudgetPernikahanRouteImport
+      parentRoute: typeof IdToolsRoute
+    }
+    '/id/templates/wedding-guest-list': {
+      id: '/id/templates/wedding-guest-list'
+      path: '/wedding-guest-list'
+      fullPath: '/id/templates/wedding-guest-list'
+      preLoaderRoute: typeof IdTemplatesWeddingGuestListRouteImport
+      parentRoute: typeof IdTemplatesRoute
+    }
+    '/id/templates/wedding-checklist': {
+      id: '/id/templates/wedding-checklist'
+      path: '/wedding-checklist'
+      fullPath: '/id/templates/wedding-checklist'
+      preLoaderRoute: typeof IdTemplatesWeddingChecklistRouteImport
+      parentRoute: typeof IdTemplatesRoute
+    }
+    '/id/templates/wedding-budget': {
+      id: '/id/templates/wedding-budget'
+      path: '/wedding-budget'
+      fullPath: '/id/templates/wedding-budget'
+      preLoaderRoute: typeof IdTemplatesWeddingBudgetRouteImport
+      parentRoute: typeof IdTemplatesRoute
+    }
     '/blog/categories/$slug': {
       id: '/blog/categories/$slug'
       path: '/$slug'
@@ -672,11 +848,56 @@ const BlogRouteChildren: BlogRouteChildren = {
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
+interface IdTemplatesRouteChildren {
+  IdTemplatesWeddingBudgetRoute: typeof IdTemplatesWeddingBudgetRoute
+  IdTemplatesWeddingChecklistRoute: typeof IdTemplatesWeddingChecklistRoute
+  IdTemplatesWeddingGuestListRoute: typeof IdTemplatesWeddingGuestListRoute
+}
+
+const IdTemplatesRouteChildren: IdTemplatesRouteChildren = {
+  IdTemplatesWeddingBudgetRoute: IdTemplatesWeddingBudgetRoute,
+  IdTemplatesWeddingChecklistRoute: IdTemplatesWeddingChecklistRoute,
+  IdTemplatesWeddingGuestListRoute: IdTemplatesWeddingGuestListRoute,
+}
+
+const IdTemplatesRouteWithChildren = IdTemplatesRoute._addFileChildren(
+  IdTemplatesRouteChildren,
+)
+
+interface IdToolsRouteChildren {
+  IdToolsKalkulatorBudgetPernikahanRoute: typeof IdToolsKalkulatorBudgetPernikahanRoute
+  IdToolsWeddingTimelineRoute: typeof IdToolsWeddingTimelineRoute
+}
+
+const IdToolsRouteChildren: IdToolsRouteChildren = {
+  IdToolsKalkulatorBudgetPernikahanRoute:
+    IdToolsKalkulatorBudgetPernikahanRoute,
+  IdToolsWeddingTimelineRoute: IdToolsWeddingTimelineRoute,
+}
+
+const IdToolsRouteWithChildren =
+  IdToolsRoute._addFileChildren(IdToolsRouteChildren)
+
+interface IdRouteChildren {
+  IdTemplatesRoute: typeof IdTemplatesRouteWithChildren
+  IdToolsRoute: typeof IdToolsRouteWithChildren
+  IdWeddingPlannerRoute: typeof IdWeddingPlannerRoute
+}
+
+const IdRouteChildren: IdRouteChildren = {
+  IdTemplatesRoute: IdTemplatesRouteWithChildren,
+  IdToolsRoute: IdToolsRouteWithChildren,
+  IdWeddingPlannerRoute: IdWeddingPlannerRoute,
+}
+
+const IdRouteWithChildren = IdRoute._addFileChildren(IdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BlogRoute: BlogRouteWithChildren,
+  IdRoute: IdRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   AuthCallbackRoute: AuthCallbackRoute,

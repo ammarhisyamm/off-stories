@@ -11,6 +11,12 @@ import {
   type SetupMode,
   type SetupState,
 } from "@/lib/onboarding";
+import {
+  clearSeoPlanningDraft,
+  getSeoPlanningDraft,
+  trackSeoEvent,
+  type SeoPlanningDraft,
+} from "@/lib/seo-growth";
 import { ChoiceCard } from "./onboarding/choice-card";
 import { OnboardingModal } from "./onboarding/onboarding-modal";
 import {
@@ -37,14 +43,27 @@ export function DashboardOnboarding({
   onComplete: () => void;
   onClose: () => void;
 }) {
-  const [mode, setMode] = useState<SetupMode | null>(null);
+  const [seoDraft] = useState<SeoPlanningDraft | null>(() => getSeoPlanningDraft());
+  const [mode, setMode] = useState<SetupMode | null>(() => (seoDraft ? "smart" : null));
   const [stage, setStage] = useState<1 | 2 | 3>(1);
   const [question, setQuestion] = useState(1);
-  const [setup, setSetup] = useState<SetupState>(blankSetup);
+  const [setup, setSetup] = useState<SetupState>(() => ({
+    ...blankSetup,
+    location: seoDraft?.city ?? blankSetup.location,
+    guests: seoDraft?.guests ?? blankSetup.guests,
+    guestsBride: seoDraft?.guests ? Math.ceil(seoDraft.guests / 2) : blankSetup.guestsBride,
+    guestsGroom: seoDraft?.guests ? Math.floor(seoDraft.guests / 2) : blankSetup.guestsGroom,
+    budgetChoice: seoDraft?.budget ? "yes" : blankSetup.budgetChoice,
+    budget: seoDraft?.budget ? String(seoDraft.budget) : blankSetup.budget,
+    weddingType: seoDraft?.weddingType ?? blankSetup.weddingType,
+    weddingDate: seoDraft?.weddingDate ?? blankSetup.weddingDate,
+    akadDate: seoDraft?.weddingDate ?? blankSetup.akadDate,
+    resepsiDate: seoDraft?.weddingDate ?? blankSetup.resepsiDate,
+  }));
   const [startDetails, setStartDetails] = useState({
     partnerOneName: blankSetup.partnerOneName,
     partnerTwoName: blankSetup.partnerTwoName,
-    weddingDate: blankSetup.weddingDate,
+    weddingDate: seoDraft?.weddingDate ?? blankSetup.weddingDate,
   });
   const [startError, setStartError] = useState<string | null>(null);
 
@@ -99,6 +118,9 @@ export function DashboardOnboarding({
         },
         { success: null },
       );
+      trackSeoEvent("workspace_created", { content_cluster: seoDraft?.contentCluster });
+      trackSeoEvent("wedding_date_added", { content_cluster: seoDraft?.contentCluster });
+      clearSeoPlanningDraft();
       markOnboardingComplete();
       onComplete();
       return;
@@ -119,6 +141,9 @@ export function DashboardOnboarding({
     setKind("vendors", prepared.vendors, { success: null });
     setKind("milestones", prepared.milestones, { success: null });
     setKind("seserahan", createStarterSeserahan(), { success: null });
+    trackSeoEvent("workspace_created", { content_cluster: seoDraft?.contentCluster });
+    trackSeoEvent("wedding_date_added", { content_cluster: seoDraft?.contentCluster });
+    clearSeoPlanningDraft();
     markOnboardingComplete();
     onComplete();
   }
@@ -173,6 +198,17 @@ export function DashboardOnboarding({
                   ? "Isi detail ini untuk membuka workspace kosong."
                   : "Isi nama dan tanggal dulu, lalu lanjutkan ke setup pintar."}
               </p>
+              {seoDraft && (
+                <p className="mt-2 text-xs font-medium text-primary">
+                  Hasil dari{" "}
+                  {seoDraft.contentCluster === "budget"
+                    ? "budget"
+                    : seoDraft.contentCluster === "timeline"
+                      ? "timeline"
+                      : "template"}{" "}
+                  kamu sudah kami bawa ke setup ini.
+                </p>
+              )}
             </div>
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label className="block">

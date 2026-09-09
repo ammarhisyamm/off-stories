@@ -55,18 +55,8 @@ function CTAButton({
   );
 }
 
-function ProductPreview({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`${className} [perspective:1200px]`.trim()}>
-      {children}
-    </div>
-  );
+function ProductPreview({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`${className} [perspective:1200px]`.trim()}>{children}</div>;
 }
 
 function DashboardPreviewFallback() {
@@ -134,6 +124,12 @@ function LandingHeader() {
           >
             Blog
           </Link>
+          <Link
+            to="/id/wedding-planner"
+            className="rounded-lg px-3 py-1.5 transition-colors hover:bg-surface-2 hover:text-foreground"
+          >
+            Planner
+          </Link>
           <a
             href="#faq"
             className="rounded-lg px-3 py-1.5 transition-colors hover:bg-surface-2 hover:text-foreground"
@@ -148,9 +144,7 @@ function LandingHeader() {
           >
             Sign in
           </Link>
-          <CTAButton to="/auth">
-            Start planning for free
-          </CTAButton>
+          <CTAButton to="/auth">Start planning for free</CTAButton>
         </div>
       </div>
     </header>

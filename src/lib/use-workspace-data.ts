@@ -9,6 +9,7 @@ import {
   type WorkspaceData,
 } from "@/lib/data.functions";
 import { reportClientError } from "@/lib/telemetry";
+import { trackSeoEvent } from "@/lib/seo-growth";
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -164,7 +165,44 @@ export function useWorkspaceData() {
 
   const setKind = useCallback(
     (kind: DataKind, payload: unknown, opts?: { success?: string | null }) => {
+      const previous = cache[kind];
       publish(kind, payload);
+      if (
+        kind === "tasks" &&
+        Array.isArray(previous) &&
+        previous.length === 0 &&
+        Array.isArray(payload) &&
+        payload.length > 0
+      ) {
+        trackSeoEvent("first_checklist_action");
+      }
+      if (
+        kind === "budget" &&
+        Array.isArray(previous) &&
+        previous.length === 0 &&
+        Array.isArray(payload) &&
+        payload.length > 0
+      ) {
+        trackSeoEvent("budget_created");
+      }
+      if (
+        kind === "guests" &&
+        Array.isArray(previous) &&
+        previous.length === 0 &&
+        Array.isArray(payload) &&
+        payload.length > 0
+      ) {
+        trackSeoEvent("guest_added");
+      }
+      if (
+        kind === "vendors" &&
+        Array.isArray(previous) &&
+        previous.length === 0 &&
+        Array.isArray(payload) &&
+        payload.length > 0
+      ) {
+        trackSeoEvent("vendor_added");
+      }
       if (!boundSave) return;
       pendingSaves += 1;
       boundSave({ data: { kind, payload } })

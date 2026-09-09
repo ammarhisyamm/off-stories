@@ -15,6 +15,12 @@ export function PublicHeader({ wide = false }: { wide?: boolean }) {
         </Link>
         <nav className="flex items-center gap-3 text-sm text-muted-foreground">
           <Link
+            to="/id/wedding-planner"
+            className="hidden rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
+          >
+            Planner
+          </Link>
+          <Link
             to="/blog"
             className="rounded-md px-2 py-1 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -55,6 +61,9 @@ export function PublicFooter({ wide = false }: { wide?: boolean }) {
       >
         <div>{t("public.tagline")}</div>
         <nav className="flex items-center gap-4">
+          <Link to="/id/wedding-planner" className="hover:text-foreground transition-colors">
+            Wedding planner
+          </Link>
           <Link to="/blog" className="hover:text-foreground transition-colors">
             {t("public.blog")}
           </Link>

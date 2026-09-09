@@ -13,6 +13,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { PublicPage } from "@/components/public-page";
+import { SeoCta } from "@/components/seo/seo-page";
 import {
   blogPostUrl,
   formatBlogDate,
@@ -166,9 +167,44 @@ function HelpfulFeedback() {
   );
 }
 
+function getProductContinuation(post: BlogPost) {
+  const searchable = `${post.title} ${post.keywords.join(" ")}`.toLowerCase();
+  if (/(budget|biaya|rincian)/.test(searchable)) {
+    return {
+      to: "/id/tools/kalkulator-budget-pernikahan" as const,
+      label: "Hitung budget kamu sendiri",
+      cluster: "budget" as const,
+      cta: "article_budget_continuation",
+    };
+  }
+  if (/(tamu|rsvp|seating|undangan)/.test(searchable)) {
+    return {
+      to: "/id/templates/wedding-guest-list" as const,
+      label: "Mulai shared guest list",
+      cluster: "guests" as const,
+      cta: "article_guest_continuation",
+    };
+  }
+  if (/(timeline|12 bulan|rundown|persiapan)/.test(searchable)) {
+    return {
+      to: "/id/tools/wedding-timeline" as const,
+      label: "Generate timeline kamu",
+      cluster: "timeline" as const,
+      cta: "article_timeline_continuation",
+    };
+  }
+  return {
+    to: "/id/wedding-planner" as const,
+    label: "Buka wedding planner",
+    cluster: "planner" as const,
+    cta: "article_planner_continuation",
+  };
+}
+
 function BlogPostPage() {
   const { post } = Route.useLoaderData() as { post: BlogPost };
   const relatedPosts = getRelatedBlogPosts(post, 3);
+  const continuation = getProductContinuation(post);
   const [size, setSize] = useState<"sm" | "md" | "lg">("md");
   const sizeClass = {
     sm: "text-[17px]",
@@ -223,6 +259,17 @@ function BlogPostPage() {
     publisher: { "@type": "Organization", name: "OffStories", url: siteUrl },
     keywords: post.keywords.join(", "),
   };
+  const faqSchema = post.faqs.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: post.faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+        })),
+      }
+    : null;
 
   return (
     <PublicPage wide>
@@ -235,6 +282,12 @@ function BlogPostPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10">
         <aside className="hidden lg:block">
@@ -389,10 +442,10 @@ function BlogPostPage() {
             <h2 className="serif mt-2 text-2xl text-foreground">Artikel terkait.</h2>
           </div>
           <Link
-            to="/auth"
+            to={continuation.to}
             className="rounded-[14px] border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition duration-150 hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
           >
-            Buka workspace
+            {continuation.label}
           </Link>
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-3">
@@ -466,13 +519,15 @@ function BlogPostPage() {
           Coba OffStories dashboard gratis — kelola budget, checklist, dan vendor dalam satu tempat
           untuk hari yang lebih tenang.
         </p>
-        <Link
-          to="/auth"
-          className="mt-7 inline-flex items-center gap-2 rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-primary transition duration-150 hover:opacity-90 active:scale-[0.98]"
-        >
-          Coba Gratis Sekarang
-          <ArrowRight weight="bold" size={16} />
-        </Link>
+        <SeoCta
+          className="mt-7 rounded-[14px] bg-background px-7 py-3.5 font-semibold text-primary hover:bg-background"
+          label={continuation.label}
+          draft={{
+            sourcePage: blogPostUrl(post.slug),
+            contentCluster: continuation.cluster,
+            ctaVariant: continuation.cta,
+          }}
+        />
       </section>
 
       <script type="application/ld+json" />
