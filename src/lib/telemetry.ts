@@ -14,7 +14,7 @@ const reportSchema = z.object({
 
 export const reportClientError = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((d) => reportSchema.parse(d))
+  .validator((d) => reportSchema.parse(d))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     checkRateLimit({ key: "client-error-report", limit: 20, windowMs: 60_000 });

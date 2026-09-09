@@ -418,7 +418,7 @@ export const loadWorkspaceData = createServerFn({ method: "GET" })
 
 export const saveWorkspaceData = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((d) => z.object({ kind: z.enum(KINDS), payload: z.unknown() }).parse(d))
+  .validator((d) => z.object({ kind: z.enum(KINDS), payload: z.unknown() }).parse(d))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     checkRateLimit({ key: "save-workspace", limit: 60, windowMs: 60_000 });

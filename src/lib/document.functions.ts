@@ -34,7 +34,7 @@ function resolveSafeContentType(file: File): string {
 
 export const uploadDocument = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) => data as FormData)
+  .validator((data) => data as FormData)
   .handler(async ({ context, data }) => {
     if (!(data instanceof FormData)) throw new Error("Document upload requires a file.");
     const file = data.get("file");

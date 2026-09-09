@@ -38,13 +38,13 @@ export const startGoogleSignIn = createServerFn({ method: "GET" }).handler(() =>
 }));
 
 export const completeGoogleSignIn = createServerFn({ method: "GET" })
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ code: z.string().min(1).max(4096), state: z.string().min(1).max(4096) }).parse(data),
   )
   .handler(({ data }) => completeGoogleAuthorization(data.code, data.state));
 
 export const signUp = createServerFn({ method: "POST" })
-  .inputValidator((data) => credentialsSchema.parse(data))
+  .validator((data) => credentialsSchema.parse(data))
   .handler(async ({ data }) => {
     assertSameOrigin();
     checkRateLimit({ key: "signup", limit: 5, windowMs: 60_000, scope: data.email });
@@ -79,7 +79,7 @@ export const signUp = createServerFn({ method: "POST" })
   });
 
 export const signIn = createServerFn({ method: "POST" })
-  .inputValidator((data) => credentialsSchema.parse(data))
+  .validator((data) => credentialsSchema.parse(data))
   .handler(async ({ data }) => {
     assertSameOrigin();
     checkRateLimit({ key: "signin", limit: 8, windowMs: 60_000, scope: data.email });

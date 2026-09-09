@@ -117,7 +117,7 @@ export const getInvitationPageStatus = createServerFn({ method: "GET" })
   });
 
 export const getPublicInvitation = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
+  .validator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
     checkRateLimit({ key: "public-invitation", limit: 30, windowMs: 60_000 });
     const page = await getDatabase()

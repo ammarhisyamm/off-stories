@@ -106,7 +106,7 @@ export const listInvites = createServerFn({ method: "GET" })
 
 export const invitePartner = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) => z.object({ email: z.string().trim().email() }).parse(data))
+  .validator((data) => z.object({ email: z.string().trim().email() }).parse(data))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     checkRateLimit({ key: "invite-partner", limit: 5, windowMs: 60_000 });
@@ -131,7 +131,7 @@ export const createLinkInvite = createServerFn({ method: "POST" })
 
 export const updateMemberRole = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ userId: z.string().uuid(), role: z.enum(["viewer", "editor"]) }).parse(data),
   )
   .handler(async ({ data, context }) => {
@@ -155,7 +155,7 @@ export const updateMemberRole = createServerFn({ method: "POST" })
 
 export const revokeInvite = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     const workspaceId = await ownerWorkspace(context.userId);
@@ -175,7 +175,7 @@ export const revokeInvite = createServerFn({ method: "POST" })
   });
 
 export const getInvite = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ token: tokenSchema }).parse(data))
+  .validator((data) => z.object({ token: tokenSchema }).parse(data))
   .handler(async ({ data }) => {
     checkRateLimit({ key: "get-invite", limit: 30, windowMs: 60_000 });
     const invite = await getDatabase()
@@ -207,7 +207,7 @@ export const getInvite = createServerFn({ method: "GET" })
 
 export const acceptInvite = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) => z.object({ token: tokenSchema }).parse(data))
+  .validator((data) => z.object({ token: tokenSchema }).parse(data))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     checkRateLimit({ key: "accept-invite", limit: 10, windowMs: 60_000 });
@@ -285,7 +285,7 @@ export const acceptInvite = createServerFn({ method: "POST" })
 
 export const leaveWorkspace = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) => z.object({ workspaceId: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ workspaceId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     const owner = await getDatabase()
@@ -309,7 +309,7 @@ export const leaveWorkspace = createServerFn({ method: "POST" })
 
 export const removePartner = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((data) => z.object({ userId: z.string().uuid() }).parse(data))
+  .validator((data) => z.object({ userId: z.string().uuid() }).parse(data))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     const workspaceId = await ownerWorkspace(context.userId);

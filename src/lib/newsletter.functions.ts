@@ -14,7 +14,7 @@ const subscribeSchema = z.object({
 });
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
-  .inputValidator((input) => subscribeSchema.parse(input))
+  .validator((input) => subscribeSchema.parse(input))
   .handler(async ({ data }) => {
     assertSameOrigin();
     // Honeypot check — silently accept but don't actually subscribe

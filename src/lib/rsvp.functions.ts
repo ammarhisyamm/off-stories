@@ -59,7 +59,7 @@ async function getLink(token: string) {
 
 export const createRsvpLink = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((input) => z.object({ guestId: guestIdSchema }).parse(input))
+  .validator((input) => z.object({ guestId: guestIdSchema }).parse(input))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     checkRateLimit({ key: "create-rsvp-link", limit: 20, windowMs: 60_000 });
@@ -102,7 +102,7 @@ export const createRsvpLink = createServerFn({ method: "POST" })
 
 export const revokeRsvpLink = createServerFn({ method: "POST" })
   .middleware([requireCloudflareAuth])
-  .inputValidator((input) => z.object({ guestId: guestIdSchema }).parse(input))
+  .validator((input) => z.object({ guestId: guestIdSchema }).parse(input))
   .handler(async ({ data, context }) => {
     assertSameOrigin();
     checkRateLimit({ key: "revoke-rsvp-link", limit: 20, windowMs: 60_000 });
@@ -127,7 +127,7 @@ export const revokeRsvpLink = createServerFn({ method: "POST" })
   });
 
 export const getPublicRsvp = createServerFn({ method: "GET" })
-  .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
+  .validator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
     checkRateLimit({ key: "get-public-rsvp", limit: 30, windowMs: 60_000 });
     const link = await getLink(data.token);
@@ -151,7 +151,7 @@ export const getPublicRsvp = createServerFn({ method: "GET" })
   });
 
 export const submitPublicRsvp = createServerFn({ method: "POST" })
-  .inputValidator((input) => responseSchema.parse(input))
+  .validator((input) => responseSchema.parse(input))
   .handler(async ({ data }) => {
     assertSameOrigin();
     checkRateLimit({ key: "submit-public-rsvp", limit: 10, windowMs: 60_000 });
@@ -173,7 +173,7 @@ export const submitPublicRsvp = createServerFn({ method: "POST" })
   });
 
 export const submitPublicCheckIn = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ token: tokenSchema }).parse(input))
+  .validator((input) => z.object({ token: tokenSchema }).parse(input))
   .handler(async ({ data }) => {
     assertSameOrigin();
     checkRateLimit({ key: "submit-checkin", limit: 20, windowMs: 60_000 });

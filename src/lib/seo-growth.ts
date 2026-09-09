@@ -63,6 +63,8 @@ function getSeoSource(): {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+  content_cluster?: string;
+  cta_variant?: string;
 } {
   try {
     const value = getBrowserStorage("local").getItem(SEO_SOURCE_KEY);
