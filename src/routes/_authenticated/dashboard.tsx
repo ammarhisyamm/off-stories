@@ -625,6 +625,8 @@ function SummaryCard({
   return (
     <Link
       to={href}
+      preload="intent"
+      preloadDelay={0}
       aria-label={`${label}: ${value}. Open ${label.toLowerCase()}`}
       className="block rounded-[6px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.99]"
     >

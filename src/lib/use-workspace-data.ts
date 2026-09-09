@@ -27,6 +27,43 @@ let pollTimer: ReturnType<typeof setInterval> | null = null;
 let pollInFlight = false;
 let pendingSaves = 0;
 
+function normalizeWorkspaceData(value: unknown): WorkspaceData {
+  const fallback = emptyWorkspaceData();
+  if (!value || typeof value !== "object" || Array.isArray(value)) return fallback;
+
+  const source = value as Record<string, unknown>;
+  const arrays = [
+    "tasks",
+    "budget",
+    "vendors",
+    "guests",
+    "milestones",
+    "notes",
+    "documents",
+    "rundown",
+    "seserahan",
+  ] as const;
+  const normalized = { ...fallback, event: fallback.event } as WorkspaceData;
+
+  if (source.event && typeof source.event === "object" && !Array.isArray(source.event)) {
+    normalized.event = { ...fallback.event, ...(source.event as Partial<WorkspaceData["event"]>) };
+  }
+  for (const kind of arrays) {
+    if (Array.isArray(source[kind])) normalized[kind] = source[kind] as never;
+  }
+  if (
+    source.command &&
+    typeof source.command === "object" &&
+    !Array.isArray(source.command) &&
+    Array.isArray((source.command as { contacts?: unknown }).contacts)
+  ) {
+    normalized.command = {
+      contacts: (source.command as { contacts: WorkspaceData["command"]["contacts"] }).contacts,
+    };
+  }
+  return normalized;
+}
+
 function notify() {
   listeners.forEach((l) => l());
 }
@@ -64,7 +101,7 @@ async function pollRefresh() {
     };
     workspaceId = result.workspaceId ?? workspaceId;
     if (result.role != null) myRole = result.role;
-    cache = result.data;
+    cache = normalizeWorkspaceData(result.data);
     loaded = true;
     loadError = null;
     notify();
@@ -139,7 +176,7 @@ export function useWorkspaceData() {
           };
           workspaceId = result.workspaceId ?? workspaceId;
           if (result.role != null) myRole = result.role;
-          cache = result.data;
+          cache = normalizeWorkspaceData(result.data);
           loaded = true;
           loadError = null;
           startPolling();
@@ -236,7 +273,7 @@ export function useWorkspaceData() {
       };
       workspaceId = result.workspaceId ?? workspaceId;
       if (result.role != null) myRole = result.role;
-      cache = result.data;
+      cache = normalizeWorkspaceData(result.data);
       loaded = true;
       loadError = null;
     } catch (e) {

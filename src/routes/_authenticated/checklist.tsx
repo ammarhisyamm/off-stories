@@ -26,7 +26,28 @@ export const Route = createFileRoute("/_authenticated/checklist")({
     ],
   }),
   component: ChecklistWrapper,
+  errorComponent: ChecklistError,
 });
+
+function ChecklistError({ reset }: { reset: () => void }) {
+  return (
+    <AppLayout eyebrow="Operational" title="Checklist">
+      <section className="panel editorial-panel mx-auto max-w-xl p-8 text-center">
+        <h2 className="text-xl font-semibold text-foreground">Checklist couldn’t load</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          Your workspace is safe. Try loading this section again.
+        </p>
+        <button
+          type="button"
+          onClick={reset}
+          className="mt-6 inline-flex items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Try again
+        </button>
+      </section>
+    </AppLayout>
+  );
+}
 
 function ChecklistWrapper() {
   return <Checklist />;
@@ -37,7 +58,7 @@ function Checklist() {
   const [view, setView] = useState<"list" | "kanban">("list");
   const [filter, setFilter] = useState<string>("All");
   const { data, setKind, canEdit } = useWorkspaceData();
-  const tasks = data.tasks as Task[];
+  const tasks = useMemo(() => (Array.isArray(data.tasks) ? data.tasks : []), [data.tasks]);
   const [editing, setEditing] = useState<Task | null>(null);
   const [viewing, setViewing] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

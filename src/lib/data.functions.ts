@@ -400,13 +400,18 @@ export const loadWorkspaceData = createServerFn({ method: "GET" })
       .prepare("SELECT kind, payload FROM workspace_data WHERE workspace_id = ?")
       .bind(workspaceId)
       .all<{ kind: string; payload: string }>();
-    const map = new Map<string, unknown>(
-      (rows.results ?? []).map((row) => [row.kind, JSON.parse(row.payload)]),
-    );
     const data = emptyWorkspaceData();
-    for (const kind of KINDS) {
-      const value = map.get(kind);
-      if (value !== undefined) (data as Record<string, unknown>)[kind] = value;
+    for (const row of rows.results ?? []) {
+      if (!KINDS.includes(row.kind as DataKind)) continue;
+      try {
+        const parsed = JSON.parse(row.payload) as unknown;
+        const result = perKindSchemas[row.kind as DataKind].safeParse(parsed);
+        if (result.success) {
+          (data as Record<string, unknown>)[row.kind] = result.data;
+        }
+      } catch {
+        // Ignore one corrupt kind and keep the rest of the workspace usable.
+      }
     }
     return { workspaceId, role, data };
   });
