@@ -46,10 +46,13 @@ function withSecurityHeaders(response: Response): Response {
     headers.set("referrer-policy", "strict-origin-when-cross-origin");
   if (!headers.has("permissions-policy"))
     headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()");
+  if (!headers.has("cross-origin-opener-policy")) {
+    headers.set("cross-origin-opener-policy", "same-origin");
+  }
   if (!headers.has("content-security-policy")) {
     headers.set(
       "content-security-policy",
-      "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com; connect-src 'self' https://oauth2.googleapis.com https://api.resend.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'",
+      "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://static.cloudflareinsights.com; script-src-elem 'self' 'unsafe-inline' https://accounts.google.com https://static.cloudflareinsights.com; connect-src 'self' https://oauth2.googleapis.com https://api.resend.com https://cloudflareinsights.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; form-action 'self'; trusted-types offstories; require-trusted-types-for 'script'; upgrade-insecure-requests",
     );
   }
   // HSTS only on https

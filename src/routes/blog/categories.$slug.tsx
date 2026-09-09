@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { PublicPage } from "@/components/public-page";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
+import { serializeJsonLd } from "@/lib/json-ld";
 import {
   blogCategories,
   blogCategoryUrl,
@@ -138,7 +139,7 @@ function BlogCategoryPage() {
     <PublicPage wide>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(collectionSchema) }}
       />
       <div className="space-y-10">
         <section className="border-b border-border pb-8">

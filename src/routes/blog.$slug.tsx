@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PublicPage } from "@/components/public-page";
 import { SeoCta } from "@/components/seo/seo-page";
+import { serializeJsonLd } from "@/lib/json-ld";
 import {
   blogPostUrl,
   formatBlogDate,
@@ -276,16 +277,16 @@ function BlogPostPage() {
       <ReadingProgress />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleSchema) }}
       />
       {faqSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqSchema) }}
         />
       )}
 

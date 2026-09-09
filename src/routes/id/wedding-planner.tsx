@@ -12,6 +12,7 @@ import {
 import { FeatureList, SeoCta, SeoHero, SeoPage } from "@/components/seo/seo-page";
 import { ProductLinkGrid } from "@/components/seo/planning-tools";
 import { siteUrl } from "@/lib/blog";
+import { serializeJsonLd } from "@/lib/json-ld";
 
 export const Route = createFileRoute("/id/wedding-planner")({
   head: () => ({
@@ -74,7 +75,7 @@ function WeddingPlannerPage() {
     <SeoPage cluster="planner" crumb="Wedding planner online">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(softwareSchema) }}
       />
       <SeoHero
         eyebrow="Wedding planner online Indonesia"
