@@ -35,6 +35,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCommandCenterRouteImport } from './routes/_authenticated/command-center'
 import { Route as AuthenticatedChecklistRouteImport } from './routes/_authenticated/checklist'
 import { Route as AuthenticatedBudgetRouteImport } from './routes/_authenticated/budget'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as BlogCategoriesIndexRouteImport } from './routes/blog/categories.index'
 import { Route as BlogCategoriesSlugRouteImport } from './routes/blog/categories.$slug'
 import { Route as ApiDocumentsSplatRouteImport } from './routes/api/documents/$'
@@ -169,6 +170,11 @@ const AuthenticatedBudgetRoute = AuthenticatedBudgetRouteImport.update({
   path: '/budget',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const BlogCategoriesIndexRoute = BlogCategoriesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/budget': typeof AuthenticatedBudgetRoute
   '/checklist': typeof AuthenticatedChecklistRoute
   '/command-center': typeof AuthenticatedCommandCenterRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/budget': typeof AuthenticatedBudgetRoute
   '/checklist': typeof AuthenticatedChecklistRoute
   '/command-center': typeof AuthenticatedCommandCenterRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/budget': typeof AuthenticatedBudgetRoute
   '/_authenticated/checklist': typeof AuthenticatedChecklistRoute
   '/_authenticated/command-center': typeof AuthenticatedCommandCenterRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/privacy'
     | '/terms'
+    | '/admin'
     | '/budget'
     | '/checklist'
     | '/command-center'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacy'
     | '/terms'
+    | '/admin'
     | '/budget'
     | '/checklist'
     | '/command-center'
@@ -342,6 +353,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/privacy'
     | '/terms'
+    | '/_authenticated/admin'
     | '/_authenticated/budget'
     | '/_authenticated/checklist'
     | '/_authenticated/command-center'
@@ -566,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBudgetRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/blog/categories/': {
       id: '/blog/categories/'
       path: '/'
@@ -591,6 +610,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBudgetRoute: typeof AuthenticatedBudgetRoute
   AuthenticatedChecklistRoute: typeof AuthenticatedChecklistRoute
   AuthenticatedCommandCenterRoute: typeof AuthenticatedCommandCenterRoute
@@ -606,6 +626,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBudgetRoute: AuthenticatedBudgetRoute,
   AuthenticatedChecklistRoute: AuthenticatedChecklistRoute,
   AuthenticatedCommandCenterRoute: AuthenticatedCommandCenterRoute,

@@ -1727,6 +1727,378 @@ export const blogPosts: BlogPost[] = [
     tags: ["catering", "menu", "prasmanan"],
     published: true,
   },
+  {
+    slug: "aplikasi-wedding-planner-gratis",
+    title: "Aplikasi Wedding Planner Gratis: Kelola Budget & Checklist Online",
+    excerpt:
+      "Aplikasi wedding planner gratis untuk pasangan Indonesia: susun budget, checklist, daftar tamu, dan vendor dalam satu dashboard online tanpa install.",
+    categoryId: "planning-budget",
+    publishedAt: "2026-09-09",
+    updatedAt: "2026-09-09",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Mencari aplikasi wedding planner gratis yang benar-benar membantu, bukan sekadar template statis? Kebutuhan pasangan Indonesia itu spesifik: budget dalam rupiah, daftar tamu keluarga besar, rundown akad dan resepsi, sampai koordinasi dengan pasangan lewat HP. Artikel ini membahas kriteria memilih aplikasi pernikahan online dan cara memakainya dari hari pertama daftar sampai hari H.",
+    sections: [
+      {
+        heading: "Ciri aplikasi wedding planner yang benar-benar membantu",
+        paragraphs: [
+          "Aplikasi pernikahan yang bagus mengurangi pekerjaan, bukan menambahnya. Sebelum daftar, pastikan aplikasinya memenuhi empat syarat ini — kalau satu saja tidak ada, kamu akan kembali ke spreadsheet dalam dua minggu.",
+        ],
+        bullets: [
+          "Budget tracker dalam rupiah dengan pos venue, catering, dekor, dan DP vendor.",
+          "Checklist otomatis berbasis tanggal acara yang bisa dicentang berdua.",
+          "Daftar tamu, RSVP, dan seating yang terhubung dalam satu data.",
+          "Bisa dibuka berdua secara real-time dari HP tanpa install aplikasi tambahan.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Pilih aplikasi wedding planner yang gratis dari awal — masa trial 7 hari biasanya habis tepat saat kamu paling sibuk persiapan.",
+        },
+      },
+      {
+        heading: "Cara memakai wedding planner online dari hari pertama",
+        paragraphs: [
+          "Urutannya sederhana dan bisa selesai dalam satu sore. Kuncinya adalah memasukkan tanggal acara dulu, karena semua checklist dan pengingat akan dihitung mundur dari tanggal itu.",
+        ],
+        ordered: [
+          "Daftar gratis dan masukkan tanggal akad serta resepsi.",
+          "Isi total budget, lalu bagi ke pos venue, catering, dekor, dan busana.",
+          "Aktifkan checklist otomatis dan tandai yang sudah beres.",
+          "Undang pasangan sebagai editor agar semua keputusan tercatat di tempat yang sama.",
+          "Tambahkan daftar tamu sedikit demi sedikit — mulai dari keluarga inti.",
+        ],
+      },
+      {
+        heading: "Kapan upgrade atau tambah pendamping manusia",
+        paragraphs: [
+          "Aplikasi menggantikan spreadsheet dan grup chat yang berantakan, tetapi untuk hari H dengan 300+ tamu, pertimbangkan WO atau koordinator keluarga. Kombinasi yang paling hemat: aplikasi gratis untuk perencanaan berbulan-bulan, plus satu koordinator hari H.",
+        ],
+        quote:
+          "Tools yang bagus membuat kamu lupa sedang memakai tools — yang tersisa hanya keputusan yang rapi.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Apakah ada aplikasi wedding planner gratis untuk pasangan Indonesia?",
+        answer:
+          "Ada. OffStories menyediakan dashboard gratis berisi budget tracker rupiah, checklist otomatis, daftar tamu dan RSVP, serta rundown — bisa dipakai berdua langsung dari browser tanpa install.",
+      },
+      {
+        question: "Apa bedanya aplikasi wedding planner dengan spreadsheet?",
+        answer:
+          "Spreadsheet tidak mengingatkan tenggat, tidak menghitung mundur dari tanggal acara, dan rawan double-data saat diedit berdua. Aplikasi planner mengotomatiskan ketiganya.",
+      },
+      {
+        question: "Apakah data pernikahan saya aman di aplikasi online?",
+        answer:
+          "Pilih aplikasi yang datanya terisolasi per akun dan tidak membagikan daftar tamu ke pihak ketiga. Jangan pernah mengunggah KTP atau dokumen sensitif ke tools perencanaan.",
+      },
+    ],
+    relatedSlugs: ["budget-pernikahan-indonesia", "checklist-12-bulan-sebelum-nikah", "wedding-organizer-vs-diy-wedding"],
+    keywords: ["aplikasi wedding planner", "aplikasi pernikahan gratis", "wedding planner online indonesia", "aplikasi budget nikah"],
+    tags: ["aplikasi", "gratis", "dashboard"],
+    published: true,
+  },
+  {
+    slug: "checklist-pernikahan-excel-download",
+    title: "Checklist Pernikahan Excel: Download Pola + Cara Pakai Digital",
+    excerpt:
+      "Pola checklist pernikahan format Excel: daftar tugas 12 bulan sampai hari H yang bisa dicentang, plus cara upgrade ke checklist digital otomatis.",
+    categoryId: "planning-budget",
+    publishedAt: "2026-09-10",
+    updatedAt: "2026-09-10",
+    readingTime: "7 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Banyak pasangan mencari checklist pernikahan Excel karena ingin sesuatu yang bisa langsung dicentang. Masalahnya, file statis cepat basi: tanggal bergeser, tugas bertambah, dan versinya bercabang di HP masing-masing. Artikel ini memberi pola checklist pernikahan format Excel yang rapi sekaligus cara memindahkannya ke checklist digital yang menghitung mundur otomatis dari tanggal acaramu.",
+    sections: [
+      {
+        heading: "Struktur checklist pernikahan Excel yang rapi",
+        paragraphs: [
+          "Checklist yang bagus dikelompokkan per fase, bukan satu daftar panjang. Buat sheet terpisah per fase dan beri kolom status, PIC, serta tenggat agar jelas siapa mengerjakan apa.",
+        ],
+        table: {
+          headers: ["Fase", "Contoh tugas", "Tenggat ideal"],
+          rows: [
+            ["12–9 bulan", "Tanggal, budget, venue, WO", "Secepatnya"],
+            ["8–5 bulan", "Katering, dekor, busana, foto", "H-8 bulan"],
+            ["4–2 bulan", "Undangan, RSVP, seserahan, fitting", "H-4 bulan"],
+            ["1 bulan–Hari H", "Seating, gladi, konfirmasi vendor", "H-7 hari"],
+          ],
+        },
+      },
+      {
+        heading: "Batasan checklist Excel yang perlu kamu tahu",
+        paragraphs: [
+          "Excel tidak mengingatkan tenggat yang terlewat dan tidak sinkron otomatis saat pasangan mengedit dari HP lain. Akibat paling umum: dua versi file yang berbeda dan tugas yang dikira sudah beres padahal belum.",
+        ],
+        bullets: [
+          "Tidak ada pengingat otomatis untuk tenggat vendor.",
+          "Versi file mudah bercabang antara pasangan dan keluarga.",
+          "Sulit menghubungkan tugas dengan budget dan daftar tamu.",
+        ],
+      },
+      {
+        heading: "Upgrade ke checklist digital otomatis dalam 10 menit",
+        paragraphs: [
+          "Pindahkan daftar Excel ke dashboard planner: masukkan tanggal acara, dan checklist 12 bulan sampai hari H akan tersusun otomatis lengkap dengan status. Kamu tetap bisa mencentang seperti di Excel, tetapi tenggatnya menyesuaikan sendiri kalau tanggal bergeser.",
+        ],
+        ordered: [
+          "Salin daftar tugas penting dari file Excel kamu.",
+          "Daftar gratis dan masukkan tanggal akad serta resepsi.",
+          "Aktifkan checklist otomatis sesuai fasenya.",
+          "Undang pasangan agar mencentang dari HP masing-masing.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Jangan buang file Excel lamamu — jadikan arsip pembanding, tetapi kerjakan harian di satu dashboard yang sama.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: "Di mana download checklist pernikahan Excel?",
+        answer:
+          "Kamu bisa membuatnya sendiri dalam 15 menit dengan kolom tugas, fase, PIC, tenggat, dan status. Kalau ingin yang otomatis menghitung mundur dari tanggal acara, gunakan checklist digital gratis di dashboard OffStories.",
+      },
+      {
+        question: "Isi checklist pernikahan 12 bulan apa saja?",
+        answer:
+          "Intinya: tanggal dan budget (12–9 bulan), vendor utama (8–5 bulan), undangan dan RSVP (4–2 bulan), seating dan gladi (1 bulan sampai hari H).",
+      },
+      {
+        question: "Bagaimana membagi tugas checklist dengan pasangan?",
+        answer:
+          "Tentukan PIC per tugas sejak awal dan catat di kolom khusus. Review bersama seminggu sekali agar tidak ada tugas yatim yang tidak dikerjakan siapa pun.",
+      },
+    ],
+    relatedSlugs: ["checklist-12-bulan-sebelum-nikah", "aplikasi-wedding-planner-gratis", "budget-pernikahan-indonesia"],
+    keywords: ["checklist pernikahan excel", "download checklist nikah", "template checklist wedding", "daftar tugas pernikahan"],
+    tags: ["checklist", "excel", "template"],
+    published: true,
+  },
+  {
+    slug: "template-budget-pernikahan-otomatis",
+    title: "Template Budget Pernikahan Otomatis: Rincian Biaya Anti Jebol",
+    excerpt:
+      "Template budget pernikahan otomatis: rincian biaya venue sampai souvenir dalam rupiah, cara membagi pos, dan contoh alokasi untuk 100–300 tamu.",
+    categoryId: "planning-budget",
+    publishedAt: "2026-09-11",
+    updatedAt: "2026-09-11",
+    readingTime: "7 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Template budget pernikahan yang bagus bukan sekadar tabel kosong — ia memberi tahu pos apa saja yang wajib ada dan berapa porsi wajarnya. Untuk resepsi Indonesia, tiga pos terbesar hampir selalu sama: venue plus catering, dekorasi plus dokumentasi, dan busana plus hiburan. Berikut rincian standar, cara membagi otomatis, dan contoh alokasinya.",
+    sections: [
+      {
+        heading: "Rincian biaya pernikahan yang wajib ada di template",
+        paragraphs: [
+          "Banyak template dari luar negeri melewatkan pos khas Indonesia seperti seserahan, amplop kondangan keluarga, dan biaya antar-jemput. Pastikan templatem mencakup semuanya sejak awal agar tidak ada kejutan di tengah jalan.",
+        ],
+        table: {
+          headers: ["Pos biaya", "Porsi wajar", "Catatan"],
+          rows: [
+            ["Venue + catering", "40–50%", "Paling besar, kunci pertama"],
+            ["Dekor + dokumentasi", "15–20%", "Foto jangan dikorbankan"],
+            ["Busana + MUA + hiburan", "10–15%", "Sesuaikan gaya acara"],
+            ["Seserahan + undangan + souvenir", "5–10%", "Skala mengikuti tamu"],
+            ["Dana cadangan", "10%", "Wajib ada"],
+          ],
+        },
+      },
+      {
+        heading: "Contoh alokasi template budget untuk 100–300 tamu",
+        paragraphs: [
+          "Angka di bawah memakai harga pasar kota besar 2026 sebagai acuan. Untuk kota yang lebih kecil, venue dan catering biasanya 20–30% lebih rendah.",
+        ],
+        bullets: [
+          "100 tamu intimate: Rp 60–100 juta, fokus ke venue nyaman dan catering berkualitas.",
+          "200 tamu standar: Rp 120–200 juta, pola paling umum di kota besar.",
+          "300 tamu besar: Rp 200–300 juta ke atas, siapkan koordinator tambahan.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Selalu kunci dana cadangan 10% dulu sebelum membagi ke pos lain — ini yang membedakan budget yang selamat dan yang jebol.",
+        },
+      },
+      {
+        heading: "Cara membuat budget terhitung otomatis",
+        paragraphs: [
+          "Budget manual gagal bukan karena angkanya salah, tetapi karena tidak diupdate. Pakai tracker yang menjumlahkan otomatis setiap ada DP dan pelunasan, sehingga sisa per pos selalu terlihat real-time tanpa dihitung manual.",
+        ],
+        ordered: [
+          "Masukkan total budget maksimal yang disepakati berdua.",
+          "Bagi ke pos memakai porsi tabel di atas sebagai titik awal.",
+          "Catat setiap DP lengkap dengan tanggal pelunasannya.",
+          "Cek sisa per pos tiap minggu sebelum menyetujui vendor baru.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Berapa budget minimal nikah di kota besar 2026?",
+        answer:
+          "Untuk 100 tamu intimate sekitar Rp 60–100 juta, untuk 200 tamu sekitar Rp 120–200 juta. Angka pastinya tergantung venue dan pilihan catering.",
+      },
+      {
+        question: "Pos apa yang paling sering bikin budget jebol?",
+        answer:
+          "Tambahan tamu di luar daftar, upgrade dekor mendadak, dan overtime vendor. Ketiganya bisa dicegah dengan dana cadangan 10% dan pencatatan disiplin.",
+      },
+      {
+        question: "Bagaimana cara membagi budget dengan pasangan?",
+        answer:
+          "Tentukan total maksimal dulu, kunci cadangan, baru bagi ke pos. Semua keputusan dicatat di satu tempat agar tidak ada versi angka yang berbeda.",
+      },
+    ],
+    relatedSlugs: ["budget-pernikahan-indonesia", "nikah-jakarta-budget-50-juta", "komunikasi-pasangan-soal-budget"],
+    keywords: ["template budget pernikahan", "rincian biaya nikah", "cara membuat budget wedding", "alokasi budget nikah"],
+    tags: ["budget", "template", "biaya"],
+    published: true,
+  },
+  {
+    slug: "kelola-daftar-tamu-undangan",
+    title: "Cara Mengelola Daftar Tamu Undangan: dari Excel ke Seating",
+    excerpt:
+      "Cara mengelola daftar tamu undangan tanpa berantakan: pola tabel Excel, memisahkan tamu akad dan resepsi, sampai menyusun seating plan.",
+    categoryId: "acara-tamu",
+    publishedAt: "2026-09-12",
+    updatedAt: "2026-09-12",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Daftar tamu undangan adalah data yang paling cepat berantakan: bertambah dari dua keluarga, berubah jumlahnya, lalu harus jadi seating plan dalam seminggu. Artikel ini memberi pola tabel yang rapi untuk memulai plus cara membawanya sampai ke hari H tanpa kehilangan satu nama pun.",
+    sections: [
+      {
+        heading: "Pola tabel daftar tamu yang anti berantakan",
+        paragraphs: [
+          "Satu baris satu kepala keluarga, bukan satu nama. Kolom kuncinya: nama, dari pihak mana, kategori (keluarga, teman, kolega), jumlah pax, akad atau resepsi atau keduanya, status RSVP, dan meja. Dengan struktur ini, total pax dan kebutuhan kursi bisa dihitung otomatis.",
+        ],
+        bullets: [
+          "Pisahkan tamu akad dan tamu resepsi sejak awal — jumlahnya beda jauh.",
+          "Catat pax, bukan undangan: satu undangan bisa berarti 2–4 orang.",
+          "Beri kode pihak (mempelai 1, mempelai 2, orang tua) untuk seating.",
+          "Satu penjaga data agar tidak ada dua versi daftar.",
+        ],
+      },
+      {
+        heading: "Dari daftar ke RSVP dan seating plan",
+        paragraphs: [
+          "Urutannya tidak boleh dibalik: daftar final dulu, baru kirim undangan; RSVP terkumpul, baru susun seating. Seating yang disusun sebelum RSVP hampir pasti dibongkar ulang.",
+        ],
+        ordered: [
+          "Kunci daftar tamu per pihak maksimal H-3 bulan.",
+          "Kirim undangan beserta link RSVP.",
+          "Tutup RSVP H-14 dan hitung pax final untuk catering.",
+          "Susun seating: keluarga inti depan, teman seangkatan se-meja.",
+          "Cetak denah meja dan briefing ke penerima tamu H-1.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Siapkan 5–10% kursi cadangan untuk tamu tak terduga — selalu ada yang datang tanpa RSVP.",
+        },
+      },
+      {
+        heading: "Kesalahan daftar tamu yang paling mahal",
+        paragraphs: [
+          "Menambah tamu tanpa menambah pax catering adalah kesalahan termahal — tamu kehabisan makanan di depan keluarga besar. Setiap penambahan nama harus langsung diikuti update pax ke vendor catering.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Berapa persen tamu undangan yang biasanya hadir?",
+        answer:
+          "Umumnya 70–85% untuk tamu lokal dan 40–60% untuk tamu luar kota. Pakai angka ini untuk estimasi awal, lalu kunci dengan RSVP.",
+      },
+      {
+        question: "Bagaimana membagi tamu akad dan resepsi?",
+        answer:
+          "Akad idealnya keluarga inti dan kerabat dekat (50–150 orang), resepsi mengikuti kapasitas venue. Tulis pembagiannya di undangan agar tamu tidak salah datang.",
+      },
+      {
+        question: "Kapan seating plan harus final?",
+        answer:
+          "Maksimal H-7 setelah RSVP ditutup, dengan denah yang sudah disetujui keluarga dan venue.",
+      },
+    ],
+    relatedSlugs: ["rsvp-seating-check-in-pernikahan", "rundown-resepsi-wedding-4-jam", "checklist-12-bulan-sebelum-nikah"],
+    keywords: ["daftar tamu undangan excel", "cara mengatur tamu pernikahan", "seating plan wedding", "kelola RSVP nikah"],
+    tags: ["tamu", "RSVP", "seating"],
+    published: true,
+  },
+  {
+    slug: "cara-buat-undangan-digital-gratis",
+    title: "Cara Buat Undangan Digital Gratis + Template Kata-Kata",
+    excerpt:
+      "Cara buat undangan digital gratis langkah demi langkah: isi yang wajib ada, template kata-kata akad dan resepsi, sampai cara sebar via WhatsApp.",
+    categoryId: "acara-tamu",
+    publishedAt: "2026-09-13",
+    updatedAt: "2026-09-13",
+    readingTime: "6 menit baca",
+    author: offStoriesAuthor,
+    intro:
+      "Cara buat undangan digital gratis kini semudah mengisi formulir: pilih template, isi nama dan jadwal, lalu sebar link-nya via WhatsApp. Tantangannya bukan teknis, melainkan kelengkapan isi dan etika penyebarannya — terutama untuk keluarga besar yang terbiasa undangan fisik. Panduan ini mencakup keduanya.",
+    sections: [
+      {
+        heading: "Isi undangan digital yang wajib ada",
+        paragraphs: [
+          "Undangan digital yang baik memuat semua yang ada di undangan cetak, plus hal yang hanya bisa dilakukan digital: peta, RSVP, dan amplop online.",
+        ],
+        bullets: [
+          "Nama kedua mempelai dan kedua orang tua masing-masing.",
+          "Hari, tanggal, jam, dan alamat lengkap akad serta resepsi.",
+          "Peta lokasi yang bisa dibuka langsung di HP.",
+          "Tombol RSVP dan amplop digital.",
+          "Galeri foto secukupnya — jangan sampai loading berat.",
+        ],
+      },
+      {
+        heading: "Template kata-kata undangan akad dan resepsi",
+        paragraphs: [
+          "Pakai bahasa yang hormat tetapi ringkas. Untuk akad, sebutkan explicitly bahwa tamu diundang ke prosesi sakral agar yang datang benar-benar yang diharapkan. Untuk resepsi, tekankan rasa terima kasih dan harapan kehadiran.",
+        ],
+        ordered: [
+          "Buka dengan salam sesuai keyakinan keluarga.",
+          "Tulis maksud dan nama lengkap kedua mempelai.",
+          "Cantumkan jadwal dan lokasi dengan format yang mudah dibaca.",
+          "Tutup dengan nama terang keluarga yang mengundang.",
+        ],
+        callout: {
+          title: "Tips penting",
+          body: "Buat dua versi link bila tamu akad dan resepsi berbeda — jangan biarkan 500 tamu resepsi datang ke akad keluarga.",
+        },
+      },
+      {
+        heading: "Cara sebar undangan digital via WhatsApp",
+        paragraphs: [
+          "Kirim personal, bukan broadcast buta. Sapa nama tamunya, kirim H-30, lalu follow-up H-7 beserta link RSVP. Untuk sesepuh dan keluarga yang dituakan, antar undangan fisik atau sampaikan langsung — ini soal adab, bukan teknologi.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Apakah undangan digital dianggap tidak sopan?",
+        answer:
+          "Tidak, selama bahasanya sopan dan lengkap. Untuk sesepuh, lengkapi dengan undangan fisik atau penyampaian langsung sebagai bentuk hormat.",
+      },
+      {
+        question: "Berapa biaya buat undangan digital?",
+        answer:
+          "Banyak template gratis yang sudah cukup. Biaya muncul jika memakai domain khusus atau desain custom — umumnya di bawah Rp 200 ribu.",
+      },
+      {
+        question: "Kapan waktu terbaik menyebar undangan digital?",
+        answer:
+          "H-30 untuk undangan utama dan H-7 untuk pengingat plus RSVP terakhir. Hindari menyebar dadakan karena tamu luar kota butuh persiapan.",
+      },
+    ],
+    relatedSlugs: ["rsvp-seating-check-in-pernikahan", "kelola-daftar-tamu-undangan", "rundown-resepsi-wedding-4-jam"],
+    keywords: ["undangan digital gratis", "cara buat undangan online", "template undangan nikah", "kata-kata undangan pernikahan"],
+    tags: ["undangan", "digital", "template"],
+    published: true,
+  },
 ];
 
 export const blogCategories: BlogCategory[] = [

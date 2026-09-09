@@ -125,6 +125,15 @@ export function SidebarDocuments({ className }: { className?: string }) {
   );
 }
 
+export function SidebarAdmin({ className }: { className?: string }) {
+  return (
+    <S className={className}>
+      {p("M12 3.2 L18.8 5.9 V11 C18.8 15.9 15.7 19.2 12 20.8 C8.3 19.2 5.2 15.9 5.2 11 V5.9 Z", 0)}
+      {p("M9.2 11.6 L11.3 13.7 L14.9 9.9", 1)}
+    </S>
+  );
+}
+
 export function SidebarSettings({ className }: { className?: string }) {
   return (
     <S className={className}>

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { CaretDown, List as ListIcon, SignOut, X, SidebarSimple } from "@phosphor-icons/react";
 import {
+  SidebarAdmin,
   SidebarBudget,
   SidebarCalendar,
   SidebarChecklist,
@@ -43,7 +44,12 @@ const weddingDayNavKeys = [
 ] as const;
 
 function useCurrentUser() {
-  const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(null);
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+    avatar?: string;
+    isAdmin: boolean;
+  } | null>(null);
   useEffect(() => {
     getSessionUser()
       .then((currentUser) => {
@@ -52,6 +58,7 @@ function useCurrentUser() {
             name: currentUser.displayName,
             email: currentUser.email,
             avatar: currentUser.avatarUrl ?? undefined,
+            isAdmin: currentUser.isAdmin ?? false,
           });
         }
       })
@@ -70,6 +77,7 @@ function NavList({
   collapsed?: boolean;
 }) {
   const { t } = useI18n();
+  const user = useCurrentUser();
   const weddingDayActive = weddingDayNavKeys.some(({ to }) => pathname.startsWith(to));
   const [weddingDayOpen, setWeddingDayOpen] = useState(weddingDayActive);
 
@@ -109,6 +117,29 @@ function NavList({
           </Link>
         );
       })}
+      {user?.isAdmin && (
+        <Link
+          key="/admin"
+          to="/admin"
+          preload="intent"
+          preloadDelay={0}
+          onClick={onNavigate}
+          className={itemClass(pathname.startsWith("/admin"))}
+          title={t("nav.admin")}
+          aria-label={t("nav.admin")}
+        >
+          <SidebarAdmin
+            className={
+              pathname.startsWith("/admin") ? "h-[18px] w-[18px] is-drawing" : "h-[18px] w-[18px]"
+            }
+          />
+          <span
+            className={`sidebar-nav-label min-w-0 flex-1 truncate ${collapsed ? "w-0 -translate-x-2 overflow-hidden opacity-0" : "w-auto opacity-100"}`}
+          >
+            {t("nav.admin")}
+          </span>
+        </Link>
+      )}
       {collapsed ? (
         <Link
           to="/timeline"

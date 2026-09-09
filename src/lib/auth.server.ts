@@ -12,7 +12,21 @@ export type AuthUser = {
   email: string;
   displayName: string;
   avatarUrl: string | null;
+  isAdmin: boolean;
 };
+
+async function getIsAdmin(userId: string): Promise<boolean> {
+  try {
+    const row = await getDatabase()
+      .prepare("SELECT is_admin FROM users WHERE id = ?")
+      .bind(userId)
+      .first<{ is_admin: number | null }>();
+    return (row?.is_admin ?? 0) === 1;
+  } catch {
+    // Column missing when migration 0004 hasn't applied yet — fail closed.
+    return false;
+  }
+}
 
 function randomId() {
   return crypto.randomUUID();
@@ -283,12 +297,19 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     email: session.email,
     displayName: session.display_name,
     avatarUrl: session.avatar_url,
+    isAdmin: await getIsAdmin(session.id),
   };
 }
 
 export async function requireCurrentUser() {
   const user = await getCurrentUser();
   if (!user) throw new Error("Unauthorized");
+  return user;
+}
+
+export async function requireAdmin() {
+  const user = await requireCurrentUser();
+  if (!user.isAdmin) throw new Error("Forbidden");
   return user;
 }
 
